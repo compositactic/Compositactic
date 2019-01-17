@@ -4,7 +4,7 @@
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <AssemblyName>CT</AssemblyName>
     <RootNamespace>CT</RootNamespace>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>CT.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 

@@ -3,3 +3,22 @@
 ################################################################################
 
 /CT/obj
+/CT/bin/Debug/netcoreapp2.1/CT.pdb
+/CT/bin/Debug/netcoreapp2.1/CT.dll
+/CT/bin/Debug/netcoreapp2.1/CT.deps.json
+/CT/bin/Debug/netcoreapp2.1
+/.vs/Compositactic/v15/Server/sqlite3
+/.vs/Compositactic/v15/.suo
+/.vs/Compositactic/v15
+/CT.Server.Console/obj
+/CT.Server.Console/netcoreapp2.1
+/CT.Server.Console/bin/Debug/netcoreapp2.1
+/CT.Test/obj
+/CT.Test/bin/Debug/netcoreapp2.1
+/CT.Test.Model/obj
+/CT.Test.Model/bin/Debug/netcoreapp2.1
+/CT.Server.Foo.Console/obj
+/CT.Server.Foo.Console/bin/Debug/netcoreapp2.1
+/CT.Test.Presentation/obj
+/CT.Test.Presentation/bin/Debug/netcoreapp2.1
+/CT.Test.Presentation.Services/obj

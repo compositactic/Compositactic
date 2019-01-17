@@ -21,8 +21,3 @@ namespace Server
         }
     }
 }
-
-
-
-//http://stackoverflow.com/questions/11403333/httplistener-with-https-support
-//http://stackoverflow.com/questions/499591/are-https-urls-encrypted
