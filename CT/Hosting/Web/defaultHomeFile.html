@@ -1,0 +1,402 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Compositactic - <!-- ct: context.CompositeRootConfiguration.CompositeRootType.Name --></title>
+    <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/event-source-polyfill/0.0.9/eventsource.min.js"></script>
+    <style>
+        .jumbotron {
+            padding-top: 100px;
+        }
+
+        .navbar {
+            padding-top: 5px;
+            padding-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="top" class="jumbotron">
+        <div class="container">
+            <h1><!-- ct: context.CompositeRootConfiguration.CompositeRootType.Name --> is online</h1>
+            <p>
+                Start testing <!-- ct: context.CompositeRootConfiguration.CompositeRootType.Name --> now with your browser's console
+            </p>
+            <p>
+                <a class="btn btn-primary btn-lg" href="#quickstart" role="button">Quick Start</a>
+                <a class="btn btn-primary btn-lg" href="#develop" role="button">Developing Compositactic Applications</a>
+                <a class="btn btn-primary btn-lg" href="#test" role="button">Testing Compositactic Applications</a>
+            </p>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row" id="row">
+            <div class="col-md-12">
+                <h2 id="quickstart">Quick Start - Log on to the <!-- ct: context.CompositeRootConfiguration.CompositeRootType.Name --></h2><a href="#top">(Top)</a>
+                <p>
+                    Open your browser's console window and enter the Command Request below.
+
+                    <code>execute(url)</code> is a JS function defined in this test page that gets the specified URL and prints the results to
+                    web browser console. The Compositactic <code>LogOn</code> Command obtains a Session Token used for subsequent commands.
+                </p>
+
+                <blockquote>Commands are case-insensitive</blockquote>
+
+                <pre>execute('<!-- ct: context.CompositeRootConfiguration.Endpoint -->LogOn?username=yourUserName&amp;password=yourPassword')</pre>
+                <p><code>LogOn</code> returns a response with a Session Token upon successful log on:</p>
+                <pre>
+{
+  "sessionToken": "yourSessionTokenHere",
+  "isAuthenticationSuccessful": true,
+  "errorMessage": "",
+  "userName": "yourUserName"
+}</pre>
+
+                <p>Incorrectly specified <code>LogOn</code> Commands, such as this example:</p>
+                <pre>execute('<!-- ct: context.CompositeRootConfiguration.Endpoint -->LogOn?username=yourUserName&amp;')</pre>
+
+                <p>...will return the following response:</p>
+                <pre>
+{
+  "success": false,
+  "errors": [
+    "MissingParameter: password"
+  ],
+  "returnValue": null,
+  "returnValueContentType": null,
+  "returnValueContentEncoding": null,
+  "id": 0
+}
+</pre>
+
+                <h2><!-- ct: context.CompositeRootConfiguration.CompositeRootType.Name --> Command Requests</h2>
+                <p>Use the Session Token returned from the LogOn command to form a Command Request for Commands and Properties on <!-- ct: context.CompositeRootConfiguration.CompositeRootType.Name --></p>
+                <p>This example gets the top-level CompositeRoot:</p>
+                <pre>execute('<!-- ct: context.CompositeRootConfiguration.Endpoint -->yourSessionTokenHere')</pre>
+
+                <p>
+                    Command Request responses return an array of response objects with the following format. Command Requests containing a single command,
+                    such as those specified in the URL/query-string, return a single response object with an <code>id</code> of 1. Command Requests
+                    containing multiple Commands have a unique user-assigned integer identifier for each Command:
+                </p>
+                <pre>
+[
+  {
+    "success": true,
+    "errors": null,
+    "returnValue": { ... },
+    "returnValueContentType": null,
+    "returnValueContentEncoding": null,
+    "id": 1
+  }
+]
+</pre>
+                <ul>
+                    <li><code>success</code> - <code>false</code> if an unhandled exception occured during Command Request execution, otherwise <code>true</code></li>
+                    <li><code>errors</code> - when an unhandled exception occurs, <code>errors</code> contains an array of error message strings, otherwise <code>null</code></li>
+                    <li><code>returnValue</code> - the value returned from the Command or Property referenced by the Command Request, or <code>null</code></li>
+                    <li><code>returnValueContentType</code> - for Commands returning a binary (byte[]) value, the MIME content type of the binary value</li>
+                    <li><code>returnValueContentEncoding</code> - the value of the HTTP Content-Encoding header for the <code>returnValue</code></li>
+                    <li><code>id</code> - the user-assigned integer unique identifier specifed to the Command, if multiple Commands are specified in the Command Request</li>
+                </ul>
+
+                <blockquote>
+                    Compositactic accepts Command Requests via HTTP GET or POST automatically,
+                    with precedence given to POST requests.
+                </blockquote>
+
+                <p>
+                    Compositactic also accepts Command Requests in <code>multipart/form-data</code> format. (multiple file uploads). These
+                    types of Command Requests are only supported with Command Requests containing a single Command.
+                </p>
+
+                <h3>Multiple Commands</h3>
+                <p>Compositactic may accept Command Requests containing multiple Commands. Specify multiple Commands using a request to the CompositeRoot:</p>
+
+                <pre><!-- ct: context.CompositeRootConfiguration.Endpoint -->yourSessionTokenHere</pre>
+
+                <p>
+                    with the body of the HTTP request in the following JSON format. Each CommandPath executes in the order specified (top to bottom)
+                </p>
+
+                <pre>
+POST <!-- ct: context.CompositeRootConfiguration.Endpoint -->yourSessionTokenHere HTTP/1.1
+[
+  { "CommandPath": "...", "Id": 1 },
+  { "CommandPath": "...", "Id": 2 },
+  { "CommandPath": "...", "Id": 3 }
+]
+</pre>
+                <ul>
+                    <li><code>CommandPath</code> - absolute path (from CompositeRoot) to the Command or Property</li>
+                    <li><code>Id</code> - a unique integer identifying the Command</li>
+                </ul>
+
+                <h3>Multiple Command Request Placeholders</h3>
+                <p>
+                    A CommandPath may contain a Placeholder which references the return value of a previously executed Command or Property in the Command Request.
+                    CommandPath Placeholders are enclosed in braces <code>{ ... }</code>. The braces contain the <code>Id</code> of a previously executed Command or Property,
+                    followed by a slash <code>/</code>, and a Command Path relative to the value returned from the Command specified by the <code>Id</code>
+                </p>
+
+                <pre>
+[
+  { "CommandPath": "MyComposite/SomeOtherComposite", "Id": 1 },
+  { "CommandPath": "AnotherProperty?{1/SomeOtherPropertyOnSomeOtherComposite}", "Id": 2 },
+  { "CommandPath": "DoSomething?someParameter={1/SomeOtherPropertyOnSomeOtherComposite}", "Id": 3 }
+]
+</pre>
+
+                <h3>Commands (Methods)</h3>
+                <p>Command Methods are executed by referencing the method name and specifying the parameters in the query string:</p>
+
+                <pre><!-- ct: context.CompositeRootConfiguration.Endpoint -->yourSessionTokenHere/YourMethod?param1=val1&amp;param2=val2</pre>
+
+                <h3>Commands (Properties)</h3>
+                <p>Properties values are retrieved by specifying a Command Path to the Property as follows:</p>
+
+                <pre><!-- ct: context.CompositeRootConfiguration.Endpoint -->yourSessionTokenHere/YourProperty</pre>
+
+                <p>Properties containing a setter can have their value set as follows:</p>
+
+                <p>Set the Property named <code>YourProperty</code> to the string "myvalue": </p>
+                <pre><!-- ct: context.CompositeRootConfiguration.Endpoint -->yourSessionTokenHere/YourProperty?myvalue</pre>
+
+                <p>Set the nullable Property named <code> YourProperty</code> to null: </p>
+                <pre><!-- ct: context.CompositeRootConfiguration.Endpoint -->yourSessionTokenHere/YourProperty?</pre>
+
+                <p>Set the <code>string</code> Property named <code>YourProperty</code> to an empty string: </p>
+                <pre><!-- ct: context.CompositeRootConfiguration.Endpoint -->yourSessionTokenHere/YourProperty?%00</pre>
+
+                <h3>Accessing Composite Dictionaries</h3>
+                <p>
+                    Composites may contain dictionaries containing other Composites. Composites contained in a Composite Dictionary can be
+                    accessed by the Composite's Key or its zero-based index.
+                </p>
+
+                <p>Get the Composite at index 3:</p>
+
+                <pre><!-- ct: context.CompositeRootConfiguration.Endpoint -->yourSessionTokenHere/YourContainer/YourDictionary/3</pre>
+
+                <p>Get the Composite with Key "Composite1":</p>
+
+                <pre><!-- ct: context.CompositeRootConfiguration.Endpoint -->yourSessionTokenHere/YourContainer/YourDictionary/[Composite1]</pre>
+
+                <h3>Help</h3>
+                <p><code>/?</code> appended to a Command Request returns information about the Properties and Commands available on the Composite referenced by the Command Path</p>
+                <pre>execute('<!-- ct: context.CompositeRootConfiguration.Endpoint -->yourSessionTokenHere/?')</pre>
+
+                <h2>Server-sent Events</h2>
+                <p>
+                    Compositactic servers can push data to web applications when Composites are added/removed from Composite Dictionaries,
+                    when Property values are changed, and when any other user-defined event occurs. Compositactic uses the <a target="_blank" href="https://www.w3.org/TR/eventsource/">W3C Server-sent events</a> standard
+                    as the protocol for sending events.
+                </p>
+
+                <p>
+                    <code>getEvents(url)</code> is a JS function defined in this test page that sets up an <code>EventSource</code> object that receives
+                    Composite Events.
+                </p>
+
+                <pre>
+function getEvents(eventUrl) {
+
+    var eventSource = new EventSource(eventUrl);
+    eventSource.onmessage = function (e) {
+        console.log('Event received: ' + e.data);
+    }
+
+    return true;
+}
+</pre>
+                <p><code>getEvents(url)</code> is invoked once on the Composite Root:</p>
+
+                <pre>getEvents('<!-- ct: context.CompositeRootConfiguration.Endpoint -->yourSessionTokenHere/event')</pre>
+
+                <p><code>getEvents(url)</code> echos the received event data contained in <code>e.data</code> to the web browser console:</p>
+
+                <pre>{"Path":"/Name","EventType":"Change","Data":"testvalue"}</pre>
+
+                <p><code>Path</code> - the Command Path relative to the Composite Root</p>
+
+                <p><code>Data</code> - the scalar value or JSON object associated with the event.</p>
+
+                <p><code>EventType</code> contains one of the following:</p>
+                <ul>
+                    <li><code>Listening</code> - Event stream has opened</li>
+                    <li><code>Add</code> - New Composite has been added to the Composite Dictionary referenced in <code>Path</code></li>
+                    <li><code>Remove</code> - Composite has been removed from the Composite Dictionary referenced in <code>Path</code></li>
+                    <li><code>Change</code> - Composite Property referenced by <code>Path</code> has changed to the value in <code>Data</code></li>
+                    <li><code>Rename</code> - Composite Key referenced by the Composite in <code>Path</code> has changed</li>
+                    <li><code>LogOff</code> - Session is expiring</li>
+                    <li><code>Custom</code> - User-defined event occured</li>
+                </ul>
+
+                <h2>Accessing <!-- ct: context.CompositeRootConfiguration.CompositeRootType.Name --> files</h2>
+                <p>
+                    Compositactic serves files from a <i>public</i> and a <i>private</i> directory. The public directory for <!-- ct: context.CompositeRootConfiguration.CompositeRootType.Name -->
+                    is accessible from:
+                </p>
+                <pre><!-- ct: context.CompositeRootConfiguration.Endpoint --><!-- ct: context.CompositeRootConfiguration.EndpointPublicDirectory ?? "<b>No EndpointPublicDirectory defined</b>" --></pre>
+
+                <p>The private directory requires a Session Token, and is accessable from:</p>
+                <pre><!-- ct: context.CompositeRootConfiguration.Endpoint -->yourSessionTokenHere/~/<!-- ct: context.CompositeRootConfiguration.EndpointPrivateDirectory ?? "<b>No EndpointPrivateDirectory defined</b>" --></pre>
+                <h2 id="develop">Developing Compositactic Applications</h2>
+                <a href="#top">(Top)</a>
+                <p>
+                    <i>Compositactic</i> (abbreviated "CT") is a .NET Core package for building view-independent applications/services using <a target="_blank" href="https://en.wikipedia.org/wiki/Composite_pattern">Composites</a>.
+                </p>
+                <h3>Overview</h3>
+                <p>
+                    The name "Compositactic" comes from two words - <i>Composite</i> and <i>Tactical</i>.
+                </p>
+
+                <p>
+                    CT consists of the .NET Core CT Package for creating applications based on <i>Composites</i>, and development <i>tactics</i> for creating optimally maintainable applications of any size.
+                </p>
+
+                <p>
+                    The philosophy of CT states that complex software systems are best understood and realized as a layered <i>part-whole hierarchy</i>.
+                    The "parts" of a CT solution correspond to user-identifiable items-of-interest within the solution design scope. Each of those "parts"
+                    relates to a containing (or parent) part, and this parent part manages the immedite child parts.
+                </p>
+
+                <blockquote>
+                    Example: A <b>customer order</b> contains many <b>line items</b>, along with an <b>invoice</b>.
+                </blockquote>
+
+                <p>
+                    The <b>bold</b> items identifies the aforementioned "parts"; items-of-interest that our CT solution wishes to create, track, and/or process.
+                    CT refers to these "parts" as <i>Composites</i>. The hierarchy of these Composites form a tree structure, with a special Composite
+                    at the root of the Composite tree, called the Composite Root. Users access the Composite tree starting from the Composite Root. Each Composite
+                    contains a reference to its parent Composite.
+                </p>
+
+                <p>
+                    The hierarchies can be of any depth and size. The developer/architect designing the CT solution chooses the scope of the hierarchy,
+                    which can represent entire applications or even whole business domains.
+                </p>
+
+                <p>
+                    Composites are represented by .NET classes.
+                </p>
+
+                <p>
+                    CT solutions typically contain four <i>layers</i> and each layer is confined to its own .NET class library assembly. CT layers are
+                    an implementation of the <a target="_blank" href="https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93presenter">Model-View-Presenter</a> pattern or
+                    as it is often referred to, the <a a target="_blank" href="https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93viewmodel">Model-View-ViewModel</a> pattern.
+                </p>
+
+                <ul>
+                    <li><i>Model</i> - a Composite hierarchy representing the data model of the CT solution</li>
+                    <li><i>Presentation</i> - a Composite hierarchy representing a decorator/facade of the Model layer for consumption by the View Layer, and interfaces for the Presentation Service layer</li>
+                    <li><i>Presentation Services - implementations of Presentation Layer interfaces which access data outside the CT solution (databases, etc)</i></li>
+                    <li><i>View</i> - the renderer/consumer of the Presentation Layer (sometimes the <a href="#">CT Server</a>)</li>
+                </ul>
+
+                <p>
+                    CT contains an example called "Shop" - a simplified implementation of each of the CT layers, contained in four class
+                    class library projects. The Shop example will be referenced in this documentation, and CT also uses the Shop example for
+                    its unit tests.
+                </p>
+
+                <h3>CT Solution - Project Layer Structure</h3>
+                <p>
+                    To help highlight the Composite hierarchical structure of the CT Solution, project code files are organized into nested
+                    folders that mirror the Composite's actual parent-child relationships. Model, Presentation, and Presentation Services projects should
+                    use this same project folder structure.
+                </p>
+
+                <blockquote>
+                    The Shop example implements a retail outlet. In our simplified data model, a <b>Shop</b> consists of <b>Products</b>
+                    for sale, several <b>Register</b> terminals, and <b>Cashiers</b>. A <b>Register</b> can record a <b>Sale</b> during
+                    a designated <b>Period</b>. The <b>Sale</b> contains <b>LineItem</b>(s).
+                </blockquote>
+
+                <p>The Shop Model layer establishes this project folder structure, following the data model described above:</p>
+                <pre>
+<b>Shops/</b>                              <i>folder</i>
+|__ <b>Cashiers/</b>                       <i>folder</i>
+|   |__ <b>PersonnelInfos/</b>             <i>folder</i>
+|       |__ PersonnelInfo.cs        <i>Composite Model class</i>  
+|   |__ Cashier.cs                  <i>Composite Model class</i>  
+|   |__ Authority.cs                <i>Supporting file for Cashiers</i>
+|__ <b>Products/</b>                       <i>folder</i>
+|   |__ Product.cs                  <i>Composite Model class</i>
+|   |__ ProductUnit.cs              <i>Supporting file for Products</i>
+|__ <b>Registers/</b>                      <i>folder</i>
+|   |__ <b>Periods/</b>                    <i>folder</i>    
+|       |__ <b>Sales/</b>                  <i>folder</i>
+|           |__ <b>LineItems/</b>          <i>folder</i>
+|               |__ LineItem.cs     <i>Composite Model class</i>
+|           |__ Sale.cs             <i>Composite Model class</i>
+|       |__ Period.cs               <i>Composite Model class</i>        
+|   |__ Register.cs                 <i>Composite Model class</i>
+|__ Shop.cs                         <i>Composite Model class</i>
+</pre>
+
+
+                <h3>Model</h3>
+                <p>
+                    The CT Model layer contains the classes of the part-whole hierarchy of the CT solution. The CT Model layer is the <i>data model</i>
+                    of the CT solution. The classes represent the lowest-layer state of the "parts" in the CT solution. CT Model layer classes follow these design criteria:
+                </p>
+
+                <ul>
+                    <li><b>Persistence support</b> - at a minimum, all model layer classes should support round-trip serialization/deserialization for objects requiring loading/saving</li>
+                    <li><b>Limited data validation</b> - include any data validation or data constraints that can be performed exclusively within the model layer</li>
+                    <li><b>CT Attribute usage</b> - include CT Attributes that define the parent-child composite relationships and composite key Properties </li>
+                </ul>
+
+
+                <!--
+
+        input type="text" data-bind="{{Path}}/SerialNumber setAttribute(value, 'value'); style)" value="{{Path.SerialNumber}}"
+                    onblur="setValue('{{Path}}/SerialNumber', 'value')"
+
+        <input type="text"
+                data-bind="AllRegisters/Registers/[123]/SerialNumber value; style"
+                onblur="setValue('AllRegisters/Registers/[123]/SerialNumber','value')" />
+    -->
+                <h2 id="test">Testing Compositactic Applications</h2>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        function execute(url) {
+
+            var settings = {
+                "async": true,
+                "crossDomain": true,
+                "url": url,
+                "method": "GET",
+                "headers": { "Cache-Control": "no-cache" }
+            };
+
+            $.ajax(settings).done(function (response) {
+                console.log(response);
+            });
+
+            return true;
+        }
+
+        function getEvents(eventUrl) {
+
+            var eventSource = new EventSource(eventUrl);
+            eventSource.onmessage = function (e) {
+                console.log('Event received: ' + e.data);
+            }
+
+            return true;
+        }
+
+    </script>
+</body>
+</html>
+
+
