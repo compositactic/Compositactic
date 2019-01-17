@@ -1,0 +1,17 @@
+{
+  "ServerBackgroundTaskInterval": "00:00:15",
+  "ServerTypeName": "CT.Test.Presentation.Shops.ShopServer, CT.Test.Presentation",
+  "JsonSettings": { "Formatting": "Indented" },
+  "rootConfigurations": {
+
+    "951B4997-EE16-47FE-8E79-F26C698FB889": {
+      "CompositeRootTypeName": "CT.Test.Presentation.Shops.ShopCompositeRoot, CT.Test.Presentation",
+      "CompositeRootAuthenticatorTypeName": "CT.Hosting.AnonymousCompositeRootAuthenticator, CT",
+      "SessionExpiration": "00:20:10",
+      "Mode": "MultipleHost",
+      "Endpoint": "http://localhost:8001/ShopServer/",
+      "EndpointPublicDirectory": "ShopServerPublic",
+      "EndpointPrivateDirectory": "ShopServerPrivate"
+    }
+  }
+}
