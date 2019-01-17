@@ -15,7 +15,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CT", "CT\CT.csproj", "{ABAD
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CT.Server.Console", "CT.Server.Console\CT.Server.Console.csproj", "{74195424-0EC0-4AF5-8986-F2DE14195686}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CT.Server.Foo.Console", "CT.Server.Foo.Console\CT.Server.Foo.Console.csproj", "{288D0A8F-6912-4113-935A-47E62A8D350F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CT.Server.Foo.Console", "CT.Server.Foo.Console\CT.Server.Foo.Console.csproj", "{288D0A8F-6912-4113-935A-47E62A8D350F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{97870A6E-8515-4A90-977A-8A3EE541FB3A}"
+	ProjectSection(SolutionItems) = preProject
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

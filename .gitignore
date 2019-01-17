@@ -22,3 +22,5 @@
 /CT.Test.Presentation/obj
 /CT.Test.Presentation/bin/Debug/netcoreapp2.1
 /CT.Test.Presentation.Services/obj
+/CT/CT.csproj.user
+/CT/bin/Release/netcoreapp2.1

@@ -6,6 +6,11 @@
     <RootNamespace>CT</RootNamespace>
     <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>CT.snk</AssemblyOriginatorKeyFile>
+    <PackageProjectUrl>https://github.com/compositactic/Compositactic</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/compositactic/Compositactic/blob/master/LICENSE</PackageLicenseUrl>
+    <Copyright>Copyright (c) 2019 Matt J. Crouch - Made in the USA - Indianapolis, IN</Copyright>
+    <Description>Compositactic</Description>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
   <ItemGroup>
