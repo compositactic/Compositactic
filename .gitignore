@@ -25,3 +25,5 @@
 /CT/CT.csproj.user
 /CT/bin/Release/netcoreapp2.1
 /.vs/config
+/CT.Data.MicrosoftSqlServer/bin/Debug/netcoreapp2.1
+/CT.Data.MicrosoftSqlServer/obj
