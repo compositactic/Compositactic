@@ -17,6 +17,7 @@
 
 using System;
 using System.Runtime.Serialization;
+using System.Text.RegularExpressions;
 
 namespace CT
 {
@@ -27,7 +28,12 @@ namespace CT
         internal CompositePropertyInfo(string propertyName, Type propertyType, bool isReadOnly, string helpText)
         {
             PropertyName = propertyName;
-            PropertyType = propertyType.FullName;
+
+            Match m;
+            if ((m = Regex.Match(propertyType.FullName, @"CT.ReadOnlyCompositeDictionary[^[]*\[\[(?'key_type'[^,]+).+?(?=\])],\[(?'value_type'[^,]+)")).Success)
+                PropertyType = $"CT.ReadOnlyCompositeDictionary<{m.Groups["key_type"].Value}, {m.Groups["value_type"].Value}>";
+            else
+                PropertyType = propertyType.FullName;
 
             PropertyEnumValues = propertyType.GetTypeEnumValues();
 

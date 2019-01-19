@@ -45,7 +45,7 @@
 
                 <blockquote>Commands are case-insensitive</blockquote>
 
-                <pre>execute('<!-- ct: context.CompositeRootConfiguration.Endpoint -->LogOn?username=yourUserName&amp;password=yourPassword')</pre>
+                <pre>execute('<!-- ct: context.CompositeRootConfiguration.Endpoint -->LogOn?username=<b>yourUserName</b>&amp;password=<b>yourPassword</b>')</pre>
                 <p><code>LogOn</code> returns a response with a Session Token upon successful log on:</p>
                 <pre>
 {
@@ -56,26 +56,28 @@
 }</pre>
 
                 <p>Incorrectly specified <code>LogOn</code> Commands, such as this example:</p>
-                <pre>execute('<!-- ct: context.CompositeRootConfiguration.Endpoint -->LogOn?username=yourUserName&amp;')</pre>
+                <pre>execute('<!-- ct: context.CompositeRootConfiguration.Endpoint -->LogOn<span style="color:red">?username=yourUserName&amp;</span>')</pre>
 
                 <p>...will return the following response:</p>
-                <pre>
+                <pre><span style="color: red">
 {
-  "success": false,
-  "errors": [
+    "success": false,
+    "errors": [
     "MissingParameter: password"
-  ],
-  "returnValue": null,
-  "returnValueContentType": null,
-  "returnValueContentEncoding": null,
-  "id": 0
+    ],
+    "returnValue": null,
+    "returnValueContentType": null,
+    "returnValueContentEncoding": null,
+    "id": 0
 }
+</span>
 </pre>
+                
 
                 <h2><!-- ct: context.CompositeRootConfiguration.CompositeRootType.Name --> Command Requests</h2>
                 <p>Use the Session Token returned from the LogOn command to form a Command Request for Commands and Properties on <!-- ct: context.CompositeRootConfiguration.CompositeRootType.Name --></p>
                 <p>This example gets the top-level CompositeRoot:</p>
-                <pre>execute('<!-- ct: context.CompositeRootConfiguration.Endpoint -->yourSessionTokenHere')</pre>
+                <pre>execute('<!-- ct: context.CompositeRootConfiguration.Endpoint --><b>yourSessionTokenHere</b>')</pre>
 
                 <p>
                     Command Request responses return an array of response objects with the following format. Command Requests containing a single command,
@@ -116,18 +118,17 @@
                 <h3>Multiple Commands</h3>
                 <p>Compositactic may accept Command Requests containing multiple Commands. Specify multiple Commands using a request to the CompositeRoot:</p>
 
-                <pre><!-- ct: context.CompositeRootConfiguration.Endpoint -->yourSessionTokenHere</pre>
+                <pre><!-- ct: context.CompositeRootConfiguration.Endpoint --><b>yourSessionTokenHere</b></pre>
 
                 <p>
-                    with the body of the HTTP request in the following JSON format. Each CommandPath executes in the order specified (top to bottom)
+                    ...using a HTTP POST request with the body in the following JSON format. Each CommandPath executes in the order specified:
                 </p>
 
                 <pre>
-POST <!-- ct: context.CompositeRootConfiguration.Endpoint -->yourSessionTokenHere HTTP/1.1
 [
-  { "CommandPath": "...", "Id": 1 },
-  { "CommandPath": "...", "Id": 2 },
-  { "CommandPath": "...", "Id": 3 }
+  { "CommandPath": "<b>...</b>", "Id": 1 },
+  { "CommandPath": "<b>...</b>", "Id": 2 },
+  { "CommandPath": "<b>...</b>", "Id": 3 }
 ]
 </pre>
                 <ul>
@@ -153,23 +154,23 @@ POST <!-- ct: context.CompositeRootConfiguration.Endpoint -->yourSessionTokenHer
                 <h3>Commands (Methods)</h3>
                 <p>Command Methods are executed by referencing the method name and specifying the parameters in the query string:</p>
 
-                <pre><!-- ct: context.CompositeRootConfiguration.Endpoint -->yourSessionTokenHere/YourMethod?param1=val1&amp;param2=val2</pre>
+                <pre><!-- ct: context.CompositeRootConfiguration.Endpoint --><b>yourSessionTokenHere</b>/<b>YourMethod</b>?<i>param1=val1&amp;param2=val2</i></pre>
 
                 <h3>Commands (Properties)</h3>
                 <p>Properties values are retrieved by specifying a Command Path to the Property as follows:</p>
 
-                <pre><!-- ct: context.CompositeRootConfiguration.Endpoint -->yourSessionTokenHere/YourProperty</pre>
+                <pre><!-- ct: context.CompositeRootConfiguration.Endpoint --><b>yourSessionTokenHere</b>/<b>YourProperty</b></pre>
 
                 <p>Properties containing a setter can have their value set as follows:</p>
 
                 <p>Set the Property named <code>YourProperty</code> to the string "myvalue": </p>
-                <pre><!-- ct: context.CompositeRootConfiguration.Endpoint -->yourSessionTokenHere/YourProperty?myvalue</pre>
+                <pre><!-- ct: context.CompositeRootConfiguration.Endpoint --><b>yourSessionTokenHere</b>/<b>YourProperty</b>?<i>myvalue</i></pre>
 
                 <p>Set the nullable Property named <code> YourProperty</code> to null: </p>
-                <pre><!-- ct: context.CompositeRootConfiguration.Endpoint -->yourSessionTokenHere/YourProperty?</pre>
+                <pre><!-- ct: context.CompositeRootConfiguration.Endpoint --><b>yourSessionTokenHere</b>/<b>YourProperty</b>?</pre>
 
                 <p>Set the <code>string</code> Property named <code>YourProperty</code> to an empty string: </p>
-                <pre><!-- ct: context.CompositeRootConfiguration.Endpoint -->yourSessionTokenHere/YourProperty?%00</pre>
+                <pre><!-- ct: context.CompositeRootConfiguration.Endpoint --><b>yourSessionTokenHere</b>/<b>YourProperty</b>?<i>%00</i></pre>
 
                 <h3>Accessing Composite Dictionaries</h3>
                 <p>
@@ -179,15 +180,94 @@ POST <!-- ct: context.CompositeRootConfiguration.Endpoint -->yourSessionTokenHer
 
                 <p>Get the Composite at index 3:</p>
 
-                <pre><!-- ct: context.CompositeRootConfiguration.Endpoint -->yourSessionTokenHere/YourContainer/YourDictionary/3</pre>
+                <pre><!-- ct: context.CompositeRootConfiguration.Endpoint --><b>yourSessionTokenHere</b>/<b>YourContainer</b>/<b>YourDictionary</b>/<i>3</i></pre>
 
                 <p>Get the Composite with Key "Composite1":</p>
 
-                <pre><!-- ct: context.CompositeRootConfiguration.Endpoint -->yourSessionTokenHere/YourContainer/YourDictionary/[Composite1]</pre>
+                <pre><!-- ct: context.CompositeRootConfiguration.Endpoint --><b>yourSessionTokenHere</b>/<b>YourContainer</b>/<b>YourDictionary</b>/[<i>Composite1</i>]</pre>
 
                 <h3>Help</h3>
                 <p><code>/?</code> appended to a Command Request returns information about the Properties and Commands available on the Composite referenced by the Command Path</p>
-                <pre>execute('<!-- ct: context.CompositeRootConfiguration.Endpoint -->yourSessionTokenHere/?')</pre>
+                <pre>execute('<!-- ct: context.CompositeRootConfiguration.Endpoint --><b>yourSessionTokenHere</b>/?')</pre>
+
+                <p>Help returns information about the available Properties and Commands on the specified Composite. In the Shop example, the Command Request:</p>
+
+                <pre><!-- ct: context.CompositeRootConfiguration.Endpoint --><b>yourSessionTokenHere</b>/AllCashiers/?</pre>
+
+                <p>...returns the available Properties and Commands on the Shop Composite's AllRegisters Property:</p>
+                <pre>
+[
+  {
+    "success": true,
+    "errors": null,
+    "returnValue": {
+      "properties": [
+        {
+          "helpText": null,
+          "propertyEnumValues": null,
+          "propertyName": "Registers",
+          "propertyType": "CT.ReadOnlyCompositeDictionary&lt;System.Int64, CT.Test.Presentation.Shops.Registers.RegisterComposite&gt;",
+          "isReadOnly": true
+        },
+        {
+          "helpText": "The path to the Composite relative to the CompositeRoot",
+          "propertyEnumValues": null,
+          "propertyName": "Path",
+          "propertyType": "System.String",
+          "isReadOnly": true
+        }
+      ],
+      "commands": [
+        {
+          "helpText": "Loads Cashier, Register, and Product data for the Shop",
+          "commandName": "CreateNewRegister",
+          "parameters": [],
+          "returnType": "CT.Test.Presentation.Shops.Registers.RegisterComposite",
+          "returnTypeHelp": "Returns 1 on success"
+        },
+        {
+          "helpText": null,
+          "commandName": "ReloadRegisters",
+          "parameters": [],
+          "returnType": "System.Void",
+          "returnTypeHelp": null
+        }
+      ]
+    },
+    "returnValueContentType": null,
+    "returnValueContentEncoding": null,
+    "id": 1
+  }
+]
+</pre>
+                <ul>
+                    <li><code>properties</code> - array of available Composite Properties</li>
+                    <li style="list-style:none">
+                        <ul>
+                            <li><code>helpText</code> - description of the Property</li>
+                            <li><code>propertyEnumValues</code> - if Property is a <code>enum</code>, array of valid values</li>
+                            <li><code>propertyName</code> - name of the Property</li>
+                            <li><code>propertyType</code> - data type of the Property</li>
+                            <li><code>isReadOnly</code> - <code>true</code> if Property is read-only</li>
+                        </ul>
+                    </li>
+                    <li><code>commands</code> - array of available Composite Commands</li>
+                    <li style="list-style:none">
+                        <ul>
+                            <li><code>helpText</code> - description of the Property</li>
+                            <li><code>commandName</code> - name of the Command</li>
+                            <li><code>parameters</code> - array of required Command parameters</li>
+                            <li style="list-style:none">
+                                <ul>
+                                    <li><code>parameterName</code> - </li>
+                                    <li><code>helpText</code> - </li>
+                                    <li><code>parameterType</code> - </li>
+                                    <li><code>parameterEnumValues</code> - </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
 
                 <h2>Server-sent Events</h2>
                 <p>
@@ -214,7 +294,7 @@ function getEvents(eventUrl) {
 </pre>
                 <p><code>getEvents(url)</code> is invoked once on the Composite Root:</p>
 
-                <pre>getEvents('<!-- ct: context.CompositeRootConfiguration.Endpoint -->yourSessionTokenHere/event')</pre>
+                <pre>getEvents('<!-- ct: context.CompositeRootConfiguration.Endpoint --><b>yourSessionTokenHere</b>/event')</pre>
 
                 <p><code>getEvents(url)</code> echos the received event data contained in <code>e.data</code> to the web browser console:</p>
 
@@ -306,7 +386,7 @@ function getEvents(eventUrl) {
                 <h3>CT Solution - Project Layer Structure</h3>
                 <p>
                     To help highlight the Composite hierarchical structure of the CT Solution, project code files are organized into nested
-                    folders that mirror the Composite's actual parent-child relationships. Model, Presentation, and Presentation Services projects should
+                    folders that mirror the Composite's actual parent-child relationships. The Model, Presentation, and Presentation Services layers' projects should
                     use this same project folder structure.
                 </p>
 
@@ -339,19 +419,21 @@ function getEvents(eventUrl) {
 </pre>
 
 
-                <h3>Model</h3>
+                <h3>Model Layer</h3>
                 <p>
-                    The CT Model layer contains the classes of the part-whole hierarchy of the CT solution. The CT Model layer is the <i>data model</i>
-                    of the CT solution. The classes represent the lowest-layer state of the "parts" in the CT solution. CT Model layer classes follow these design criteria:
+                    The CT Model layer is the <i>data model</i> of the CT solution. The classes represent the lowest-level state of the "parts" in the CT solution.
+                    CT Model layer classes follow these design criteria:
                 </p>
 
                 <ul>
                     <li><b>Persistence support</b> - at a minimum, all model layer classes should support round-trip serialization/deserialization for objects requiring loading/saving</li>
-                    <li><b>Limited data validation</b> - include any data validation or data constraints that can be performed exclusively within the model layer</li>
-                    <li><b>CT Attribute usage</b> - include CT Attributes that define the parent-child composite relationships and composite key Properties </li>
+                    <li><b>Limited data validation</b> - should include any data validation logic or data constraints that can be performed exclusively within the model layer</li>
+                    <li><b>CT Attribute usage</b> - must include CT Attributes that define the parent-child composite relationships and composite key Properties </li>
                 </ul>
 
+                <h3>Presentation Layer</h3>
 
+                <h3>Presentation Services Layer</h3>
                 <!--
 
         input type="text" data-bind="{{Path}}/SerialNumber setAttribute(value, 'value'); style)" value="{{Path.SerialNumber}}"
