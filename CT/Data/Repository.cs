@@ -62,7 +62,7 @@ namespace CT.Data
                 switch (composite.State)
                 {
                     case CompositeState.Modified:
-                        OnSave(newConnection, newTransaction, composite);
+                        OnSaveUpdate(newConnection, newTransaction, composite);
                         break;
                     case CompositeState.New:
                         newComposites.Add(c);
@@ -86,7 +86,7 @@ namespace CT.Data
         protected abstract DbTransaction OnNewTransaction(DbConnection connection);
         protected abstract void OnDelete(DbConnection connection, DbTransaction transaction, string tableName, IEnumerable<object> idValues);
         protected abstract void OnSaveNew(DbConnection connection, DbTransaction transaction, IEnumerable<Composite> newComposites);
-        protected abstract void OnSave(DbConnection connection, DbTransaction transaction, Composite composite);
+        protected abstract void OnSaveUpdate(DbConnection connection, DbTransaction transaction, Composite composite);
         protected abstract void OnCommit(DbConnection connection, DbTransaction transaction);
         protected abstract IEnumerable<Composite> OnLoad(string query);
         protected abstract T OnExecute<T>(string statement);

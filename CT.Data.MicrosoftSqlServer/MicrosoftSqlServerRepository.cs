@@ -65,7 +65,7 @@ namespace CT.Data.MicrosoftSqlServer
             throw new NotImplementedException();
         }
 
-        protected override void OnSave(DbConnection connection, DbTransaction transaction, Composite composite)
+        protected override void OnSaveUpdate(DbConnection connection, DbTransaction transaction, Composite composite)
         {
             throw new NotImplementedException();
         }
