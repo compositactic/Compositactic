@@ -21,7 +21,7 @@ using System.Data.Common;
 
 namespace CT.Data.MicrosoftSqlServer
 {
-    public class MicrosoftSqlServerRepository : Repository
+    public class MicrosoftSqlServerRepository : Repository, IMicrosoftSqlServerRepository
     {
         protected MicrosoftSqlServerRepository() {  }
 
