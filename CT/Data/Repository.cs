@@ -77,11 +77,6 @@ namespace CT.Data
             OnCommit(newConnection, newTransaction);
         }
 
-        public void UpdateSchema<T>() where T : Composite
-        {
-            throw new NotImplementedException();
-        }
-
         protected abstract DbConnection OnNewConnection();
         protected abstract DbTransaction OnNewTransaction(DbConnection connection);
         protected abstract void OnDelete(DbConnection connection, DbTransaction transaction, string tableName, IEnumerable<object> idValues);
@@ -90,7 +85,5 @@ namespace CT.Data
         protected abstract void OnCommit(DbConnection connection, DbTransaction transaction);
         protected abstract IEnumerable<Composite> OnLoad(string query);
         protected abstract T OnExecute<T>(string statement);
-        protected abstract void OnAddTable(string tableName);
-        protected abstract void OnAddColumn(string tableName, string columnName);
     }
 }

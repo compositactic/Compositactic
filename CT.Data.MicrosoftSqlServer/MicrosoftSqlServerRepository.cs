@@ -25,16 +25,6 @@ namespace CT.Data.MicrosoftSqlServer
     {
         protected MicrosoftSqlServerRepository() {  }
 
-        protected override void OnAddColumn(string tableName, string columnName)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override void OnAddTable(string tableName)
-        {
-            throw new NotImplementedException();
-        }
-
         protected override void OnCommit(DbConnection connection, DbTransaction transaction)
         {
             throw new NotImplementedException();

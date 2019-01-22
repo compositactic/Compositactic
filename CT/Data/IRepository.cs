@@ -25,6 +25,5 @@ namespace CT.Data
         IEnumerable<Composite> Load(string query);
         void Save(Composite composite);
         T Execute<T>(string statement);
-        void UpdateSchema<T>() where T : Composite;
     }
 }
