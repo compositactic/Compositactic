@@ -22,6 +22,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -532,6 +533,18 @@ namespace CT
         {
             // TODO
             action(composite);
+        }
+
+        public static DataTable ToDataTable(this IEnumerable<Composite> composites)
+        {
+            // TODO
+            return new DataTable();
+        }
+
+        public static T ToModel<T>(this IDataRecord record)
+        {
+            // TODO
+            return default(T);
         }
     }
 }

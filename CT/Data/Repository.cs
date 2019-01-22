@@ -15,7 +15,6 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
 using System.Collections.Generic;
 using System.Data.Common;
 
@@ -32,9 +31,9 @@ namespace CT.Data
             return OnExecute<T>(statement);
         }
 
-        public IEnumerable<Composite> Load(string query)
+        public IEnumerable<T> Load<T>(string query)
         {
-            return OnLoad(query);
+            return OnLoad<T>(query);
         }
 
         public void Save(Composite composite)
@@ -83,7 +82,7 @@ namespace CT.Data
         protected abstract void OnSaveNew(DbConnection connection, DbTransaction transaction, IEnumerable<Composite> newComposites);
         protected abstract void OnSaveUpdate(DbConnection connection, DbTransaction transaction, Composite composite);
         protected abstract void OnCommit(DbConnection connection, DbTransaction transaction);
-        protected abstract IEnumerable<Composite> OnLoad(string query);
+        protected abstract IEnumerable<T> OnLoad<T>(string query);
         protected abstract T OnExecute<T>(string statement);
     }
 }

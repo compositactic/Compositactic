@@ -17,7 +17,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
+using System.Data.SqlClient;
 
 namespace CT.Data.MicrosoftSqlServer
 {
@@ -27,32 +29,68 @@ namespace CT.Data.MicrosoftSqlServer
 
         protected override void OnCommit(DbConnection connection, DbTransaction transaction)
         {
-            throw new NotImplementedException();
+            transaction.Commit();
+            connection.Close();
         }
 
         protected override void OnDelete(DbConnection connection, DbTransaction transaction, string tableName, IEnumerable<object> idValues)
         {
-            throw new NotImplementedException();
+            using (var newConnection = OnNewConnection())
+            {
+                newConnection.Open();
+                var newTransaction = OnNewTransaction(newConnection);
+
+                foreach (var id in idValues)
+                {
+                    // todo
+                }
+
+                OnCommit(newConnection, newTransaction);
+            }
+
         }
 
         protected override T OnExecute<T>(string statement)
         {
-            throw new NotImplementedException();
+            using (var newConnection = OnNewConnection())
+            {
+                newConnection.Open();
+                var newTransaction = OnNewTransaction(newConnection);
+                var command = new SqlCommand(statement, (SqlConnection)newConnection)
+                {
+                    Transaction = (SqlTransaction)newTransaction
+                };
+                var returnValue = (T)command.ExecuteScalar();
+                OnCommit(newConnection, newTransaction);
+                return returnValue;
+            }
         }
 
-        protected override IEnumerable<Composite> OnLoad(string query)
+        protected override IEnumerable<T> OnLoad<T>(string query)
         {
-            throw new NotImplementedException();
+            using (var newConnection = OnNewConnection())
+            {
+                var cmd = new SqlCommand(query, (SqlConnection)newConnection);
+                newConnection.Open();
+
+                IDataReader dataReader = cmd.ExecuteReader();
+                while (dataReader.Read())
+                {
+                    yield return dataReader.ToModel<T>();
+                }
+
+                dataReader.Close();
+            }
         }
 
         protected override DbConnection OnNewConnection()
         {
-            throw new NotImplementedException();
+            return new SqlConnection(ConnectionString);
         }
 
         protected override DbTransaction OnNewTransaction(DbConnection connection)
         {
-            throw new NotImplementedException();
+            return connection.BeginTransaction();
         }
 
         protected override void OnSaveUpdate(DbConnection connection, DbTransaction transaction, Composite composite)
@@ -64,5 +102,7 @@ namespace CT.Data.MicrosoftSqlServer
         {
             throw new NotImplementedException();
         }
+
+
     }
 }
