@@ -57,7 +57,7 @@ namespace CT.Test.Presentation.Shops.Cashiers
             };
 
             newCashier.PersonnelInfo.Name = name;
-
+            cashiers.Add(newCashier.Id, newCashier);
             return newCashier;
         }
     }
