@@ -527,5 +527,11 @@ namespace CT
 
             return delegates;
         }
+
+        public static void TraverseBreadthFirst(this Composite composite, Action<Composite> action)
+        {
+            // TODO
+            action(composite);
+        }
     }
 }

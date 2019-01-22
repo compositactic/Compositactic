@@ -25,6 +25,7 @@ namespace CT.Test.Presentation.Shops.Registers.Periods.Sales
     [KeyProperty(nameof(SaleComposite.Id))]
     [IdProperty(nameof(SaleComposite.Id))]
     [ParentProperty(nameof(SaleComposite.AllSales))]
+    [CompositeModel(nameof(SaleModel))]
     public class SaleComposite : Composite
     {
         internal Sale SaleModel;

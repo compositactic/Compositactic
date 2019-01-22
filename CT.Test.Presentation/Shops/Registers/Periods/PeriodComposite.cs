@@ -25,6 +25,7 @@ namespace CT.Test.Presentation.Shops.Registers.Periods
     [KeyProperty(nameof(PeriodComposite.Id))]
     [IdProperty(nameof(PeriodComposite.Id))]
     [ParentProperty(nameof(PeriodComposite.AllPeriods))]
+    [CompositeModel(nameof(PeriodModel))]
     public class PeriodComposite : Composite
     {
         internal Period PeriodModel;

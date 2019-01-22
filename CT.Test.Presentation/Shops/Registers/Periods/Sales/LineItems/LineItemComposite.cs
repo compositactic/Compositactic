@@ -24,6 +24,7 @@ namespace CT.Test.Presentation.Shops.Registers.Periods.Sales.LineItems
     [KeyProperty(nameof(LineItemComposite.Id))]
     [IdProperty(nameof(LineItemComposite.Id))]
     [ParentProperty(nameof(LineItemComposite.AllLineItems))]
+    [CompositeModel(nameof(LineItemModel))]
     public class LineItemComposite : Composite
     {
         internal LineItem LineItemModel;

@@ -29,6 +29,7 @@ using System.Runtime.Serialization;
 namespace CT.Test.Presentation.Shops
 {
     [DataContract]
+    [CompositeModel(nameof(ShopModel))]
     public class ShopCompositeRoot : CompositeRoot
     {
         internal Shop ShopModel { get; private set; }

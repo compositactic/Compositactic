@@ -25,6 +25,7 @@ namespace CT.Test.Presentation.Shops.Registers
     [KeyProperty(nameof(RegisterComposite.Id))]
     [IdProperty(nameof(RegisterComposite.Id))]
     [ParentProperty(nameof(RegisterComposite.AllRegisters))]
+    [CompositeModel(nameof(RegisterModel))]
     public class RegisterComposite : Composite
     {
         internal Register RegisterModel;

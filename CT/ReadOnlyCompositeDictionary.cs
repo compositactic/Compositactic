@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -31,6 +32,11 @@ namespace CT
             _dictionary = compositeDictionary ?? throw new ArgumentNullException(nameof(compositeDictionary));
             _dictionary.CollectionChanged += (sender, e) => { CollectionChanged?.Invoke(this, e);  };
             _dictionary.PropertyChanged += (sender, e) => { PropertyChanged?.Invoke(this, e); };
+        }
+
+        public IEnumerable<object> RemovedIds
+        {
+            get { return _dictionary.RemovedIds; }
         }
 
         private CompositeDictionary<TKey, TValue> _dictionary;

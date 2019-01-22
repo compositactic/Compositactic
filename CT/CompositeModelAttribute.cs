@@ -15,16 +15,18 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
+using System;
 
-namespace CT.Data
+namespace CT
 {
-    public interface IRepository : IService
+    [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
+    public class CompositeModelAttribute : Attribute
     {
-        string ConnectionString { get; set; }
-        IEnumerable<Composite> Load(string query);
-        void Save(Composite composite);
-        T Execute<T>(string statement);
-        void UpdateSchema<T>() where T : Composite;
+        public CompositeModelAttribute(string modelFieldName)
+        {
+            ModelFieldName = modelFieldName;
+        }
+
+        public string ModelFieldName { get; set; }
     }
 }
