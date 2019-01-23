@@ -22,7 +22,7 @@ namespace CT.Data
     public interface IRepository : IService
     {
         string ConnectionString { get; set; }
-        IEnumerable<T> Load<T>(string query);
+        IEnumerable<T> Load<T>(string query) where T : new();
         void Save(Composite composite);
         T Execute<T>(string statement);
     }

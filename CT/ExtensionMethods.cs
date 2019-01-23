@@ -537,14 +537,43 @@ namespace CT
 
         public static DataTable ToDataTable(this IEnumerable<Composite> composites)
         {
-            // TODO
-            return new DataTable();
+
+            if (composites == null)
+                throw new ArgumentNullException(nameof(composites));
+
+            var compositeType = composites.GetType().GetGenericArguments()[0];
+            var compositeModelAttribute = compositeType.FindCustomAttribute<CompositeModelAttribute>();
+            if (compositeModelAttribute == null)
+                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveCompositeModelAttribute, compositeType.Name));
+
+            DataTable dataTable = null;
+
+            foreach(var composite in composites)
+            {
+                var model = composite.GetType().GetField(compositeModelAttribute.ModelFieldName).GetValue(composite);
+                var modelProperties = model.GetType().GetProperties().Where(p => p.GetCustomAttributes<DataMemberAttribute>().Any());
+
+                if(dataTable == null)
+                {
+                    dataTable = new DataTable();
+                    foreach(var modelProperty in modelProperties)
+                        dataTable.Columns.Add(new DataColumn(modelProperty.Name, modelProperty.PropertyType));
+                }
+
+                var dataRow = dataTable.NewRow();
+                foreach (var modelProperty in modelProperties)
+                    dataRow[modelProperty.Name] = modelProperty.GetValue(model);
+
+                dataTable.Rows.Add(dataRow);
+            }
+
+            return dataTable;
         }
 
-        public static T ToModel<T>(this IDataRecord record)
+        public static T ToModel<T>(this IDataRecord record) where T : new()
         {
             // TODO
-            return default(T);
+            return new T();
         }
     }
 }

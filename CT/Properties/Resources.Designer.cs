@@ -61,15 +61,6 @@ namespace CT.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Cannot locate CompositeRoot for session token: {0}.
-        /// </summary>
-        internal static string CannotLocateCompositeRoot {
-            get {
-                return ResourceManager.GetString("CannotLocateCompositeRoot", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to The path to the Composite relative to the CompositeRoot.
         /// </summary>
         internal static string CompositePathToComposite {
@@ -159,6 +150,15 @@ namespace CT.Properties {
         internal static string MustBeOfType {
             get {
                 return ResourceManager.GetString("MustBeOfType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} does not have a CompositeModel attribute.
+        /// </summary>
+        internal static string MustHaveCompositeModelAttribute {
+            get {
+                return ResourceManager.GetString("MustHaveCompositeModelAttribute", resourceCulture);
             }
         }
         

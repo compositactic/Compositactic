@@ -31,7 +31,7 @@ namespace CT.Data
             return OnExecute<T>(statement);
         }
 
-        public IEnumerable<T> Load<T>(string query)
+        public IEnumerable<T> Load<T>(string query) where T : new()
         {
             return OnLoad<T>(query);
         }
@@ -82,7 +82,7 @@ namespace CT.Data
         protected abstract void OnSaveNew(DbConnection connection, DbTransaction transaction, IEnumerable<Composite> newComposites);
         protected abstract void OnSaveUpdate(DbConnection connection, DbTransaction transaction, Composite composite);
         protected abstract void OnCommit(DbConnection connection, DbTransaction transaction);
-        protected abstract IEnumerable<T> OnLoad<T>(string query);
+        protected abstract IEnumerable<T> OnLoad<T>(string query) where T : new();
         protected abstract T OnExecute<T>(string statement);
     }
 }
