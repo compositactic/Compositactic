@@ -533,11 +533,15 @@ namespace CT
         {
             // TODO
             action(composite);
+            foreach(var compositePropertyInfo in composite.GetType().GetProperties().Where(p => p.GetCustomAttribute<DataMemberAttribute>() != null))
+            {
+                //if(compositePropertyInfo.PropertyType.IsSubclassOf(typeof(Composite)) && )
+            }
+
         }
 
         public static DataTable ToDataTable(this IEnumerable<Composite> composites)
         {
-
             if (composites == null)
                 throw new ArgumentNullException(nameof(composites));
 
@@ -547,11 +551,21 @@ namespace CT
                 throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveCompositeModelAttribute, compositeType.Name));
 
             DataTable dataTable = null;
+            FieldInfo modelFieldInfo = null;
+            IEnumerable<PropertyInfo> modelProperties = null;
 
             foreach(var composite in composites)
             {
-                var model = composite.GetType().GetField(compositeModelAttribute.ModelFieldName).GetValue(composite);
-                var modelProperties = model.GetType().GetProperties().Where(p => p.GetCustomAttributes<DataMemberAttribute>().Any());
+                if (modelFieldInfo == null)
+                    modelFieldInfo = composite.GetType().GetField(compositeModelAttribute.ModelFieldName);
+
+                if (modelFieldInfo == null)
+                    throw new ArgumentException(Resources.CannotFindCompositeModelProperty);
+
+                var model = modelFieldInfo.GetValue(composite);
+
+                if(modelProperties == null)
+                    modelProperties = model.GetType().GetProperties().Where(p => p.GetCustomAttributes<DataMemberAttribute>().Any());
 
                 if(dataTable == null)
                 {
@@ -570,10 +584,19 @@ namespace CT
             return dataTable;
         }
 
+        public static void ToModel(this IDataRecord record, object model)
+        {
+            var modelType = model.GetType();
+
+            for (int columnIndex = 0; columnIndex < record.FieldCount; columnIndex++)
+                modelType.GetProperty(record.GetName(columnIndex)).SetValue(model, record[columnIndex]);
+        }
+
         public static T ToModel<T>(this IDataRecord record) where T : new()
         {
-            // TODO
-            return new T();
+            var model = new T();
+            record.ToModel(model);
+            return model;
         }
     }
 }

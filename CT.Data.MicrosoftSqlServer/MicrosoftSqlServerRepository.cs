@@ -35,57 +35,39 @@ namespace CT.Data.MicrosoftSqlServer
 
         protected override void OnDelete(DbConnection connection, DbTransaction transaction, string tableName, IEnumerable<object> idValues)
         {
-            using (var newConnection = OnNewConnection())
+            foreach (var id in idValues)
             {
-                newConnection.Open();
-                var newTransaction = OnNewTransaction(newConnection);
-
-                foreach (var id in idValues)
-                {
-                    // todo
-                }
-
-                OnCommit(newConnection, newTransaction);
-            }
-
-        }
-
-        protected override T OnExecute<T>(string statement)
-        {
-            using (var newConnection = OnNewConnection())
-            {
-                newConnection.Open();
-                var newTransaction = OnNewTransaction(newConnection);
-                var command = new SqlCommand(statement, (SqlConnection)newConnection)
-                {
-                    Transaction = (SqlTransaction)newTransaction
-                };
-                var returnValue = (T)command.ExecuteScalar();
-                OnCommit(newConnection, newTransaction);
-                return returnValue;
+                // todo
             }
         }
 
-        protected override IEnumerable<T> OnLoad<T>(string query)
+        protected override T OnExecute<T>(DbConnection connection, DbTransaction transaction, string statement)
         {
-            using (var newConnection = OnNewConnection())
+            var command = new SqlCommand(statement, (SqlConnection)connection)
             {
-                var cmd = new SqlCommand(query, (SqlConnection)newConnection);
-                newConnection.Open();
+                Transaction = (SqlTransaction)transaction
+            };
 
-                IDataReader dataReader = cmd.ExecuteReader();
-                while (dataReader.Read())
-                {
-                    yield return dataReader.ToModel<T>();
-                }
-
-                dataReader.Close();
-            }
+            var returnValue = (T)command.ExecuteScalar();
+            return returnValue;
         }
 
-        protected override DbConnection OnNewConnection()
+        protected override IEnumerable<T> OnLoad<T>(DbConnection connection, string query)
         {
-            return new SqlConnection(ConnectionString);
+            var cmd = new SqlCommand(query, (SqlConnection)connection);
+
+            IDataReader dataReader = cmd.ExecuteReader();
+            while (dataReader.Read())
+            {
+                yield return dataReader.ToModel<T>();
+            }
+
+            dataReader.Close();
+        }
+
+        protected override DbConnection OnNewConnection(string connectionString)
+        {
+            return new SqlConnection(connectionString);
         }
 
         protected override DbTransaction OnNewTransaction(DbConnection connection)
@@ -100,7 +82,8 @@ namespace CT.Data.MicrosoftSqlServer
 
         protected override void OnSaveNew(DbConnection connection, DbTransaction transaction, IEnumerable<Composite> newComposites)
         {
-            throw new NotImplementedException();
+
+
         }
 
 

@@ -61,6 +61,15 @@ namespace CT.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot find the property {0}.
+        /// </summary>
+        internal static string CannotFindCompositeModelProperty {
+            get {
+                return ResourceManager.GetString("CannotFindCompositeModelProperty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The path to the Composite relative to the CompositeRoot.
         /// </summary>
         internal static string CompositePathToComposite {

@@ -16,14 +16,18 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Collections.Generic;
+using System.Data.Common;
 
 namespace CT.Data
 {
     public interface IRepository : IService
     {
-        string ConnectionString { get; set; }
-        IEnumerable<T> Load<T>(string query) where T : new();
-        void Save(Composite composite);
-        T Execute<T>(string statement);
+        IEnumerable<T> Load<T>(DbConnection connection, string query) where T : new();
+        void Save(DbConnection connection, DbTransaction transaction, Composite composite);
+        T Execute<T>(DbConnection connection, DbTransaction transaction, string statement);
+        DbConnection Connect(string connectionString);
+        DbTransaction BeginTransaction(DbConnection connection);
+        void CommitTransaction(DbTransaction transaction);
+        void CloseConnection(DbConnection connection);
     }
 }

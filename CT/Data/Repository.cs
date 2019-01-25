@@ -22,24 +22,40 @@ namespace CT.Data
 {
     public abstract class Repository : IRepository
     {
-        public string ConnectionString { get; set; }
-
         public CompositeRoot CompositeRoot { get; set; }
 
-        public T Execute<T>(string statement)
+        public DbConnection Connect(string connectionString)
         {
-            return OnExecute<T>(statement);
+            return OnNewConnection(connectionString);
         }
 
-        public IEnumerable<T> Load<T>(string query) where T : new()
+        public DbTransaction BeginTransaction(DbConnection connection)
         {
-            return OnLoad<T>(query);
+            return connection.BeginTransaction();
         }
 
-        public void Save(Composite composite)
+        public void CommitTransaction(DbTransaction transaction)
         {
-            var newConnection = OnNewConnection();
-            var newTransaction = OnNewTransaction(newConnection);
+            transaction.Commit();
+        }
+
+        public void CloseConnection(DbConnection connection)
+        {
+            connection.Close();
+        }
+
+        public T Execute<T>(DbConnection connection, DbTransaction transaction, string statement)
+        {
+            return OnExecute<T>(connection, transaction, statement);
+        }
+
+        public IEnumerable<T> Load<T>(DbConnection connection, string query) where T : new()
+        {
+            return OnLoad<T>(connection, query);
+        }
+
+        public void Save(DbConnection connection, DbTransaction transaction, Composite composite)
+        {
             var newComposites = new List<Composite>();
             IEnumerable<object> deletedIds = null;
 
@@ -61,7 +77,7 @@ namespace CT.Data
                 switch (composite.State)
                 {
                     case CompositeState.Modified:
-                        OnSaveUpdate(newConnection, newTransaction, composite);
+                        OnSaveUpdate(connection, transaction, composite);
                         break;
                     case CompositeState.New:
                         newComposites.Add(c);
@@ -71,18 +87,18 @@ namespace CT.Data
                 }
             });
 
-            OnDelete(newConnection, newTransaction, composite.GetType().Name, deletedIds);
-            OnSaveNew(newConnection, newTransaction, newComposites);
-            OnCommit(newConnection, newTransaction);
+            OnDelete(connection, transaction, composite.GetType().Name, deletedIds);
+            OnSaveNew(connection, transaction, newComposites);
         }
 
-        protected abstract DbConnection OnNewConnection();
+        protected abstract DbConnection OnNewConnection(string connectionString);
         protected abstract DbTransaction OnNewTransaction(DbConnection connection);
         protected abstract void OnDelete(DbConnection connection, DbTransaction transaction, string tableName, IEnumerable<object> idValues);
         protected abstract void OnSaveNew(DbConnection connection, DbTransaction transaction, IEnumerable<Composite> newComposites);
         protected abstract void OnSaveUpdate(DbConnection connection, DbTransaction transaction, Composite composite);
         protected abstract void OnCommit(DbConnection connection, DbTransaction transaction);
-        protected abstract IEnumerable<T> OnLoad<T>(string query) where T : new();
-        protected abstract T OnExecute<T>(string statement);
+        protected abstract IEnumerable<T> OnLoad<T>(DbConnection connection, string query) where T : new();
+        protected abstract T OnExecute<T>(DbConnection connection, DbTransaction transaction, string statement);
+
     }
 }
