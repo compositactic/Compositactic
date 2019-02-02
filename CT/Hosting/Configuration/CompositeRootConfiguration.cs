@@ -17,6 +17,7 @@
 
 using CT.Properties;
 using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace CT.Hosting.Configuration
@@ -142,6 +143,9 @@ namespace CT.Hosting.Configuration
                 NotifyPropertyChanged(nameof(CompositeRootConfiguration.PublicDirectoryHomeFile));
             }
         }
+
+        [DataMember]
+        public Dictionary<string, string> CustomSettings { get { return _rootConfiguration.CustomSettings; } }
 
         [Command]
         public void Remove()

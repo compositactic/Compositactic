@@ -107,13 +107,13 @@ namespace CT.Test.Presentation.Shops
         {
             var repository = GetService<IMicrosoftSqlServerRepository>();
 
-            using (var connection = repository.OpenConnection(""))
-            {
-                using (var transaction = repository.BeginTransaction(connection))
-                {
-                    repository.Save(connection, transaction, this);
-                    repository.CommitTransaction(transaction);
-                }
+            var connectionString = Configuration.CustomSettings["ConnectionString"];
+
+            using (var connection = repository.OpenConnection(connectionString))
+            using (var transaction = repository.BeginTransaction(connection))
+            {     
+                repository.Save(connection, transaction, this);
+                repository.CommitTransaction(transaction);
             }
         }
     }

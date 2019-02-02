@@ -11,7 +11,11 @@
       "Mode": "MultipleHost",
       "Endpoint": "http://localhost:8001/ShopServer/",
       "EndpointPublicDirectory": "ShopServerPublic",
-      "EndpointPrivateDirectory": "ShopServerPrivate"
+      "EndpointPrivateDirectory": "ShopServerPrivate",
+      "CustomSettings" : {
+        "ConnectionString": "foo",
+        "AnotherSetting": "bar"
+      }
     }
   }
 }

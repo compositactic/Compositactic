@@ -17,6 +17,7 @@
 
 using CT.Properties;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Runtime.Serialization;
 
@@ -169,5 +170,8 @@ namespace CT.Hosting.Configuration
 
         [DataMember]
         public string PublicDirectoryHomeFile { get; set; }
+
+        [DataMember]
+        public Dictionary<string, string> CustomSettings { get; } = new Dictionary<string, string>();
     }
 }
