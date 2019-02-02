@@ -62,18 +62,5 @@ namespace CT.Test.Presentation.Shops.Registers
                 throw new UnauthorizedAccessException();
         }
 
-        [Command]
-        public void ReloadRegisters()
-        {
-            registers.Clear();
-
-            var registerService = CompositeRoot.GetService<IRegisterService>();
-
-            foreach(var register in registerService.LoadDefaultRegisters())
-            {
-                var loadedRegister = new RegisterComposite(register, this);
-                registers.Add(loadedRegister.Id, loadedRegister);
-            }
-        }
     }
 }

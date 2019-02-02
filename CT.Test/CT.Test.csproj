@@ -38,7 +38,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CT.Test.Presentation.Services\CT.Test.Presentation.Services.csproj" />
     <ProjectReference Include="..\CT.Test.Presentation\CT.Test.Presentation.csproj" />
     <ProjectReference Include="..\CT\CT.csproj" />
   </ItemGroup>

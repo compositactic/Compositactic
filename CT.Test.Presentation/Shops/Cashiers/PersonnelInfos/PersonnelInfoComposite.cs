@@ -83,20 +83,5 @@ namespace CT.Test.Presentation.Shops.Cashiers.PersonnelInfos
                 NotifyPropertyChanged(nameof(PersonnelInfoComposite.Authority));
             }
         }
-
-        [Command]
-        public byte[] GetPicture(CompositeRootHttpContext context)
-        {
-            var personnelInfoService = CompositeRoot.GetService<IPersonnelInfoService>();
-            context.Response.ContentType = "image/jpeg";
-            return personnelInfoService.GetPicture(PersonnelInfoModel.PicturePath);
-        }
-
-        [Command]
-        public void AddPicture(CompositeRootHttpContext context)
-        {
-            var personnelInfoService = CompositeRoot.GetService<IPersonnelInfoService>();
-            personnelInfoService.SavePicture(context.Request.UploadedFiles.FirstOrDefault(), PersonnelInfoModel.PicturePath);
-        }
     }
 }

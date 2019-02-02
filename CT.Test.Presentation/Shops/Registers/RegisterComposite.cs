@@ -65,12 +65,5 @@ namespace CT.Test.Presentation.Shops.Registers
         {
             AllRegisters.registers.Remove(Id);
         }
-
-        [Command]
-        public void Save()
-        {
-            var registerService = CompositeRoot.GetService<IRegisterService>();
-            registerService.Save(RegisterModel);
-        }
     }
 }
