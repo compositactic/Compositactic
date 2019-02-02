@@ -99,6 +99,5 @@ namespace CT.Data
         protected abstract void OnCommit(DbConnection connection, DbTransaction transaction);
         protected abstract IEnumerable<T> OnLoad<T>(DbConnection connection, string query) where T : new();
         protected abstract T OnExecute<T>(DbConnection connection, DbTransaction transaction, string statement);
-
     }
 }

@@ -9,19 +9,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Shops\Products\**" />
-    <EmbeddedResource Remove="Shops\Products\**" />
-    <None Remove="Shops\Products\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\CT.Test.Model\CT.Test.Model.csproj" />
     <ProjectReference Include="..\CT.Test.Presentation\CT.Test.Presentation.csproj" />
     <ProjectReference Include="..\CT\CT.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Shops\Registers\Periods\Sales\LineItems\" />
   </ItemGroup>
 
   <ItemGroup>
