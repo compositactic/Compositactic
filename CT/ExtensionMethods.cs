@@ -531,13 +531,23 @@ namespace CT
 
         public static void TraverseBreadthFirst(this Composite composite, Action<Composite> action)
         {
-            // TODO
             action(composite);
+
             foreach(var compositePropertyInfo in composite.GetType().GetProperties().Where(p => p.GetCustomAttribute<DataMemberAttribute>() != null))
             {
-                //if(compositePropertyInfo.PropertyType.IsSubclassOf(typeof(Composite)) && )
-            }
+                var compositePropertyType = compositePropertyInfo.PropertyType;
+                var compositePropertyGenericType = compositePropertyType.IsGenericType ? compositePropertyType.GetGenericTypeDefinition() : null;
 
+                if (compositePropertyType.IsSubclassOf(typeof(Composite)))
+                    TraverseBreadthFirst(composite.GetType().GetProperty(compositePropertyInfo.Name).GetValue(composite) as Composite, action);
+
+                if(compositePropertyGenericType == typeof(ReadOnlyCompositeDictionary<,>))
+                {
+                    var compositeDictionary = compositePropertyInfo.GetValue(composite) as dynamic;
+                    foreach (var c in compositeDictionary.Values as IEnumerable<Composite>)
+                        TraverseBreadthFirst(c, action);
+                }
+            }
         }
 
         public static DataTable ToDataTable(this IEnumerable<Composite> composites)
