@@ -15,6 +15,7 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using CT.Data.MicrosoftSqlServer;
 using CT.Hosting.Configuration;
 using CT.Test.Model.Shops;
 using CT.Test.Presentation.Properties;
@@ -97,6 +98,21 @@ namespace CT.Test.Presentation.Shops
                 catch (Exception e)
                 {
                     ErrorMessage = e.Message;
+                }
+            }
+        }
+
+        [Command]
+        public void Save()
+        {
+            var repository = GetService<IMicrosoftSqlServerRepository>();
+
+            using (var connection = repository.OpenConnection(""))
+            {
+                using (var transaction = repository.BeginTransaction(connection))
+                {
+                    repository.Save(connection, transaction, this);
+                    repository.CommitTransaction(transaction);
                 }
             }
         }

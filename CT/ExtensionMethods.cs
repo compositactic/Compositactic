@@ -579,7 +579,7 @@ namespace CT
 
                 if(dataTable == null)
                 {
-                    dataTable = new DataTable();
+                    dataTable = new DataTable(composite.GetType().Name);
                     foreach(var modelProperty in modelProperties)
                         dataTable.Columns.Add(new DataColumn(modelProperty.Name, modelProperty.PropertyType));
                 }

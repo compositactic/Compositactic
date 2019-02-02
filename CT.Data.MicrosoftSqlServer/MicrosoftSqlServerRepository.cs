@@ -30,7 +30,6 @@ namespace CT.Data.MicrosoftSqlServer
         protected override void OnCommit(DbConnection connection, DbTransaction transaction)
         {
             transaction.Commit();
-            connection.Close();
         }
 
         protected override void OnDelete(DbConnection connection, DbTransaction transaction, string tableName, IEnumerable<object> idValues)
@@ -82,6 +81,7 @@ namespace CT.Data.MicrosoftSqlServer
 
         protected override void OnSaveNew(DbConnection connection, DbTransaction transaction, IEnumerable<Composite> newComposites)
         {
+            var newRecords = newComposites.ToDataTable();
 
 
         }

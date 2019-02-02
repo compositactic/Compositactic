@@ -24,7 +24,7 @@ namespace CT.Data
     {
         public CompositeRoot CompositeRoot { get; set; }
 
-        public DbConnection Connect(string connectionString)
+        public DbConnection OpenConnection(string connectionString)
         {
             return OnNewConnection(connectionString);
         }

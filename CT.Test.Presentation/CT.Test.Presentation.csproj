@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\CT.Data.MicrosoftSqlServer\CT.Data.MicrosoftSqlServer.csproj" />
     <ProjectReference Include="..\CT.Test.Model\CT.Test.Model.csproj" />
     <ProjectReference Include="..\CT\CT.csproj" />
   </ItemGroup>

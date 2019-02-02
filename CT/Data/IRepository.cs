@@ -25,7 +25,7 @@ namespace CT.Data
         IEnumerable<T> Load<T>(DbConnection connection, string query) where T : new();
         void Save(DbConnection connection, DbTransaction transaction, Composite composite);
         T Execute<T>(DbConnection connection, DbTransaction transaction, string statement);
-        DbConnection Connect(string connectionString);
+        DbConnection OpenConnection(string connectionString);
         DbTransaction BeginTransaction(DbConnection connection);
         void CommitTransaction(DbTransaction transaction);
         void CloseConnection(DbConnection connection);
