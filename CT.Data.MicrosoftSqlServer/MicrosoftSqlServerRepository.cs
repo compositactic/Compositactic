@@ -108,7 +108,7 @@ namespace CT.Data.MicrosoftSqlServer
             // WHEN NOT MATCHED BY TARGET
             // THEN INSERT([Name])
             //                VALUES(tableToInsert.[NAME])
-            // OUTPUT inserted.ID, ins.ID;
+            // OUTPUT inserted.ID, tableToInsert.ID;
 
             // DROP TABLE #Test
 
