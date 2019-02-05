@@ -34,6 +34,18 @@ namespace CT.Data.MicrosoftSqlServer
 
         protected override void OnDelete(DbConnection connection, DbTransaction transaction, string tableName, IEnumerable<object> idValues)
         {
+            //1,2,3,5,8,12,14,15,16,17,18,19,32,56,57,95
+
+            //1,2,3               x >= 1 && x <= 3
+            //5                   x == 5
+            //8                   x == 8
+            //12                  x == 12
+            //14,15,16,17,18,19   x >= 14 && x <= 19
+            //32                  x == 32
+            //56,57               x >= 56 && x <= 57
+            //95                  x == 95
+
+
             foreach (var id in idValues)
             {
                 // todo
@@ -82,7 +94,7 @@ namespace CT.Data.MicrosoftSqlServer
         protected override void OnSaveNew(DbConnection connection, DbTransaction transaction, IEnumerable<Composite> newComposites)
         {
             //--create table
-            //IF NOT EXISTS(SELECT* FROM sys.tables WHERE NAME = 'Test2')
+            //IF NOT EXISTS(SELECT * FROM sys.tables WHERE NAME = 'Test2')
             //    CREATE TABLE Test2(ID INT IDENTITY(1, 1) NOT NULL)
 
             //-- add column
