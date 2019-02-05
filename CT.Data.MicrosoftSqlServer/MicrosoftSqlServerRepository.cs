@@ -81,8 +81,38 @@ namespace CT.Data.MicrosoftSqlServer
 
         protected override void OnSaveNew(DbConnection connection, DbTransaction transaction, IEnumerable<Composite> newComposites)
         {
-            var newRecords = newComposites.ToDataTable();
+            //--create table
+            //IF NOT EXISTS(SELECT* FROM sys.tables WHERE NAME = 'Test2')
+            //    CREATE TABLE Test2(ID INT IDENTITY(1, 1) NOT NULL)
 
+            //-- add column
+            //IF NOT EXISTS(SELECT * FROM sys.columns WHERE NAME = 'ColumnName' AND object_id = OBJECT_ID(N'[dbo].[Test2]'))
+            //    ALTER TABLE Test2 ADD ColumnName NVARCHAR(MAX)
+
+            //--modify column
+            //IF EXISTS(SELECT * FROM sys.columns WHERE NAME = 'ColumnName' AND object_id = OBJECT_ID(N'[dbo].[Test2]'))
+            //    ALTER TABLE Test2 ALTER COLUMN ColumnName NVARCHAR(2)
+
+
+            //--The existing table
+            // CREATE TABLE Test (ID INT IDENTITY(1, 1), [Name] NVARCHAR(MAX));
+            //
+            // -----------------------------------------------------------------
+            //            
+            // CREATE TABLE #Test (ID INT, [Name] NVARCHAR(MAX))
+
+            // do bulk copy into #Test
+
+            // MERGE INTO Test
+            // USING #Test AS tableToInsert ON 1 = 0 
+            // WHEN NOT MATCHED BY TARGET
+            // THEN INSERT([Name])
+            //                VALUES(tableToInsert.[NAME])
+            // OUTPUT inserted.ID, ins.ID;
+
+            // DROP TABLE #Test
+
+            var newRecords = newComposites.ToDataTable();
 
         }
 
