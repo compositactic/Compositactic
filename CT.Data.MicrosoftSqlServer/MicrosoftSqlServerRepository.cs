@@ -93,24 +93,25 @@ namespace CT.Data.MicrosoftSqlServer
 
         protected override void OnSaveNew(DbConnection connection, DbTransaction transaction, IEnumerable<Composite> newComposites)
         {
-//--create tabl
-//IF NOT EXISTS(SELECT* FROM sys.tables WHERE NAME = 'Test2')
-//    CREATE TABLE Test2(ID INT IDENTITY(1, 1) NOT NULL)
+            //--create tabl
+            //IF NOT EXISTS(SELECT* FROM sys.tables WHERE NAME = 'Test2')
+            //    CREATE TABLE Test2(ID INT IDENTITY(1, 1) NOT NULL)
 
-//-- add column
-//IF NOT EXISTS(SELECT * FROM sys.columns WHERE NAME = 'ColumnName' AND object_id = OBJECT_ID(N'[dbo].[Test2]'))
-//    ALTER TABLE Test2 ADD ColumnName NVARCHAR(MAX)
+            //-- add column
+            //IF NOT EXISTS(SELECT * FROM sys.columns WHERE NAME = 'ColumnName' AND object_id = OBJECT_ID(N'[dbo].[Test2]'))
+            //    ALTER TABLE Test2 ADD ColumnName NVARCHAR(MAX)
 
-//--modify column
-//IF EXISTS(SELECT * FROM sys.columns WHERE NAME = 'ColumnName' AND object_id = OBJECT_ID(N'[dbo].[Test2]'))
-//    ALTER TABLE Test2 ALTER COLUMN ColumnName NVARCHAR(MAX)
+            //--modify column
+            //IF EXISTS(SELECT * FROM sys.columns WHERE NAME = 'ColumnName' AND object_id = OBJECT_ID(N'[dbo].[Test2]'))
+            //    ALTER TABLE Test2 ALTER COLUMN ColumnName NVARCHAR(MAX)
 
 
-//CREATE TABLE #Test2 (ID INT, ColumnName NVARCHAR(MAX))
+//SELECT * INTO #Test2 FROM Test2 WHERE 1 = 0
+//SET IDENTITY_INSERT #Test2 ON
 
 //--simulate bulk copy into #Test
-//INSERT INTO #Test2 VALUES(987, 'hello world')
-//INSERT INTO #Test2 VALUES(123, 'hello Matt')
+//INSERT INTO #Test2 (ID, ColumnName) VALUES(987, 'hello world')
+//INSERT INTO #Test2 (ID, ColumnName) VALUES(123, 'hello Matt')
 //----------------------------------
 
 //MERGE INTO Test2
@@ -121,6 +122,7 @@ namespace CT.Data.MicrosoftSqlServer
 //OUTPUT inserted.ID, tableToInsert.ID;
 
 //DROP TABLE #Test2
+
 
             var newRecords = newComposites.ToDataTable();
 
