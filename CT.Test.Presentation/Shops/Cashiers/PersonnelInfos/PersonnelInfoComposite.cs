@@ -15,17 +15,16 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using CT.Hosting;
+using CT.Test.Model.Shops.Cashiers;
 using CT.Test.Model.Shops.Cashiers.PersonnelInfos;
 using System;
 using System.Runtime.Serialization;
-using System.Linq;
-using CT.Test.Model.Shops.Cashiers;
 
 namespace CT.Test.Presentation.Shops.Cashiers.PersonnelInfos
 {
     [DataContract]
     [ParentProperty(nameof(Cashier), nameof(CashierComposite.PersonnelInfo))]
+    [CompositeModel(nameof(PersonnelInfoComposite.PersonnelInfoModel))]
     public class PersonnelInfoComposite : Composite
     {
         internal PersonnelInfo PersonnelInfoModel;

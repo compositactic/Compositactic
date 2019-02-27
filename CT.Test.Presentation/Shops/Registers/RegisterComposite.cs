@@ -23,7 +23,6 @@ namespace CT.Test.Presentation.Shops.Registers
 {
     [DataContract]
     [KeyProperty(nameof(RegisterComposite.Id))]
-    [IdProperty(nameof(RegisterComposite.Id))]
     [ParentProperty(nameof(RegisterComposite.AllRegisters))]
     [CompositeModel(nameof(RegisterModel))]
     public class RegisterComposite : Composite

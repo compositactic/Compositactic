@@ -12,8 +12,8 @@
       "Endpoint": "http://localhost:8001/ShopServer/",
       "EndpointPublicDirectory": "ShopServerPublic",
       "EndpointPrivateDirectory": "ShopServerPrivate",
-      "CustomSettings" : {
-        "ConnectionString": "foo",
+      "CustomSettings": {
+        "ConnectionString": "Data Source=(LocalDb)\\MSSQLLocalDB;Initial Catalog=blah;Integrated Security=SSPI;",
         "AnotherSetting": "bar"
       }
     }

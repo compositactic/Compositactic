@@ -23,8 +23,8 @@ namespace CT.Test.Presentation.Shops.Cashiers
 {
     [DataContract]
     [KeyProperty(nameof(CashierComposite.Id))]
-    [IdProperty(nameof(CashierComposite.Id))]
     [ParentProperty(nameof(CashierComposite.AllCashiers))]
+    [CompositeModel(nameof(CashierComposite.CashierModel))]
     public class CashierComposite : Composite
     {
         internal Cashier CashierModel;

@@ -23,8 +23,8 @@ namespace CT.Test.Presentation.Shops.Products
 {
     [DataContract]
     [KeyProperty(nameof(ProductComposite.Id))]
-    [IdProperty(nameof(ProductComposite.Id))]
     [ParentProperty(nameof(ProductComposite.AllProducts))]
+    [CompositeModel(nameof(ProductComposite.ProductModel))]
     public class ProductComposite : Composite
     {
         internal Product ProductModel;

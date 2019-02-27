@@ -53,6 +53,7 @@ namespace CT.Test.Model.Shops.Registers
 
         [DataMember]
         public long ShopId { get; set; }
+
         public Shop Shop { get; internal set; }
 
         public void Remove()

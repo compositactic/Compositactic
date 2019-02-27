@@ -23,7 +23,6 @@ namespace CT.Test.Presentation.Shops.Registers.Periods.Sales
 {
     [DataContract]
     [KeyProperty(nameof(SaleComposite.Id))]
-    [IdProperty(nameof(SaleComposite.Id))]
     [ParentProperty(nameof(SaleComposite.AllSales))]
     [CompositeModel(nameof(SaleModel))]
     public class SaleComposite : Composite

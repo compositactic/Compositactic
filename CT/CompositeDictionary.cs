@@ -23,6 +23,7 @@ using System.Collections.Concurrent;
 using System.Collections;
 using System;
 using System.Linq;
+using System.Reflection;
 
 namespace CT
 {
@@ -85,15 +86,17 @@ namespace CT
 
             var valueToRemove = dictionary[key];
 
-            var idPropertyAttribute = valueToRemove
+            var compositeModelAttribute = valueToRemove
                                         .GetType()
-                                        .GetCustomAttributes(typeof(IdPropertyAttribute), true)
-                                        .Cast<IdPropertyAttribute>()
-                                        .FirstOrDefault();
+                                        .GetCustomAttribute<CompositeModelAttribute>();
 
-            var valueToRemoveId = valueToRemove.GetType().GetProperty(idPropertyAttribute.IdPropertyName).GetValue(valueToRemove);
+            if (compositeModelAttribute == null)
+                throw new MissingMemberException();
 
-            if(!_removedIds.Contains(valueToRemoveId))
+            var valueToRemoveModel = valueToRemove.GetType().GetField(compositeModelAttribute.ModelFieldName).GetValue(valueToRemove);
+            var valueToRemoveId = valueToRemove.GetType().GetProperty(valueToRemoveModel.GetType().GetCustomAttribute<KeyPropertyAttribute>().PropertyName).GetValue(valueToRemoveModel);
+
+            if (!_removedIds.Contains(valueToRemoveId))
                 _removedIds.Add(valueToRemoveId);
 
             return Remove(key);

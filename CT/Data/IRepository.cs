@@ -22,7 +22,7 @@ namespace CT.Data
 {
     public interface IRepository : IService
     {
-        IEnumerable<T> Load<T>(DbConnection connection, string query) where T : new();
+        IEnumerable<T> Load<T>(DbConnection connection, DbTransaction transaction, string query) where T : new();
         void Save(DbConnection connection, DbTransaction transaction, Composite composite);
         T Execute<T>(DbConnection connection, DbTransaction transaction, string statement);
         DbConnection OpenConnection(string connectionString);

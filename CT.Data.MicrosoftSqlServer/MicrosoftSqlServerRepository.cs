@@ -15,17 +15,61 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using CT.Data.MicrosoftSqlServer.Properties;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.Serialization;
+using System.Text.RegularExpressions;
 
 namespace CT.Data.MicrosoftSqlServer
 {
     public class MicrosoftSqlServerRepository : Repository, IMicrosoftSqlServerRepository
     {
         protected MicrosoftSqlServerRepository() {  }
+
+        protected override T OnExecute<T>(DbConnection connection, DbTransaction transaction, string statement)
+        {
+            var command = new SqlCommand(statement, (SqlConnection)connection)
+            {
+                Transaction = (SqlTransaction)transaction
+            };
+
+            var returnValue = (T)command.ExecuteScalar();
+            return returnValue;
+        }
+
+        protected override IEnumerable<T> OnLoad<T>(DbConnection connection, DbTransaction transaction, string query)
+        {
+            var cmd = new SqlCommand(query, (SqlConnection)connection)
+            {
+                Transaction = (SqlTransaction)transaction
+            };
+
+            var dataReader = cmd.ExecuteReader();
+            while (dataReader.Read())
+            {
+                yield return dataReader.ToModel<T>();
+            }
+
+            dataReader.Close();
+        }
+
+        protected override DbConnection OnNewConnection(string connectionString)
+        {
+            var newConnection = new SqlConnection(connectionString);
+            newConnection.Open();
+            return newConnection;
+        }
+
+        protected override DbTransaction OnNewTransaction(DbConnection connection)
+        {
+            return connection.BeginTransaction();
+        }
 
         protected override void OnCommit(DbConnection connection, DbTransaction transaction)
         {
@@ -52,40 +96,6 @@ namespace CT.Data.MicrosoftSqlServer
             }
         }
 
-        protected override T OnExecute<T>(DbConnection connection, DbTransaction transaction, string statement)
-        {
-            var command = new SqlCommand(statement, (SqlConnection)connection)
-            {
-                Transaction = (SqlTransaction)transaction
-            };
-
-            var returnValue = (T)command.ExecuteScalar();
-            return returnValue;
-        }
-
-        protected override IEnumerable<T> OnLoad<T>(DbConnection connection, string query)
-        {
-            var cmd = new SqlCommand(query, (SqlConnection)connection);
-
-            IDataReader dataReader = cmd.ExecuteReader();
-            while (dataReader.Read())
-            {
-                yield return dataReader.ToModel<T>();
-            }
-
-            dataReader.Close();
-        }
-
-        protected override DbConnection OnNewConnection(string connectionString)
-        {
-            return new SqlConnection(connectionString);
-        }
-
-        protected override DbTransaction OnNewTransaction(DbConnection connection)
-        {
-            return connection.BeginTransaction();
-        }
-
         protected override void OnSaveUpdate(DbConnection connection, DbTransaction transaction, Composite composite)
         {
             throw new NotImplementedException();
@@ -93,41 +103,92 @@ namespace CT.Data.MicrosoftSqlServer
 
         protected override void OnSaveNew(DbConnection connection, DbTransaction transaction, IEnumerable<Composite> newComposites)
         {
-            //--create tabl
-            //IF NOT EXISTS(SELECT* FROM sys.tables WHERE NAME = 'Test2')
-            //    CREATE TABLE Test2(ID INT IDENTITY(1, 1) NOT NULL)
+            var dataTablesToInsert = new List<DataTable>();
 
-            //-- add column
-            //IF NOT EXISTS(SELECT * FROM sys.columns WHERE NAME = 'ColumnName' AND object_id = OBJECT_ID(N'[dbo].[Test2]'))
-            //    ALTER TABLE Test2 ADD ColumnName NVARCHAR(MAX)
+            var newCompositeTypes = newComposites.Select(nc => nc.GetType()).Distinct();
 
-            //--modify column
-            //IF EXISTS(SELECT * FROM sys.columns WHERE NAME = 'ColumnName' AND object_id = OBJECT_ID(N'[dbo].[Test2]'))
-            //    ALTER TABLE Test2 ALTER COLUMN ColumnName NVARCHAR(MAX)
+            var modelKeyPropertyName = string.Empty;
+            var sqlColumnList = string.Empty;
+            var sqlInsertColumnList = string.Empty;
 
+            foreach (var compositeType in newCompositeTypes)
+            {
+                var compositeModelAttribute = compositeType.FindCustomAttribute<CompositeModelAttribute>();
+                if (compositeModelAttribute == null)
+                    throw new MissingMemberException();
 
-//SELECT * INTO #Test2 FROM Test2 WHERE 1 = 0
-//SET IDENTITY_INSERT #Test2 ON
+                FieldInfo modelFieldInfo;
+                modelFieldInfo = compositeType.GetField(compositeModelAttribute.ModelFieldName, BindingFlags.Instance | BindingFlags.NonPublic);
+                if (modelFieldInfo == null)
+                    throw new MissingMemberException();
 
-//--simulate bulk copy into #Test
-//INSERT INTO #Test2 (ID, ColumnName) VALUES(987, 'hello world')
-//INSERT INTO #Test2 (ID, ColumnName) VALUES(123, 'hello Matt')
-//----------------------------------
+                modelKeyPropertyName = modelFieldInfo.FieldType.GetCustomAttribute<KeyPropertyAttribute>().PropertyName;
+                var columnProperties = modelFieldInfo
+                                        .FieldType
+                                        .GetProperties()
+                                        .Where(p => p.GetCustomAttribute<DataMemberAttribute>() != null);
 
-//MERGE INTO Test2
-//USING #Test2 AS tableToInsert ON 1 = 0 
-//WHEN NOT MATCHED BY TARGET
-//THEN INSERT(ColumnName)
-//  VALUES(tableToInsert.ColumnName)
-//OUTPUT inserted.ID, tableToInsert.ID;
+                sqlColumnList = string.Join(',', columnProperties.Select(dataMemberProperty => dataMemberProperty.Name));
+                sqlInsertColumnList = string.Join(',', columnProperties.Select(dataMemberProperty => "tableToInsert." + dataMemberProperty.Name));
 
-//DROP TABLE #Test2
+                var dataTable = newComposites.Where(nc => nc.GetType() == compositeType).ToDataTable();
 
+                dataTable.ExtendedProperties[nameof(modelKeyPropertyName)] = modelKeyPropertyName;
+                dataTable.ExtendedProperties[nameof(sqlColumnList)] = sqlColumnList;
+                dataTable.ExtendedProperties[nameof(sqlInsertColumnList)] = sqlInsertColumnList;
 
-            var newRecords = newComposites.ToDataTable();
+                dataTablesToInsert.Add(dataTable);
+            }
+
+            foreach(var dataTable in dataTablesToInsert)
+            {
+                if (!Regex.IsMatch(dataTable.TableName, @"^[A-Za-z0-9_]+$"))
+                    throw new ArgumentException(Resources.InvalidTableName);
+
+                OnExecute<object>(connection, transaction,
+                $@"
+                    SELECT * INTO #{dataTable.TableName} FROM {dataTable.TableName} WHERE 1 = 0
+                    SET IDENTITY_INSERT #{dataTable.TableName} ON
+                ");
+
+                using (var sqlBulkCopy = new SqlBulkCopy((SqlConnection)connection))
+                {
+                    sqlBulkCopy.DestinationTableName = "#" + dataTable.TableName;
+                    sqlBulkCopy.WriteToServer(dataTable);
+                }
+
+                var mergeSql = $@"
+                 
+                    MERGE INTO {dataTable.TableName}
+                    USING #{dataTable.TableName} AS tableToInsert ON 1 = 0 
+                    WHEN NOT MATCHED BY TARGET
+                    THEN INSERT({dataTable.ExtendedProperties[nameof(sqlColumnList)]})
+                      VALUES({dataTable.ExtendedProperties[nameof(sqlInsertColumnList)]})
+                    OUTPUT INSERTED.{dataTable.ExtendedProperties[nameof(modelKeyPropertyName)]} AS {nameof(InsertKeyPair.InsertedKey)},
+                      tableToInsert.{dataTable.ExtendedProperties[nameof(modelKeyPropertyName)]} AS {nameof(InsertKeyPair.OriginalKey)};
+                ";
+
+                var insertKeyPairs = OnLoad<InsertKeyPair>(connection, transaction, mergeSql);
+
+                OnExecute<object>(connection, transaction, $@"DROP TABLE #{dataTable.TableName}");
+
+                foreach(var insertKeyPair in insertKeyPairs)
+                {
+                    var row = dataTable.Rows.Find(insertKeyPair.OriginalKey);
+                    var model = row["__model"];
+                    model.GetType().GetProperty(modelKeyPropertyName).SetValue(model, insertKeyPair.InsertedKey);
+                }
+            }
 
         }
 
 
+    }
+
+    internal class InsertKeyPair
+    {
+        
+        public object InsertedKey { get; set; }
+        public object OriginalKey { get; set; }
     }
 }

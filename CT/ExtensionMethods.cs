@@ -555,22 +555,27 @@ namespace CT
             if (composites == null)
                 throw new ArgumentNullException(nameof(composites));
 
-            var compositeType = composites.GetType().GetGenericArguments()[0];
-            var compositeModelAttribute = compositeType.FindCustomAttribute<CompositeModelAttribute>();
-            if (compositeModelAttribute == null)
-                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveCompositeModelAttribute, compositeType.Name));
-
+            CompositeModelAttribute compositeModelAttribute = null;
             DataTable dataTable = null;
             FieldInfo modelFieldInfo = null;
             IEnumerable<PropertyInfo> modelProperties = null;
 
             foreach(var composite in composites)
             {
+                if(compositeModelAttribute == null)
+                {
+                    compositeModelAttribute = composite.GetType().FindCustomAttribute<CompositeModelAttribute>();
+                    if (compositeModelAttribute == null)
+                        throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveCompositeModelAttribute, composite.GetType().Name));
+                }
+
                 if (modelFieldInfo == null)
-                    modelFieldInfo = composite.GetType().GetField(compositeModelAttribute.ModelFieldName);
+                    modelFieldInfo = composite.GetType().GetField(compositeModelAttribute.ModelFieldName, BindingFlags.Instance | BindingFlags.NonPublic);
 
                 if (modelFieldInfo == null)
                     throw new ArgumentException(Resources.CannotFindCompositeModelProperty);
+
+                var modelKeyPropertyName = modelFieldInfo.FieldType.GetCustomAttribute<KeyPropertyAttribute>().PropertyName;
 
                 var model = modelFieldInfo.GetValue(composite);
 
@@ -581,13 +586,18 @@ namespace CT
                 {
                     dataTable = new DataTable(composite.GetType().Name);
                     foreach(var modelProperty in modelProperties)
-                        dataTable.Columns.Add(new DataColumn(modelProperty.Name, modelProperty.PropertyType));
+                        dataTable.Columns.Add(new DataColumn(modelProperty.Name, modelProperty.PropertyType)); // TODO: need to handle nullable types
+
+                    dataTable.Columns.Add("__model", model.GetType());
                 }
+
+                dataTable.PrimaryKey = new DataColumn[] { dataTable.Columns[modelKeyPropertyName] };
 
                 var dataRow = dataTable.NewRow();
                 foreach (var modelProperty in modelProperties)
                     dataRow[modelProperty.Name] = modelProperty.GetValue(model);
 
+                dataRow["__model"] = model;
                 dataTable.Rows.Add(dataRow);
             }
 

@@ -49,9 +49,9 @@ namespace CT.Data
             return OnExecute<T>(connection, transaction, statement);
         }
 
-        public IEnumerable<T> Load<T>(DbConnection connection, string query) where T : new()
+        public IEnumerable<T> Load<T>(DbConnection connection, DbTransaction transaction, string query) where T : new()
         {
-            return OnLoad<T>(connection, query);
+            return OnLoad<T>(connection, transaction, query);
         }
 
         public void Save(DbConnection connection, DbTransaction transaction, Composite composite)
@@ -66,15 +66,20 @@ namespace CT.Data
                 CompositeDictionaryPropertyAttribute compositeDictionaryPropertyAttribute;
                 if ((compositeDictionaryPropertyAttribute = compositeType.FindCustomAttribute<CompositeDictionaryPropertyAttribute>()) != null)
                 {
-                    deletedIds = (IEnumerable<object>)compositeType
+                    var removedIdsProperty = compositeType
                         .GetProperty(compositeDictionaryPropertyAttribute.CompositeDictionaryPropertyName)
                         .GetValue(c)
-                        .GetType().GetProperty("RemovedIds").GetValue(c);
-                }
-                else
-                    deletedIds = new object[] { };
+                        .GetType().GetProperty("RemovedIds");
 
-                switch (composite.State)
+                    var compositeDictionary = compositeType
+                        .GetProperty(compositeDictionaryPropertyAttribute.CompositeDictionaryPropertyName)
+                        .GetValue(c);
+
+                    deletedIds = (IEnumerable<object>)removedIdsProperty.GetValue(compositeDictionary);
+                    OnDelete(connection, transaction, composite.GetType().Name, deletedIds);
+                }
+
+                switch (c.State)
                 {
                     case CompositeState.Modified:
                         OnSaveUpdate(connection, transaction, composite);
@@ -87,7 +92,6 @@ namespace CT.Data
                 }
             });
 
-            OnDelete(connection, transaction, composite.GetType().Name, deletedIds);
             OnSaveNew(connection, transaction, newComposites);
         }
 
@@ -97,7 +101,7 @@ namespace CT.Data
         protected abstract void OnSaveNew(DbConnection connection, DbTransaction transaction, IEnumerable<Composite> newComposites);
         protected abstract void OnSaveUpdate(DbConnection connection, DbTransaction transaction, Composite composite);
         protected abstract void OnCommit(DbConnection connection, DbTransaction transaction);
-        protected abstract IEnumerable<T> OnLoad<T>(DbConnection connection, string query) where T : new();
+        protected abstract IEnumerable<T> OnLoad<T>(DbConnection connection, DbTransaction transaction, string query) where T : new();
         protected abstract T OnExecute<T>(DbConnection connection, DbTransaction transaction, string statement);
     }
 }
