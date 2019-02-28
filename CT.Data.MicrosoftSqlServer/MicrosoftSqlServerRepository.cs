@@ -179,10 +179,7 @@ namespace CT.Data.MicrosoftSqlServer
                     model.GetType().GetProperty(modelKeyPropertyName).SetValue(model, insertKeyPair.InsertedKey);
                 }
             }
-
         }
-
-
     }
 
     internal class InsertKeyPair

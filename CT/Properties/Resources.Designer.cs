@@ -154,6 +154,15 @@ namespace CT.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Composites must all be of the same type.
+        /// </summary>
+        internal static string MustAllBeSameCompositeType {
+            get {
+                return ResourceManager.GetString("MustAllBeSameCompositeType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0} must be of type {1}.
         /// </summary>
         internal static string MustBeOfType {

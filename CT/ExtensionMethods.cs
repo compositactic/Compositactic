@@ -559,18 +559,25 @@ namespace CT
             DataTable dataTable = null;
             FieldInfo modelFieldInfo = null;
             IEnumerable<PropertyInfo> modelProperties = null;
+            Type compositeType = null;
 
             foreach(var composite in composites)
             {
+                if (compositeType == null)
+                    compositeType = composite.GetType();
+                else
+                    if (composite.GetType() != compositeType)
+                        throw new ArgumentException(Resources.MustAllBeSameCompositeType);
+
                 if(compositeModelAttribute == null)
                 {
-                    compositeModelAttribute = composite.GetType().FindCustomAttribute<CompositeModelAttribute>();
+                    compositeModelAttribute = compositeType.FindCustomAttribute<CompositeModelAttribute>();
                     if (compositeModelAttribute == null)
-                        throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveCompositeModelAttribute, composite.GetType().Name));
+                        throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveCompositeModelAttribute, compositeType.Name));
                 }
 
                 if (modelFieldInfo == null)
-                    modelFieldInfo = composite.GetType().GetField(compositeModelAttribute.ModelFieldName, BindingFlags.Instance | BindingFlags.NonPublic);
+                    modelFieldInfo = compositeType.GetField(compositeModelAttribute.ModelFieldName, BindingFlags.Instance | BindingFlags.NonPublic);
 
                 if (modelFieldInfo == null)
                     throw new ArgumentException(Resources.CannotFindCompositeModelProperty);
@@ -579,23 +586,29 @@ namespace CT
 
                 var model = modelFieldInfo.GetValue(composite);
 
-                if(modelProperties == null)
+                if (modelProperties == null)
                     modelProperties = model.GetType().GetProperties().Where(p => p.GetCustomAttributes<DataMemberAttribute>().Any());
 
                 if(dataTable == null)
                 {
-                    dataTable = new DataTable(composite.GetType().Name);
+                    dataTable = new DataTable(modelFieldInfo.FieldType.Name);
+
+                    Type columnType = null;
                     foreach(var modelProperty in modelProperties)
-                        dataTable.Columns.Add(new DataColumn(modelProperty.Name, modelProperty.PropertyType)); // TODO: need to handle nullable types
+                    {
+                        if ((columnType = Nullable.GetUnderlyingType(modelProperty.PropertyType)) != null)
+                            dataTable.Columns.Add(new DataColumn(modelProperty.Name, columnType) { AllowDBNull = true });
+                        else
+                            dataTable.Columns.Add(new DataColumn(modelProperty.Name, modelProperty.PropertyType));
+                    }
 
                     dataTable.Columns.Add("__model", model.GetType());
+                    dataTable.PrimaryKey = new DataColumn[] { dataTable.Columns[modelKeyPropertyName] };
                 }
-
-                dataTable.PrimaryKey = new DataColumn[] { dataTable.Columns[modelKeyPropertyName] };
-
                 var dataRow = dataTable.NewRow();
+                
                 foreach (var modelProperty in modelProperties)
-                    dataRow[modelProperty.Name] = modelProperty.GetValue(model);
+                    dataRow[modelProperty.Name] = modelProperty.GetValue(model) ?? DBNull.Value;
 
                 dataRow["__model"] = model;
                 dataTable.Rows.Add(dataRow);
