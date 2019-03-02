@@ -15,8 +15,13 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.Serialization;
 
 namespace CT.Data
 {
@@ -57,7 +62,6 @@ namespace CT.Data
         public void Save(DbConnection connection, DbTransaction transaction, Composite composite)
         {
             var newComposites = new List<Composite>();
-            IEnumerable<object> deletedIds = null;
 
             composite.TraverseBreadthFirst((c) =>
             {
@@ -75,7 +79,7 @@ namespace CT.Data
                         .GetProperty(compositeDictionaryPropertyAttribute.CompositeDictionaryPropertyName)
                         .GetValue(c);
 
-                    deletedIds = (IEnumerable<object>)removedIdsProperty.GetValue(compositeDictionary);
+                    var deletedIds = (IEnumerable<object>)removedIdsProperty.GetValue(compositeDictionary);
                     OnDelete(connection, transaction, composite.GetType().Name, deletedIds);
                 }
 
@@ -92,13 +96,49 @@ namespace CT.Data
                 }
             });
 
-            OnSaveNew(connection, transaction, newComposites);
+            var dataTablesToInsert = new List<DataTable>();
+            var newCompositeTypes = newComposites.Select(nc => nc.GetType()).Distinct();
+
+            var modelKeyPropertyName = string.Empty;
+            var sqlColumnList = string.Empty;
+            var sqlInsertColumnList = string.Empty;
+
+            foreach (var compositeType in newCompositeTypes)
+            {
+                var compositeModelAttribute = compositeType.FindCustomAttribute<CompositeModelAttribute>();
+                if (compositeModelAttribute == null)
+                    throw new MissingMemberException();
+
+                FieldInfo modelFieldInfo;
+                modelFieldInfo = compositeType.GetField(compositeModelAttribute.ModelFieldName, BindingFlags.Instance | BindingFlags.NonPublic);
+                if (modelFieldInfo == null)
+                    throw new MissingMemberException();
+
+                modelKeyPropertyName = modelFieldInfo.FieldType.GetCustomAttribute<KeyPropertyAttribute>().PropertyName;
+                var columnProperties = modelFieldInfo
+                                        .FieldType
+                                        .GetProperties()
+                                        .Where(p => p.GetCustomAttribute<DataMemberAttribute>() != null);
+                
+                sqlColumnList = string.Join(',', columnProperties.Select(dataMemberProperty => dataMemberProperty.GetCustomAttribute<DataMemberAttribute>().Name ?? dataMemberProperty.Name));
+                sqlInsertColumnList = string.Join(',', columnProperties.Select(dataMemberProperty => "tableToInsert." + dataMemberProperty.GetCustomAttribute<DataMemberAttribute>().Name ?? dataMemberProperty.Name));
+
+                var dataTable = newComposites.Where(nc => nc.GetType() == compositeType).ToDataTable();
+
+                dataTable.ExtendedProperties[nameof(SaveParameters.ModelKeyPropertyName)] = modelKeyPropertyName;
+                dataTable.ExtendedProperties[nameof(SaveParameters.SqlColumnList)] = sqlColumnList;
+                dataTable.ExtendedProperties[nameof(SaveParameters.SqlInsertColumnList)] = sqlInsertColumnList;
+
+                dataTablesToInsert.Add(dataTable);
+            }
+
+            OnSaveNew(connection, transaction, dataTablesToInsert);
         }
 
         protected abstract DbConnection OnNewConnection(string connectionString);
         protected abstract DbTransaction OnNewTransaction(DbConnection connection);
         protected abstract void OnDelete(DbConnection connection, DbTransaction transaction, string tableName, IEnumerable<object> idValues);
-        protected abstract void OnSaveNew(DbConnection connection, DbTransaction transaction, IEnumerable<Composite> newComposites);
+        protected abstract void OnSaveNew(DbConnection connection, DbTransaction transaction, IReadOnlyList<DataTable> dataTablesToInsert);
         protected abstract void OnSaveUpdate(DbConnection connection, DbTransaction transaction, Composite composite);
         protected abstract void OnCommit(DbConnection connection, DbTransaction transaction);
         protected abstract IEnumerable<T> OnLoad<T>(DbConnection connection, DbTransaction transaction, string query) where T : new();

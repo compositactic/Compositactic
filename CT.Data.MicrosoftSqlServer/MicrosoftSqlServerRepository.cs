@@ -21,9 +21,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
 
 namespace CT.Data.MicrosoftSqlServer
@@ -78,18 +75,6 @@ namespace CT.Data.MicrosoftSqlServer
 
         protected override void OnDelete(DbConnection connection, DbTransaction transaction, string tableName, IEnumerable<object> idValues)
         {
-            //1,2,3,5,8,12,14,15,16,17,18,19,32,56,57,95
-
-            //1,2,3               x >= 1 && x <= 3
-            //5                   x == 5
-            //8                   x == 8
-            //12                  x == 12
-            //14,15,16,17,18,19   x >= 14 && x <= 19
-            //32                  x == 32
-            //56,57               x >= 56 && x <= 57
-            //95                  x == 95
-
-
             foreach (var id in idValues)
             {
                 // todo
@@ -101,46 +86,9 @@ namespace CT.Data.MicrosoftSqlServer
             throw new NotImplementedException();
         }
 
-        protected override void OnSaveNew(DbConnection connection, DbTransaction transaction, IEnumerable<Composite> newComposites)
+        protected override void OnSaveNew(DbConnection connection, DbTransaction transaction, IReadOnlyList<DataTable> dataTablesToInsert)
         {
-            var dataTablesToInsert = new List<DataTable>();
-
-            var newCompositeTypes = newComposites.Select(nc => nc.GetType()).Distinct();
-
-            var modelKeyPropertyName = string.Empty;
-            var sqlColumnList = string.Empty;
-            var sqlInsertColumnList = string.Empty;
-
-            foreach (var compositeType in newCompositeTypes)
-            {
-                var compositeModelAttribute = compositeType.FindCustomAttribute<CompositeModelAttribute>();
-                if (compositeModelAttribute == null)
-                    throw new MissingMemberException();
-
-                FieldInfo modelFieldInfo;
-                modelFieldInfo = compositeType.GetField(compositeModelAttribute.ModelFieldName, BindingFlags.Instance | BindingFlags.NonPublic);
-                if (modelFieldInfo == null)
-                    throw new MissingMemberException();
-
-                modelKeyPropertyName = modelFieldInfo.FieldType.GetCustomAttribute<KeyPropertyAttribute>().PropertyName;
-                var columnProperties = modelFieldInfo
-                                        .FieldType
-                                        .GetProperties()
-                                        .Where(p => p.GetCustomAttribute<DataMemberAttribute>() != null);
-
-                sqlColumnList = string.Join(',', columnProperties.Select(dataMemberProperty => dataMemberProperty.Name));
-                sqlInsertColumnList = string.Join(',', columnProperties.Select(dataMemberProperty => "tableToInsert." + dataMemberProperty.Name));
-
-                var dataTable = newComposites.Where(nc => nc.GetType() == compositeType).ToDataTable();
-
-                dataTable.ExtendedProperties[nameof(modelKeyPropertyName)] = modelKeyPropertyName;
-                dataTable.ExtendedProperties[nameof(sqlColumnList)] = sqlColumnList;
-                dataTable.ExtendedProperties[nameof(sqlInsertColumnList)] = sqlInsertColumnList;
-
-                dataTablesToInsert.Add(dataTable);
-            }
-
-            foreach(var dataTable in dataTablesToInsert)
+            foreach (var dataTable in dataTablesToInsert)
             {
                 if (!Regex.IsMatch(dataTable.TableName, @"^[A-Za-z0-9_]+$"))
                     throw new ArgumentException(Resources.InvalidTableName);
@@ -162,10 +110,10 @@ namespace CT.Data.MicrosoftSqlServer
                     MERGE INTO {dataTable.TableName}
                     USING #{dataTable.TableName} AS tableToInsert ON 1 = 0 
                     WHEN NOT MATCHED BY TARGET
-                    THEN INSERT({dataTable.ExtendedProperties[nameof(sqlColumnList)]})
-                      VALUES({dataTable.ExtendedProperties[nameof(sqlInsertColumnList)]})
-                    OUTPUT INSERTED.{dataTable.ExtendedProperties[nameof(modelKeyPropertyName)]} AS {nameof(InsertKeyPair.InsertedKey)},
-                      tableToInsert.{dataTable.ExtendedProperties[nameof(modelKeyPropertyName)]} AS {nameof(InsertKeyPair.OriginalKey)};
+                    THEN INSERT({dataTable.ExtendedProperties[nameof(SaveParameters.SqlColumnList)]})
+                      VALUES({dataTable.ExtendedProperties[nameof(SaveParameters.SqlInsertColumnList)]})
+                    OUTPUT INSERTED.{dataTable.ExtendedProperties[nameof(SaveParameters.ModelKeyPropertyName)]} AS {nameof(InsertKeyPair.InsertedKey)},
+                      tableToInsert.{dataTable.ExtendedProperties[nameof(SaveParameters.ModelKeyPropertyName)]} AS {nameof(InsertKeyPair.OriginalKey)};
                 ";
 
                 var insertKeyPairs = OnLoad<InsertKeyPair>(connection, transaction, mergeSql);
@@ -176,7 +124,7 @@ namespace CT.Data.MicrosoftSqlServer
                 {
                     var row = dataTable.Rows.Find(insertKeyPair.OriginalKey);
                     var model = row["__model"];
-                    model.GetType().GetProperty(modelKeyPropertyName).SetValue(model, insertKeyPair.InsertedKey);
+                    model.GetType().GetProperty(dataTable.ExtendedProperties[nameof(SaveParameters.ModelKeyPropertyName)] as string).SetValue(model, insertKeyPair.InsertedKey);
                 }
             }
         }

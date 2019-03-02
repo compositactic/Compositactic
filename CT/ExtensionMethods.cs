@@ -567,22 +567,26 @@ namespace CT
                     compositeType = composite.GetType();
                 else
                     if (composite.GetType() != compositeType)
-                        throw new ArgumentException(Resources.MustAllBeSameCompositeType);
+                        throw new InvalidOperationException(Resources.MustAllBeSameCompositeType);
 
                 if(compositeModelAttribute == null)
                 {
                     compositeModelAttribute = compositeType.FindCustomAttribute<CompositeModelAttribute>();
                     if (compositeModelAttribute == null)
-                        throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveCompositeModelAttribute, compositeType.Name));
+                        throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveCompositeModelAttribute, compositeType.Name));
                 }
 
                 if (modelFieldInfo == null)
                     modelFieldInfo = compositeType.GetField(compositeModelAttribute.ModelFieldName, BindingFlags.Instance | BindingFlags.NonPublic);
 
                 if (modelFieldInfo == null)
-                    throw new ArgumentException(Resources.CannotFindCompositeModelProperty);
+                    throw new MemberAccessException(Resources.CannotFindCompositeModelProperty);
 
-                var modelKeyPropertyName = modelFieldInfo.FieldType.GetCustomAttribute<KeyPropertyAttribute>().PropertyName;
+                KeyPropertyAttribute keyPropertyAttribute = null;
+                if ((keyPropertyAttribute = modelFieldInfo.FieldType.GetCustomAttribute<KeyPropertyAttribute>()) == null)
+                    throw new InvalidOperationException();
+
+                var modelKeyPropertyName = keyPropertyAttribute.PropertyName;
 
                 var model = modelFieldInfo.GetValue(composite);
 
@@ -591,24 +595,35 @@ namespace CT
 
                 if(dataTable == null)
                 {
-                    dataTable = new DataTable(modelFieldInfo.FieldType.Name);
+                    DataContractAttribute dataContractAttribute = null;
+
+                    if ((dataContractAttribute = modelFieldInfo.FieldType.GetCustomAttribute<DataContractAttribute>()) == null)
+                        throw new InvalidOperationException(); 
+
+                    dataTable = new DataTable(dataContractAttribute.Name ?? modelFieldInfo.FieldType.Name);
 
                     Type columnType = null;
                     foreach(var modelProperty in modelProperties)
                     {
+                        var columnName = modelProperty.GetCustomAttribute<DataMemberAttribute>().Name ?? modelProperty.Name;
+
                         if ((columnType = Nullable.GetUnderlyingType(modelProperty.PropertyType)) != null)
-                            dataTable.Columns.Add(new DataColumn(modelProperty.Name, columnType) { AllowDBNull = true });
+                            dataTable.Columns.Add(new DataColumn(columnName, columnType) { AllowDBNull = true });
                         else
-                            dataTable.Columns.Add(new DataColumn(modelProperty.Name, modelProperty.PropertyType));
+                            dataTable.Columns.Add(new DataColumn(columnName, modelProperty.PropertyType));
                     }
 
                     dataTable.Columns.Add("__model", model.GetType());
                     dataTable.PrimaryKey = new DataColumn[] { dataTable.Columns[modelKeyPropertyName] };
                 }
+
                 var dataRow = dataTable.NewRow();
                 
                 foreach (var modelProperty in modelProperties)
-                    dataRow[modelProperty.Name] = modelProperty.GetValue(model) ?? DBNull.Value;
+                {
+                    var columnName = modelProperty.GetCustomAttribute<DataMemberAttribute>().Name ?? modelProperty.Name;
+                    dataRow[columnName] = modelProperty.GetValue(model) ?? DBNull.Value;
+                }
 
                 dataRow["__model"] = model;
                 dataTable.Rows.Add(dataRow);
