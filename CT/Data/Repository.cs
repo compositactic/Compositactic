@@ -15,10 +15,12 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using CT.Properties;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
@@ -68,6 +70,10 @@ namespace CT.Data
                 var compositeType = c.GetType();
 
                 CompositeDictionaryPropertyAttribute compositeDictionaryPropertyAttribute;
+                CompositeModelAttribute compositeModelAttribute = null;
+                FieldInfo modelFieldInfo = null;
+                DataContractAttribute dataContractAttribute;
+
                 if ((compositeDictionaryPropertyAttribute = compositeType.FindCustomAttribute<CompositeDictionaryPropertyAttribute>()) != null)
                 {
                     var removedIdsProperty = compositeType
@@ -78,9 +84,19 @@ namespace CT.Data
                     var compositeDictionary = compositeType
                         .GetProperty(compositeDictionaryPropertyAttribute.CompositeDictionaryPropertyName)
                         .GetValue(c);
+ 
+                    if ((compositeModelAttribute = compositeType.FindCustomAttribute<CompositeModelAttribute>()) == null)
+                        throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveCompositeModelAttribute, compositeType.Name));
+
+                    if ((modelFieldInfo = compositeType.GetField(compositeModelAttribute.ModelFieldName, BindingFlags.Instance | BindingFlags.NonPublic)) == null)
+                        throw new MemberAccessException(Resources.CannotFindCompositeModelProperty);
+
+                    if ((dataContractAttribute = modelFieldInfo.FieldType.GetCustomAttribute<DataContractAttribute>()) == null)
+                        throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveDataContractAttribute, modelFieldInfo.FieldType));
 
                     var deletedIds = (IEnumerable<object>)removedIdsProperty.GetValue(compositeDictionary);
-                    OnDelete(connection, transaction, composite.GetType().Name, deletedIds);
+
+                    OnDelete(connection, transaction, dataContractAttribute.Name ?? modelFieldInfo.FieldType.Name, deletedIds);
                 }
 
                 switch (c.State)

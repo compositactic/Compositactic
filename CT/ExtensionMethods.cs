@@ -584,7 +584,7 @@ namespace CT
 
                 KeyPropertyAttribute keyPropertyAttribute = null;
                 if ((keyPropertyAttribute = modelFieldInfo.FieldType.GetCustomAttribute<KeyPropertyAttribute>()) == null)
-                    throw new InvalidOperationException();
+                    throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveKeyPropertyAttribute, modelFieldInfo.FieldType));
 
                 var modelKeyPropertyName = keyPropertyAttribute.PropertyName;
 
@@ -598,7 +598,7 @@ namespace CT
                     DataContractAttribute dataContractAttribute = null;
 
                     if ((dataContractAttribute = modelFieldInfo.FieldType.GetCustomAttribute<DataContractAttribute>()) == null)
-                        throw new InvalidOperationException(); 
+                        throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveDataContractAttribute, modelFieldInfo.FieldType)); 
 
                     dataTable = new DataTable(dataContractAttribute.Name ?? modelFieldInfo.FieldType.Name);
 

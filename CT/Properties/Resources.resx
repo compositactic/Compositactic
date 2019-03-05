@@ -181,4 +181,10 @@
   <data name="MustAllBeSameCompositeType" xml:space="preserve">
     <value>Composites must all be of the same type</value>
   </data>
+  <data name="MustHaveKeyPropertyAttribute" xml:space="preserve">
+    <value>KeyPropertyAttribute missing from type {0}</value>
+  </data>
+  <data name="MustHaveDataContractAttribute" xml:space="preserve">
+    <value>DataContractAttribute missing from type {0}</value>
+  </data>
 </root>

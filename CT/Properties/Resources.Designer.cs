@@ -181,6 +181,24 @@ namespace CT.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to DataContractAttribute missing from type {0}.
+        /// </summary>
+        internal static string MustHaveDataContractAttribute {
+            get {
+                return ResourceManager.GetString("MustHaveDataContractAttribute", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to KeyPropertyAttribute missing from type {0}.
+        /// </summary>
+        internal static string MustHaveKeyPropertyAttribute {
+            get {
+                return ResourceManager.GetString("MustHaveKeyPropertyAttribute", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Must have valid Session Token.
         /// </summary>
         internal static string MustHaveValidSessionToken {
