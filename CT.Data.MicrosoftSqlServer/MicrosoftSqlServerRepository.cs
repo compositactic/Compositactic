@@ -21,6 +21,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
+using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace CT.Data.MicrosoftSqlServer
@@ -75,18 +77,25 @@ namespace CT.Data.MicrosoftSqlServer
 
         protected override void OnDelete(DbConnection connection, DbTransaction transaction, string tableName, IEnumerable<object> idValues)
         {
-            foreach (var id in idValues)
+            int batchSize = 500;
+
+            var batches = idValues
+                    .Select((item, inx) => new { item, inx })
+                    .GroupBy(x => x.inx / batchSize)
+                    .Select(g => g.Select(x => x.item));
+
+            foreach (var batch in batches)
             {
-                // todo
+
             }
         }
 
-        protected override void OnSaveUpdate(DbConnection connection, DbTransaction transaction, Composite composite)
+        protected override void OnUpdate(DbConnection connection, DbTransaction transaction, Composite composite)
         {
             throw new NotImplementedException();
         }
 
-        protected override void OnSaveNew(DbConnection connection, DbTransaction transaction, IReadOnlyList<DataTable> dataTablesToInsert)
+        protected override void OnInsert(DbConnection connection, DbTransaction transaction, IReadOnlyList<DataTable> dataTablesToInsert)
         {
             foreach (var dataTable in dataTablesToInsert)
             {
@@ -120,11 +129,18 @@ namespace CT.Data.MicrosoftSqlServer
 
                 OnExecute<object>(connection, transaction, $@"DROP TABLE #{dataTable.TableName}");
 
-                foreach(var insertKeyPair in insertKeyPairs)
+                var modelKeyPropertyName = dataTable.ExtendedProperties[nameof(SaveParameters.ModelKeyPropertyName)] as string;
+                PropertyInfo modelKeyProperty = null;
+
+                foreach (var insertKeyPair in insertKeyPairs)
                 {
                     var row = dataTable.Rows.Find(insertKeyPair.OriginalKey);
                     var model = row["__model"];
-                    model.GetType().GetProperty(dataTable.ExtendedProperties[nameof(SaveParameters.ModelKeyPropertyName)] as string).SetValue(model, insertKeyPair.InsertedKey);
+
+                    if (modelKeyProperty == null)
+                        modelKeyProperty = model.GetType().GetProperty(modelKeyPropertyName);
+
+                    modelKeyProperty.SetValue(model, insertKeyPair.InsertedKey);
                 }
             }
         }

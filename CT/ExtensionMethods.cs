@@ -598,9 +598,14 @@ namespace CT
                     DataContractAttribute dataContractAttribute = null;
 
                     if ((dataContractAttribute = modelFieldInfo.FieldType.GetCustomAttribute<DataContractAttribute>()) == null)
-                        throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveDataContractAttribute, modelFieldInfo.FieldType)); 
+                        throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveDataContractAttribute, modelFieldInfo.FieldType));
 
-                    dataTable = new DataTable(dataContractAttribute.Name ?? modelFieldInfo.FieldType.Name);
+                    var dataTableName = dataContractAttribute.Name ?? modelFieldInfo.FieldType.Name;
+
+                    if (!Regex.IsMatch(dataTableName, @"^[A-Za-z0-9_]+$"))
+                        throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidTableName, dataTableName));
+
+                    dataTable = new DataTable(dataTableName);
 
                     Type columnType = null;
                     foreach(var modelProperty in modelProperties)

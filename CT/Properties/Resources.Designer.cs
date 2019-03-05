@@ -61,7 +61,7 @@ namespace CT.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Cannot find the property {0}.
+        ///   Looks up a localized string similar to Cannot find the property &apos;{0}&apos;.
         /// </summary>
         internal static string CannotFindCompositeModelProperty {
             get {
@@ -127,11 +127,29 @@ namespace CT.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Directory {0} does not exist.
+        ///   Looks up a localized string similar to Directory &apos;{0}&apos; does not exist.
         /// </summary>
         internal static string DirectoryDoesNotExist {
             get {
                 return ResourceManager.GetString("DirectoryDoesNotExist", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The column name &apos;{0}&apos; is invalid.
+        /// </summary>
+        internal static string InvalidColumnName {
+            get {
+                return ResourceManager.GetString("InvalidColumnName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The table name &apos;{0}&apos; is invalid.
+        /// </summary>
+        internal static string InvalidTableName {
+            get {
+                return ResourceManager.GetString("InvalidTableName", resourceCulture);
             }
         }
         
@@ -181,7 +199,7 @@ namespace CT.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to DataContractAttribute missing from type {0}.
+        ///   Looks up a localized string similar to DataContractAttribute missing from type &apos;{0}&apos;.
         /// </summary>
         internal static string MustHaveDataContractAttribute {
             get {
@@ -190,7 +208,7 @@ namespace CT.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to KeyPropertyAttribute missing from type {0}.
+        ///   Looks up a localized string similar to KeyPropertyAttribute missing from type &apos;{0}&apos;.
         /// </summary>
         internal static string MustHaveKeyPropertyAttribute {
             get {

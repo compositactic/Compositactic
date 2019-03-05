@@ -24,6 +24,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
+using System.Text.RegularExpressions;
 
 namespace CT.Data
 {
@@ -79,7 +80,7 @@ namespace CT.Data
                     var removedIdsProperty = compositeType
                         .GetProperty(compositeDictionaryPropertyAttribute.CompositeDictionaryPropertyName)
                         .GetValue(c)
-                        .GetType().GetProperty("RemovedIds");
+                        .GetType().GetProperty(nameof(CompositeDictionary<object,Composite>.RemovedIds));
 
                     var compositeDictionary = compositeType
                         .GetProperty(compositeDictionaryPropertyAttribute.CompositeDictionaryPropertyName)
@@ -102,7 +103,7 @@ namespace CT.Data
                 switch (c.State)
                 {
                     case CompositeState.Modified:
-                        OnSaveUpdate(connection, transaction, composite);
+                        OnUpdate(connection, transaction, composite);
                         break;
                     case CompositeState.New:
                         newComposites.Add(c);
@@ -123,21 +124,27 @@ namespace CT.Data
             {
                 var compositeModelAttribute = compositeType.FindCustomAttribute<CompositeModelAttribute>();
                 if (compositeModelAttribute == null)
-                    throw new MissingMemberException();
+                    throw new MissingMemberException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveCompositeModelAttribute, compositeType.Name));
 
                 FieldInfo modelFieldInfo;
                 modelFieldInfo = compositeType.GetField(compositeModelAttribute.ModelFieldName, BindingFlags.Instance | BindingFlags.NonPublic);
                 if (modelFieldInfo == null)
-                    throw new MissingMemberException();
+                    throw new MissingMemberException(string.Format(CultureInfo.CurrentCulture, Resources.CannotFindCompositeModelProperty, compositeModelAttribute.ModelFieldName));
 
                 modelKeyPropertyName = modelFieldInfo.FieldType.GetCustomAttribute<KeyPropertyAttribute>().PropertyName;
                 var columnProperties = modelFieldInfo
                                         .FieldType
                                         .GetProperties()
                                         .Where(p => p.GetCustomAttribute<DataMemberAttribute>() != null);
-                
-                sqlColumnList = string.Join(',', columnProperties.Select(dataMemberProperty => dataMemberProperty.GetCustomAttribute<DataMemberAttribute>().Name ?? dataMemberProperty.Name));
-                sqlInsertColumnList = string.Join(',', columnProperties.Select(dataMemberProperty => "tableToInsert." + dataMemberProperty.GetCustomAttribute<DataMemberAttribute>().Name ?? dataMemberProperty.Name));
+
+                var columnList = columnProperties.Select(dataMemberProperty => dataMemberProperty.GetCustomAttribute<DataMemberAttribute>().Name ?? dataMemberProperty.Name);
+
+                var invalidColumnName = string.Empty;
+                if((invalidColumnName = columnList.FirstOrDefault(c => !Regex.IsMatch(c, @"^[A-Za-z0-9_]+$"))) != null) 
+                    throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidColumnName, compositeModelAttribute.ModelFieldName));
+
+                sqlColumnList = string.Join(',', columnList);
+                sqlInsertColumnList = string.Join(',', columnList.Select(c => "tableToInsert." + c));
 
                 var dataTable = newComposites.Where(nc => nc.GetType() == compositeType).ToDataTable();
 
@@ -148,14 +155,14 @@ namespace CT.Data
                 dataTablesToInsert.Add(dataTable);
             }
 
-            OnSaveNew(connection, transaction, dataTablesToInsert);
+            OnInsert(connection, transaction, dataTablesToInsert);
         }
 
         protected abstract DbConnection OnNewConnection(string connectionString);
         protected abstract DbTransaction OnNewTransaction(DbConnection connection);
         protected abstract void OnDelete(DbConnection connection, DbTransaction transaction, string tableName, IEnumerable<object> idValues);
-        protected abstract void OnSaveNew(DbConnection connection, DbTransaction transaction, IReadOnlyList<DataTable> dataTablesToInsert);
-        protected abstract void OnSaveUpdate(DbConnection connection, DbTransaction transaction, Composite composite);
+        protected abstract void OnInsert(DbConnection connection, DbTransaction transaction, IReadOnlyList<DataTable> dataTablesToInsert);
+        protected abstract void OnUpdate(DbConnection connection, DbTransaction transaction, Composite composite);
         protected abstract void OnCommit(DbConnection connection, DbTransaction transaction);
         protected abstract IEnumerable<T> OnLoad<T>(DbConnection connection, DbTransaction transaction, string query) where T : new();
         protected abstract T OnExecute<T>(DbConnection connection, DbTransaction transaction, string statement);
