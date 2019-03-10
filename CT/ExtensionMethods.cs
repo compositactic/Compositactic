@@ -640,9 +640,25 @@ namespace CT
         public static void ToModel(this IDataRecord record, object model)
         {
             var modelType = model.GetType();
+            var modelProperties = modelType.GetProperties();
+            PropertyInfo propertyInfo = null;
 
             for (int columnIndex = 0; columnIndex < record.FieldCount; columnIndex++)
-                modelType.GetProperty(record.GetName(columnIndex)).SetValue(model, record[columnIndex]);
+            {
+                var columnName = record.GetName(columnIndex);
+                try
+                {
+                    if ((propertyInfo = modelProperties.SingleOrDefault(p => p.GetCustomAttribute<DataMemberAttribute>()?.Name == columnName)) == null)
+                        if ((propertyInfo = modelProperties.SingleOrDefault(p => p.Name == columnName)) == null)
+                            throw new InvalidOperationException(Resources.MustMapToASingleProperty);
+                }
+                catch(InvalidOperationException e)
+                {
+                    throw new InvalidOperationException(Resources.MustMapToASingleProperty, e);
+                }
+
+                propertyInfo.SetValue(model, record[columnIndex]);
+            }
         }
 
         public static T ToModel<T>(this IDataRecord record) where T : new()

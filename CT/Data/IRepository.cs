@@ -22,9 +22,9 @@ namespace CT.Data
 {
     public interface IRepository : IService
     {
-        IEnumerable<T> Load<T>(DbConnection connection, DbTransaction transaction, string query) where T : new();
+        IEnumerable<T> Load<T>(DbConnection connection, DbTransaction transaction, string query, IEnumerable<DbParameter> parameters) where T : new();
         void Save(DbConnection connection, DbTransaction transaction, Composite composite);
-        T Execute<T>(DbConnection connection, DbTransaction transaction, string statement);
+        T Execute<T>(DbConnection connection, DbTransaction transaction, string statement, IEnumerable<DbParameter> parameters);
         DbConnection OpenConnection(string connectionString);
         DbTransaction BeginTransaction(DbConnection connection);
         void CommitTransaction(DbTransaction transaction);

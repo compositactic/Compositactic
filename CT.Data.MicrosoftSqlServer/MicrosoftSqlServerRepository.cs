@@ -31,25 +31,31 @@ namespace CT.Data.MicrosoftSqlServer
     {
         protected MicrosoftSqlServerRepository() {  }
 
-        protected override T OnExecute<T>(DbConnection connection, DbTransaction transaction, string statement)
+        protected override T OnExecute<T>(DbConnection connection, DbTransaction transaction, string statement, IEnumerable<DbParameter> parameters)
         {
             var command = new SqlCommand(statement, (SqlConnection)connection)
             {
                 Transaction = (SqlTransaction)transaction
             };
 
+            if (parameters != null)
+                command.Parameters.AddRange(parameters.ToArray());
+
             var returnValue = (T)command.ExecuteScalar();
             return returnValue;
         }
 
-        protected override IEnumerable<T> OnLoad<T>(DbConnection connection, DbTransaction transaction, string query)
+        protected override IEnumerable<T> OnLoad<T>(DbConnection connection, DbTransaction transaction, string query, IEnumerable<DbParameter> parameters)
         {
-            var cmd = new SqlCommand(query, (SqlConnection)connection)
+            var command = new SqlCommand(query, (SqlConnection)connection)
             {
                 Transaction = (SqlTransaction)transaction
             };
 
-            var dataReader = cmd.ExecuteReader();
+            if (parameters != null)
+                command.Parameters.AddRange(parameters.ToArray());
+
+            var dataReader = command.ExecuteReader();
             while (dataReader.Read())
             {
                 yield return dataReader.ToModel<T>();
@@ -75,8 +81,11 @@ namespace CT.Data.MicrosoftSqlServer
             transaction.Commit();
         }
 
-        protected override void OnDelete(DbConnection connection, DbTransaction transaction, string tableName, IEnumerable<object> idValues)
+        protected override void OnDelete(DbConnection connection, DbTransaction transaction, string tableName, string tableKeyPropertyName, IEnumerable<object> idValues)
         {
+            if (!Regex.IsMatch(tableName, @"^[A-Za-z0-9_]+$"))
+                throw new ArgumentException(Resources.InvalidTableName);
+
             int batchSize = 500;
 
             var batches = idValues
@@ -84,9 +93,14 @@ namespace CT.Data.MicrosoftSqlServer
                     .GroupBy(x => x.inx / batchSize)
                     .Select(g => g.Select(x => x.item));
 
+            var sqlStatement = $@"DELETE FROM {tableName} WHERE {tableKeyPropertyName} IN ";
+
             foreach (var batch in batches)
             {
-
+                var parameterList = "(" + string.Join(',', batch.Select(id => "@p" + id.ToString())) + ")";  // TODO: SQL injection?
+                var parameters = batch.Select(id => new SqlParameter("@p" + id.ToString(), id.ToString()));
+                sqlStatement += parameterList;
+                OnExecute<object>(connection, transaction, sqlStatement, parameters);
             }
         }
 
@@ -104,9 +118,11 @@ namespace CT.Data.MicrosoftSqlServer
 
                 OnExecute<object>(connection, transaction,
                 $@"
+
                     SELECT * INTO #{dataTable.TableName} FROM {dataTable.TableName} WHERE 1 = 0
                     SET IDENTITY_INSERT #{dataTable.TableName} ON
-                ");
+
+                ", null);
 
                 using (var sqlBulkCopy = new SqlBulkCopy((SqlConnection)connection))
                 {
@@ -125,9 +141,9 @@ namespace CT.Data.MicrosoftSqlServer
                       tableToInsert.{dataTable.ExtendedProperties[nameof(SaveParameters.ModelKeyPropertyName)]} AS {nameof(InsertKeyPair.OriginalKey)};
                 ";
 
-                var insertKeyPairs = OnLoad<InsertKeyPair>(connection, transaction, mergeSql);
+                var insertKeyPairs = OnLoad<InsertKeyPair>(connection, transaction, mergeSql, null);
 
-                OnExecute<object>(connection, transaction, $@"DROP TABLE #{dataTable.TableName}");
+                OnExecute<object>(connection, transaction, $@"DROP TABLE #{dataTable.TableName}", null);
 
                 var modelKeyPropertyName = dataTable.ExtendedProperties[nameof(SaveParameters.ModelKeyPropertyName)] as string;
                 PropertyInfo modelKeyProperty = null;
@@ -148,7 +164,6 @@ namespace CT.Data.MicrosoftSqlServer
 
     internal class InsertKeyPair
     {
-        
         public object InsertedKey { get; set; }
         public object OriginalKey { get; set; }
     }

@@ -13,8 +13,13 @@
       "EndpointPublicDirectory": "ShopServerPublic",
       "EndpointPrivateDirectory": "ShopServerPrivate",
       "CustomSettings": {
-        "ConnectionString": "Data Source=(LocalDb)\\MSSQLLocalDB;Initial Catalog=blah;Integrated Security=SSPI;",
-        "AnotherSetting": "bar"
+
+        // This section will contain some documentation.
+        "Database.MSSqlServer": "Data Source=(LocalDb)\\MSSQLLocalDB;Initial Catalog={0};Integrated Security=SSPI;",
+        "Database.MSSqlServer.Master" :  "master",
+        "Database.MSSqlServer.ShopServerV01": "ShopServerV01",
+        "Database.MSSqlServer.ShopServerV02": "ShopServerV02"
+
       }
     }
   }

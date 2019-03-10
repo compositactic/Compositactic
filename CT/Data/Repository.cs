@@ -52,14 +52,14 @@ namespace CT.Data
             connection.Close();
         }
 
-        public T Execute<T>(DbConnection connection, DbTransaction transaction, string statement)
+        public T Execute<T>(DbConnection connection, DbTransaction transaction, string statement, IEnumerable<DbParameter> parameters)
         {
-            return OnExecute<T>(connection, transaction, statement);
+            return OnExecute<T>(connection, transaction, statement, parameters);
         }
 
-        public IEnumerable<T> Load<T>(DbConnection connection, DbTransaction transaction, string query) where T : new()
+        public IEnumerable<T> Load<T>(DbConnection connection, DbTransaction transaction, string query, IEnumerable<DbParameter> parameters) where T : new()
         {
-            return OnLoad<T>(connection, transaction, query);
+            return OnLoad<T>(connection, transaction, query, parameters);
         }
 
         public void Save(DbConnection connection, DbTransaction transaction, Composite composite)
@@ -74,18 +74,21 @@ namespace CT.Data
                 CompositeModelAttribute compositeModelAttribute = null;
                 FieldInfo modelFieldInfo = null;
                 DataContractAttribute dataContractAttribute;
+                KeyPropertyAttribute modelKeyPropertyAttribute = null;
+                PropertyInfo modelKeyProperty = null;
+                DataMemberAttribute modelKeyDataMemberAttribute = null;
 
                 if ((compositeDictionaryPropertyAttribute = compositeType.FindCustomAttribute<CompositeDictionaryPropertyAttribute>()) != null)
                 {
                     var removedIdsProperty = compositeType
                         .GetProperty(compositeDictionaryPropertyAttribute.CompositeDictionaryPropertyName)
                         .GetValue(c)
-                        .GetType().GetProperty(nameof(CompositeDictionary<object,Composite>.RemovedIds));
+                        .GetType().GetProperty(nameof(CompositeDictionary<object, Composite>.RemovedIds));
 
                     var compositeDictionary = compositeType
                         .GetProperty(compositeDictionaryPropertyAttribute.CompositeDictionaryPropertyName)
                         .GetValue(c);
- 
+
                     if ((compositeModelAttribute = compositeType.FindCustomAttribute<CompositeModelAttribute>()) == null)
                         throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveCompositeModelAttribute, compositeType.Name));
 
@@ -93,11 +96,20 @@ namespace CT.Data
                         throw new MemberAccessException(Resources.CannotFindCompositeModelProperty);
 
                     if ((dataContractAttribute = modelFieldInfo.FieldType.GetCustomAttribute<DataContractAttribute>()) == null)
-                        throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveDataContractAttribute, modelFieldInfo.FieldType));
+                        throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveDataContractAttribute, modelFieldInfo.FieldType.Name));
+
+                    if ((modelKeyPropertyAttribute = modelFieldInfo.FieldType.GetCustomAttribute<KeyPropertyAttribute>()) == null)
+                        throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveKeyPropertyAttribute, modelFieldInfo.FieldType.Name));
+
+                    if ((modelKeyProperty = modelFieldInfo.FieldType.GetProperty(modelKeyPropertyAttribute.PropertyName)) == null)
+                        throw new InvalidOperationException();
+
+                    if ((modelKeyDataMemberAttribute = modelKeyProperty.GetCustomAttribute<DataMemberAttribute>()) == null)
+                        throw new InvalidOperationException();
 
                     var deletedIds = (IEnumerable<object>)removedIdsProperty.GetValue(compositeDictionary);
 
-                    OnDelete(connection, transaction, dataContractAttribute.Name ?? modelFieldInfo.FieldType.Name, deletedIds);
+                    OnDelete(connection, transaction, dataContractAttribute.Name ?? modelFieldInfo.FieldType.Name, modelKeyDataMemberAttribute.Name ?? modelKeyProperty.Name, deletedIds);
                 }
 
                 switch (c.State)
@@ -113,6 +125,11 @@ namespace CT.Data
                 }
             });
 
+            SaveNewComposites(connection, transaction, newComposites);
+        }
+
+        private void SaveNewComposites(DbConnection connection, DbTransaction transaction, List<Composite> newComposites)
+        {
             var dataTablesToInsert = new List<DataTable>();
             var newCompositeTypes = newComposites.Select(nc => nc.GetType()).Distinct();
 
@@ -140,8 +157,8 @@ namespace CT.Data
                 var columnList = columnProperties.Select(dataMemberProperty => dataMemberProperty.GetCustomAttribute<DataMemberAttribute>().Name ?? dataMemberProperty.Name);
 
                 var invalidColumnName = string.Empty;
-                if((invalidColumnName = columnList.FirstOrDefault(c => !Regex.IsMatch(c, @"^[A-Za-z0-9_]+$"))) != null) 
-                    throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidColumnName, compositeModelAttribute.ModelFieldName));
+                if ((invalidColumnName = columnList.FirstOrDefault(c => !Regex.IsMatch(c, @"^[A-Za-z0-9_]+$"))) != null)
+                    throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidColumnName, invalidColumnName));
 
                 sqlColumnList = string.Join(',', columnList);
                 sqlInsertColumnList = string.Join(',', columnList.Select(c => "tableToInsert." + c));
@@ -160,11 +177,11 @@ namespace CT.Data
 
         protected abstract DbConnection OnNewConnection(string connectionString);
         protected abstract DbTransaction OnNewTransaction(DbConnection connection);
-        protected abstract void OnDelete(DbConnection connection, DbTransaction transaction, string tableName, IEnumerable<object> idValues);
+        protected abstract void OnDelete(DbConnection connection, DbTransaction transaction, string tableName, string tableKeyPropertyName, IEnumerable<object> idValues);
         protected abstract void OnInsert(DbConnection connection, DbTransaction transaction, IReadOnlyList<DataTable> dataTablesToInsert);
         protected abstract void OnUpdate(DbConnection connection, DbTransaction transaction, Composite composite);
         protected abstract void OnCommit(DbConnection connection, DbTransaction transaction);
-        protected abstract IEnumerable<T> OnLoad<T>(DbConnection connection, DbTransaction transaction, string query) where T : new();
-        protected abstract T OnExecute<T>(DbConnection connection, DbTransaction transaction, string statement);
+        protected abstract IEnumerable<T> OnLoad<T>(DbConnection connection, DbTransaction transaction, string query, IEnumerable<DbParameter> parameters) where T : new();
+        protected abstract T OnExecute<T>(DbConnection connection, DbTransaction transaction, string statement, IEnumerable<DbParameter> parameters);
     }
 }

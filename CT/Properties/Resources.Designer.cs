@@ -235,6 +235,15 @@ namespace CT.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Column &apos;{0}&apos; must map to a single &apos;{1}&apos; property .
+        /// </summary>
+        internal static string MustMapToASingleProperty {
+            get {
+                return ResourceManager.GetString("MustMapToASingleProperty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to keyPropertyValueGenerationFunc must return a unique key value.
         /// </summary>
         internal static string MustReturnAUniqueKeyValue {
