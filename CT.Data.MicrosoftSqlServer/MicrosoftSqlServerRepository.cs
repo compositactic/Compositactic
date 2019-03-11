@@ -95,16 +95,18 @@ namespace CT.Data.MicrosoftSqlServer
 
             var sqlStatement = $@"DELETE FROM {tableName} WHERE {tableKeyPropertyName} IN ";
 
+            var parameterIndex = 0;
             foreach (var batch in batches)
             {
-                var parameterList = "(" + string.Join(',', batch.Select(id => "@p" + id.ToString())) + ")";  // TODO: SQL injection?
-                var parameters = batch.Select(id => new SqlParameter("@p" + id.ToString(), id.ToString()));
+                var parameterList = "(" + string.Join(',', batch.Select(id => "@p" + parameterIndex++)) + ")";
+                parameterIndex = 0;
+                var parameters = batch.Select(id => new SqlParameter("@p" + parameterIndex++, id.ToString()));
                 sqlStatement += parameterList;
                 OnExecute<object>(connection, transaction, sqlStatement, parameters);
             }
         }
 
-        protected override void OnUpdate(DbConnection connection, DbTransaction transaction, Composite composite)
+        protected override void OnUpdate(DbConnection connection, DbTransaction transaction, string tableName, string tableKeyPropertyName, IReadOnlyDictionary<string, object> modifiedColumns)
         {
             throw new NotImplementedException();
         }
