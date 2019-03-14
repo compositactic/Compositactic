@@ -145,6 +145,15 @@ namespace CT.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot find the property &apos;{0}&apos;.
+        /// </summary>
+        internal static string InvalidPropertyName {
+            get {
+                return ResourceManager.GetString("InvalidPropertyName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The table name &apos;{0}&apos; is invalid.
         /// </summary>
         internal static string InvalidTableName {
@@ -204,6 +213,15 @@ namespace CT.Properties {
         internal static string MustHaveDataContractAttribute {
             get {
                 return ResourceManager.GetString("MustHaveDataContractAttribute", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Property &apos;{0}&apos; must have a DataMemberAttribute.
+        /// </summary>
+        internal static string MustHaveDataMemberAttribute {
+            get {
+                return ResourceManager.GetString("MustHaveDataMemberAttribute", resourceCulture);
             }
         }
         

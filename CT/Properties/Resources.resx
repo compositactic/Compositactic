@@ -196,4 +196,10 @@
   <data name="MustMapToASingleProperty" xml:space="preserve">
     <value>Column '{0}' must map to a single '{1}' property </value>
   </data>
+  <data name="InvalidPropertyName" xml:space="preserve">
+    <value>Cannot find the property '{0}'</value>
+  </data>
+  <data name="MustHaveDataMemberAttribute" xml:space="preserve">
+    <value>Property '{0}' must have a DataMemberAttribute</value>
+  </data>
 </root>

@@ -73,7 +73,7 @@ namespace CT.Data
                 CompositeDictionaryPropertyAttribute compositeDictionaryPropertyAttribute;
 
                 var compositeModelAttribute = compositeType.FindCustomAttribute<CompositeModelAttribute>();
-                var modelFieldInfo = compositeType?.GetField(compositeModelAttribute.ModelFieldName, BindingFlags.Instance | BindingFlags.NonPublic);
+                var modelFieldInfo = compositeType.GetField(compositeModelAttribute?.ModelFieldName, BindingFlags.Instance | BindingFlags.NonPublic);
                 var dataContractAttribute = modelFieldInfo?.FieldType.GetCustomAttribute<DataContractAttribute>();
                 var modelKeyPropertyAttribute = modelFieldInfo?.FieldType.GetCustomAttribute<KeyPropertyAttribute>();
                 var modelKeyProperty = modelFieldInfo?.FieldType.GetProperty(modelKeyPropertyAttribute.PropertyName);
@@ -103,10 +103,10 @@ namespace CT.Data
                         throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveKeyPropertyAttribute, modelFieldInfo.FieldType.Name));
 
                     if (modelKeyProperty == null)
-                        throw new InvalidOperationException();
+                        throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidPropertyName, modelKeyPropertyAttribute.PropertyName));
 
                     if (modelKeyDataMemberAttribute == null)
-                        throw new InvalidOperationException();
+                        throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveDataMemberAttribute, modelKeyPropertyAttribute.PropertyName));
 
                     var deletedIds = (IEnumerable<object>)removedIdsProperty.GetValue(compositeDictionary);
 
@@ -117,11 +117,27 @@ namespace CT.Data
                 {
                     case CompositeState.Modified:
 
-                        if (dataContractAttribute == null || modelFieldInfo == null || modelKeyDataMemberAttribute == null || modelKeyProperty == null)
-                            throw new InvalidOperationException();
-                        // TODO: get the model property names from ModifiedProperties
+                        if (modelFieldInfo == null)
+                            throw new MemberAccessException(Resources.CannotFindCompositeModelProperty);
 
-                        OnUpdate(connection, transaction, dataContractAttribute.Name ?? modelFieldInfo.FieldType.Name, modelKeyDataMemberAttribute.Name ?? modelKeyProperty.Name, composite.ModifiedProperties);
+                        if (dataContractAttribute == null)
+                            throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveDataContractAttribute, modelFieldInfo.FieldType.Name));
+
+                        if (modelKeyDataMemberAttribute == null)
+                            throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveDataMemberAttribute, modelKeyPropertyAttribute.PropertyName));
+
+                        if (modelKeyProperty == null)
+                            throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidPropertyName, modelKeyPropertyAttribute.PropertyName));
+
+                        var dataRow = new Composite[] { composite }.ToDataTable().Rows[0];
+                        var columnValues = dataRow.Table.Columns.Cast<DataColumn>().ToDictionary(column => column.ColumnName, column => dataRow[column]);
+
+                        var keyColumnName = modelKeyDataMemberAttribute.Name ?? modelKeyProperty.Name;
+                        var keyValue = dataRow[keyColumnName];
+
+                        OnUpdate(connection, transaction, dataContractAttribute.Name ?? modelFieldInfo.FieldType.Name, modelKeyDataMemberAttribute.Name ?? modelKeyProperty.Name, keyValue, columnValues);
+                        composite.State = CompositeState.Unchanged;
+
                         break;
                     case CompositeState.New:
                         newComposites.Add(c);
@@ -179,13 +195,16 @@ namespace CT.Data
             }
 
             OnInsert(connection, transaction, dataTablesToInsert);
+
+            foreach (var composite in newComposites)
+                composite.State = CompositeState.Unchanged;
         }
 
         protected abstract DbConnection OnNewConnection(string connectionString);
         protected abstract DbTransaction OnNewTransaction(DbConnection connection);
         protected abstract void OnDelete(DbConnection connection, DbTransaction transaction, string tableName, string tableKeyPropertyName, IEnumerable<object> idValues);
         protected abstract void OnInsert(DbConnection connection, DbTransaction transaction, IReadOnlyList<DataTable> dataTablesToInsert);
-        protected abstract void OnUpdate(DbConnection connection, DbTransaction transaction, string tableName, string tableKeyPropertyName, IReadOnlyDictionary<string, object> modifiedColumns);
+        protected abstract void OnUpdate(DbConnection connection, DbTransaction transaction, string tableName, string tableKeyPropertyName, object tableKeyValue, IReadOnlyDictionary<string, object> columnValues);
         protected abstract void OnCommit(DbConnection connection, DbTransaction transaction);
         protected abstract IEnumerable<T> OnLoad<T>(DbConnection connection, DbTransaction transaction, string query, IEnumerable<DbParameter> parameters) where T : new();
         protected abstract T OnExecute<T>(DbConnection connection, DbTransaction transaction, string statement, IEnumerable<DbParameter> parameters);

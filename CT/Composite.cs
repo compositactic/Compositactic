@@ -40,15 +40,6 @@ namespace CT
         
         public CompositeState State { get; set; } = CompositeState.Unchanged;
 
-        private readonly ConcurrentDictionary<string, object> _modifiedProperties = new ConcurrentDictionary<string, object>();
-        public IReadOnlyDictionary<string, object> ModifiedProperties { get { return _modifiedProperties; } }
-
-        public void ResetState()
-        {
-            _modifiedProperties.Clear();
-            State = CompositeState.Unchanged;
-        }
-
         protected virtual void NotifyPropertyChanged(string propertyName)
         {
             var property = GetType().GetProperty(propertyName);
@@ -64,11 +55,6 @@ namespace CT
                                         CompositeRoot != null && CompositeRoot.CompositeRootSession != null ?
                                             CompositeRoot.CompositeRootSession.Mode :
                                             CompositeRootMode.None));
-
-            if (_modifiedProperties.ContainsKey(propertyName))
-                _modifiedProperties[propertyName] = propertyValue;
-            else
-                _modifiedProperties.TryAdd(propertyName, propertyValue);
 
             State = CompositeState.Modified;
         }

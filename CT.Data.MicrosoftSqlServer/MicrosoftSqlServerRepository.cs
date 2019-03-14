@@ -106,7 +106,7 @@ namespace CT.Data.MicrosoftSqlServer
             }
         }
 
-        protected override void OnUpdate(DbConnection connection, DbTransaction transaction, string tableName, string tableKeyPropertyName, IReadOnlyDictionary<string, object> modifiedColumns)
+        protected override void OnUpdate(DbConnection connection, DbTransaction transaction, string tableName, string tableKeyPropertyName, object tableKeyValue, IReadOnlyDictionary<string, object> columnValues)
         {
             throw new NotImplementedException();
         }
