@@ -15,15 +15,12 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using CT.Data.MicrosoftSqlServer.Properties;
-using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Reflection;
-using System.Text.RegularExpressions;
 
 namespace CT.Data.MicrosoftSqlServer
 {
@@ -83,9 +80,6 @@ namespace CT.Data.MicrosoftSqlServer
 
         protected override void OnDelete(DbConnection connection, DbTransaction transaction, string tableName, string tableKeyPropertyName, IEnumerable<object> idValues)
         {
-            if (!Regex.IsMatch(tableName, @"^[A-Za-z0-9_]+$"))
-                throw new ArgumentException(Resources.InvalidTableName);
-
             int batchSize = 500;
 
             var batches = idValues
@@ -108,16 +102,25 @@ namespace CT.Data.MicrosoftSqlServer
 
         protected override void OnUpdate(DbConnection connection, DbTransaction transaction, string tableName, string tableKeyPropertyName, object tableKeyValue, IReadOnlyDictionary<string, object> columnValues)
         {
-            throw new NotImplementedException();
+            var sqlParameterList = new List<SqlParameter>
+            (
+                columnValues.Keys.Select(columnName => new SqlParameter("@" + columnName, columnValues[columnName]))    
+            );
+
+            var updateSql = 
+            $@"
+                UPDATE {tableName} 
+                SET {string.Join(',', sqlParameterList.Where(p => p.ParameterName != tableKeyPropertyName).Select(p => p.ParameterName.Substring(1) + " = " + p.ParameterName))}
+                WHERE {tableKeyPropertyName} = @{tableKeyPropertyName} 
+            ";
+
+            OnExecute<object>(connection, transaction, updateSql, sqlParameterList);
         }
 
         protected override void OnInsert(DbConnection connection, DbTransaction transaction, IReadOnlyList<DataTable> dataTablesToInsert)
         {
             foreach (var dataTable in dataTablesToInsert)
             {
-                if (!Regex.IsMatch(dataTable.TableName, @"^[A-Za-z0-9_]+$"))
-                    throw new ArgumentException(Resources.InvalidTableName);
-
                 OnExecute<object>(connection, transaction,
                 $@"
 

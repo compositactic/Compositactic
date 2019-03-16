@@ -110,7 +110,16 @@ namespace CT.Data
 
                     var deletedIds = (IEnumerable<object>)removedIdsProperty.GetValue(compositeDictionary);
 
-                    OnDelete(connection, transaction, dataContractAttribute.Name ?? modelFieldInfo.FieldType.Name, modelKeyDataMemberAttribute.Name ?? modelKeyProperty.Name, deletedIds);
+                    var tableName = dataContractAttribute.Name ?? modelFieldInfo.FieldType.Name;
+                    var tableKeyPropertyName = modelKeyDataMemberAttribute.Name ?? modelKeyProperty.Name;
+
+                    if (!Regex.IsMatch(tableName, @"^[A-Za-z0-9_]+$"))
+                        throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidTableName, tableName));
+
+                    if (!Regex.IsMatch(tableKeyPropertyName, @"^[A-Za-z0-9_]+$"))
+                        throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidColumnName, tableKeyPropertyName));
+
+                    OnDelete(connection, transaction, tableName, tableKeyPropertyName, deletedIds);
                 }
 
                 switch (c.State)
@@ -135,7 +144,20 @@ namespace CT.Data
                         var keyColumnName = modelKeyDataMemberAttribute.Name ?? modelKeyProperty.Name;
                         var keyValue = dataRow[keyColumnName];
 
-                        OnUpdate(connection, transaction, dataContractAttribute.Name ?? modelFieldInfo.FieldType.Name, modelKeyDataMemberAttribute.Name ?? modelKeyProperty.Name, keyValue, columnValues);
+                        var tableName = dataContractAttribute.Name ?? modelFieldInfo.FieldType.Name;
+                        var tableKeyPropertyName = modelKeyDataMemberAttribute.Name ?? modelKeyProperty.Name;
+
+                        if (!Regex.IsMatch(tableName, @"^[A-Za-z0-9_]+$"))
+                            throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidTableName, tableName));
+
+                        if (!Regex.IsMatch(tableKeyPropertyName, @"^[A-Za-z0-9_]+$"))
+                            throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidColumnName, tableKeyPropertyName));
+
+                        string invalidColumnName = null;
+                        if ((invalidColumnName = columnValues.Keys.FirstOrDefault(column => !Regex.IsMatch(column, @"^[A-Za-z0-9_]+$"))) != null)
+                            throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidColumnName, invalidColumnName));
+
+                        OnUpdate(connection, transaction, tableName, tableKeyPropertyName, keyValue, columnValues);
                         composite.State = CompositeState.Unchanged;
 
                         break;
@@ -193,6 +215,10 @@ namespace CT.Data
 
                 dataTablesToInsert.Add(dataTable);
             }
+
+            string invalidTableName = null;
+            if ((invalidTableName = dataTablesToInsert.FirstOrDefault(t => !Regex.IsMatch(t.TableName, @"^[A-Za-z0-9_]+$"))?.TableName) != null)
+                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidTableName, invalidTableName));
 
             OnInsert(connection, transaction, dataTablesToInsert);
 

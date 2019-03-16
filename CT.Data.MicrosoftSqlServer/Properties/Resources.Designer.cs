@@ -59,14 +59,5 @@ namespace CT.Data.MicrosoftSqlServer.Properties {
                 resourceCulture = value;
             }
         }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Invalid table name.
-        /// </summary>
-        internal static string InvalidTableName {
-            get {
-                return ResourceManager.GetString("InvalidTableName", resourceCulture);
-            }
-        }
     }
 }
