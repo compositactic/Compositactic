@@ -26,10 +26,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="000Util.sql">
+    <None Update="001Util.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="001ShopServerDatabase.sql">
+    <None Update="000ShopServerDatabase.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Shops\000Shop.sql">
