@@ -34,7 +34,7 @@ namespace CT.Data
 
         public DbConnection OpenConnection(string connectionString)
         {
-            return OnNewConnection(connectionString);
+            return OnOpenNewConnection(connectionString);
         }
 
         public DbTransaction BeginTransaction(DbConnection connection)
@@ -226,8 +226,8 @@ namespace CT.Data
                 composite.State = CompositeState.Unchanged;
         }
 
-        protected abstract DbConnection OnNewConnection(string connectionString);
-        protected abstract DbTransaction OnNewTransaction(DbConnection connection);
+        protected abstract DbConnection OnOpenNewConnection(string connectionString);
+        protected abstract DbTransaction OnBeginNewTransaction(DbConnection connection);
         protected abstract void OnDelete(DbConnection connection, DbTransaction transaction, string tableName, string tableKeyPropertyName, IEnumerable<object> idValues);
         protected abstract void OnInsert(DbConnection connection, DbTransaction transaction, IReadOnlyList<DataTable> dataTablesToInsert);
         protected abstract void OnUpdate(DbConnection connection, DbTransaction transaction, string tableName, string tableKeyPropertyName, object tableKeyValue, IReadOnlyDictionary<string, object> columnValues);

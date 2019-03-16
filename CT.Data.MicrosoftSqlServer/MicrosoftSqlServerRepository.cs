@@ -61,14 +61,14 @@ namespace CT.Data.MicrosoftSqlServer
             dataReader.Close();
         }
 
-        protected override DbConnection OnNewConnection(string connectionString)
+        protected override DbConnection OnOpenNewConnection(string connectionString)
         {
             var newConnection = new SqlConnection(connectionString);
             newConnection.Open();
             return newConnection;
         }
 
-        protected override DbTransaction OnNewTransaction(DbConnection connection)
+        protected override DbTransaction OnBeginNewTransaction(DbConnection connection)
         {
             return connection.BeginTransaction();
         }
