@@ -51,12 +51,12 @@ namespace CT.Blogs.Presentation.BlogMonitors
 
             var serverConfiguration = CompositeRootHttpServerConfiguration.Create(shopServerConfiguration);
 
-            BlogServer = serverConfiguration.CreateServer() as BlogServer;
+            BlogServer = serverConfiguration.CreateServer() as BlogApplicationServer;
             BlogServer.BlogMonitor = this;
             BlogServer.Start();
         }
 
         [DataMember]
-        public BlogServer BlogServer { get; private set; }
+        public BlogApplicationServer BlogServer { get; private set; }
     }
 }

@@ -38,10 +38,6 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Blogs\" />
-  </ItemGroup>
-
   <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
 
 </Project>

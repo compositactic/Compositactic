@@ -1,15 +1,15 @@
 {
   "ServerBackgroundTaskInterval": "00:00:15",
-  "ServerTypeName": "CT.Test.Presentation.ShopMonitors.ShopMonitorServer, CT.Test.Presentation",
+  "ServerTypeName": "CT.Blogs.Presentation.BlogMonitors.BlogMonitorServer, CT.Test.Presentation",
   "JsonSettings": { "Formatting": "Indented" },
   "rootConfigurations": {
 
     "AD1D8A31-1C15-44BD-8F9C-D20FDFEC54E9": {
-      "CompositeRootTypeName": "CT.Test.Presentation.ShopMonitors.ShopMonitorCompositeRoot, CT.Test.Presentation",
-      "CompositeRootAuthenticatorTypeName": "CT.Test.Presentation.ShopMonitors.ShopMonitorAuthenticator, CT.Test.Presentation",
+      "CompositeRootTypeName": "CT.Blogs.Presentation.BlogMonitors.BlogMonitorCompositeRoot, CT.Test.Presentation",
+      "CompositeRootAuthenticatorTypeName": "CT.Blogs.Presentation.BlogMonitors.BlogMonitorAuthenticator, CT.Test.Presentation",
       "SessionExpiration": "00:25:30",
       "Mode": "SingleHost",
-      "Endpoint": "http://localhost:8000/ShopMonitor/"
+      "Endpoint": "http://localhost:8000/BlogMonitor/"
     }
   }
 }

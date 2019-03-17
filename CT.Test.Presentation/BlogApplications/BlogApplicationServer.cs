@@ -28,18 +28,18 @@ using CT.Blogs.Presentation.BlogMonitors;
 namespace CT.Blogs.Presentation.BlogApplications
 {
     [DataContract]
-    [ParentProperty(nameof(BlogServer.BlogMonitor), nameof(BlogMonitorCompositeRoot.BlogServer))]
-    public class BlogServer : CompositeRootHttpServer
+    [ParentProperty(nameof(BlogApplicationServer.BlogMonitor), nameof(BlogMonitorCompositeRoot.BlogServer))]
+    public class BlogApplicationServer : CompositeRootHttpServer
     {
-        public BlogServer(CompositeRootHttpServerConfiguration configuration) : base(configuration)
+        public BlogApplicationServer(CompositeRootHttpServerConfiguration configuration) : base(configuration)
         {
         }
 
-        public BlogServer(CompositeRootHttpServerConfiguration configuration, IEnumerable<IService> services) : base(configuration, services)
+        public BlogApplicationServer(CompositeRootHttpServerConfiguration configuration, IEnumerable<IService> services) : base(configuration, services)
         {
         }
 
-        public BlogServer(CompositeRootHttpServerConfiguration configuration, IEnumerable<Assembly> serviceAssemblies) : base(configuration, serviceAssemblies)
+        public BlogApplicationServer(CompositeRootHttpServerConfiguration configuration, IEnumerable<Assembly> serviceAssemblies) : base(configuration, serviceAssemblies)
         {
         }
 
