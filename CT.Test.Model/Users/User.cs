@@ -16,7 +16,6 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Runtime.Serialization;
-using CT.Blogs.Model;
 
 namespace CT.Blogs.Model.Users
 {

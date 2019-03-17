@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CT.Blog.Test", "CT.Test\CT.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CT", "CT\CT.csproj", "{ABAD4267-C0DB-4403-BDFD-F5F710390089}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CT.BlogServer.Console", "CT.Server.Console\CT.BlogServer.Console.csproj", "{74195424-0EC0-4AF5-8986-F2DE14195686}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CT.Blog.ServerConsole", "CT.Server.Console\CT.Blog.ServerConsole.csproj", "{74195424-0EC0-4AF5-8986-F2DE14195686}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CT.Server.Foo.Console", "CT.Server.Foo.Console\CT.Server.Foo.Console.csproj", "{288D0A8F-6912-4113-935A-47E62A8D350F}"
 EndProject
