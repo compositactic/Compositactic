@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="BlogServerPrivate\ShopPrivate.html" />
+    <None Remove="BlogServerPublic\images\pixel.jpg" />
+    <None Remove="BlogServerPublic\Shop.html" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="BlogServerPrivate\ShopPrivate.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="BlogServerPublic\images\pixel.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="BlogServerPublic\Shop.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CT.Data.MicrosoftSqlServer\CT.Data.MicrosoftSqlServer.csproj" />
+    <ProjectReference Include="..\CT.Test.Presentation\CT.Blog.Presentation.csproj" />
+    <ProjectReference Include="..\CT\CT.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="BlogServerMonitorConfig.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="BlogServerConfig.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Blogs\" />
+  </ItemGroup>
+
+  <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
+
+</Project>

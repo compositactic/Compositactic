@@ -15,14 +15,20 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-namespace CT.Data
-{
-    public class SaveParameters
-    {
-        private SaveParameters() { }
+using CT.Hosting;
+using CT.Blogs.Presentation.Properties;
+using System;
 
-        public string ModelKeyPropertyName { get; set; }
-        public string SqlColumnList { get; set; }
-        public string SqlInsertColumnList { get; set; }
+namespace CT.Blogs.Presentation.BlogMonitors
+{
+    public class BlogMonitorAuthenticator : CompositeRootAuthenticator
+    {
+        public override CompositeRootAuthenticatorResponse LogOn(string userName, string password, CompositeRootHttpContext context)
+        {
+            if (userName?.ToLowerInvariant() == "admin" && password == "1234")
+                return new CompositeRootAuthenticatorResponse(Guid.NewGuid().ToString(), true, string.Empty, userName);
+            else
+                return new CompositeRootAuthenticatorResponse(null, false, Resources.BlogMonitorAuthenticator_InvalidLogOn, null);
+        }
     }
 }

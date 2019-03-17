@@ -117,40 +117,19 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Cashier_CreateNewCashier" xml:space="preserve">
-    <value>Creates a new Cashier with default values</value>
+  <data name="BlogApplicationCompositeRoot_AllBlogs" xml:space="preserve">
+    <value>All current Blogs</value>
   </data>
-  <data name="Cashier_CreateNewCashier_ParameterAuthority" xml:space="preserve">
-    <value>The acting authority of the Cashier</value>
+  <data name="BlogApplicationCompositeRoot_ErrorMessage" xml:space="preserve">
+    <value>Current error message</value>
   </data>
-  <data name="Cashier_CreateNewCashier_ParameterName" xml:space="preserve">
-    <value>The first and last name of the Cashier</value>
+  <data name="BlogCompositeContainer_CreateNewBlog_CommandHelp" xml:space="preserve">
+    <value>Creates a new empty Blog</value>
   </data>
-  <data name="ShopMonitor_ShopMonitorAuthenticator_InvalidLogOn" xml:space="preserve">
-    <value>Invalid username and password</value>
+  <data name="BlogCompositeContainer_CreateNewBlog_ReturnValueHelp" xml:space="preserve">
+    <value>Returns the created Blog</value>
   </data>
-  <data name="Shop_AllCashiers" xml:space="preserve">
-    <value>Gets the collection of Cashiers loaded for the Shop</value>
-  </data>
-  <data name="Shop_AllProducts" xml:space="preserve">
-    <value>Gets the colleciton of Products loaded for the Shop</value>
-  </data>
-  <data name="Shop_AllRegisters" xml:space="preserve">
-    <value>Gets the collection of Registers loaded for the Shop</value>
-  </data>
-  <data name="Shop_ErrorMessage" xml:space="preserve">
-    <value>Get the Shop's error message</value>
-  </data>
-  <data name="Shop_Name" xml:space="preserve">
-    <value>Gets or sets the name of the Shop</value>
-  </data>
-  <data name="Shop_Setup" xml:space="preserve">
-    <value>Loads Cashier, Register, and Product data for the Shop</value>
-  </data>
-  <data name="Shop_Setup_ParameterId" xml:space="preserve">
-    <value>The id of the Shop to load</value>
-  </data>
-  <data name="Shop_Setup_ReturnValue" xml:space="preserve">
-    <value>Returns 1 on success</value>
+  <data name="BlogMonitorAuthenticator_InvalidLogOn" xml:space="preserve">
+    <value>Login failed</value>
   </data>
 </root>

@@ -3,15 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27004.2009
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CT.Test.Model", "CT.Test.Model\CT.Test.Model.csproj", "{F6129116-E38F-494F-AA11-46A7CC59D77A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CT.Blog.Model", "CT.Test.Model\CT.Blog.Model.csproj", "{F6129116-E38F-494F-AA11-46A7CC59D77A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CT.Test.Presentation", "CT.Test.Presentation\CT.Test.Presentation.csproj", "{F3FAA56D-F679-41C5-A891-F05A997AFEE0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CT.Blog.Presentation", "CT.Test.Presentation\CT.Blog.Presentation.csproj", "{F3FAA56D-F679-41C5-A891-F05A997AFEE0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CT.Test", "CT.Test\CT.Test.csproj", "{46591E71-3F2A-432E-83B6-1669FFD2434A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CT.Blog.Test", "CT.Test\CT.Blog.Test.csproj", "{46591E71-3F2A-432E-83B6-1669FFD2434A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CT", "CT\CT.csproj", "{ABAD4267-C0DB-4403-BDFD-F5F710390089}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CT.Server.Console", "CT.Server.Console\CT.Server.Console.csproj", "{74195424-0EC0-4AF5-8986-F2DE14195686}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CT.BlogServer.Console", "CT.Server.Console\CT.BlogServer.Console.csproj", "{74195424-0EC0-4AF5-8986-F2DE14195686}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CT.Server.Foo.Console", "CT.Server.Foo.Console\CT.Server.Foo.Console.csproj", "{288D0A8F-6912-4113-935A-47E62A8D350F}"
 EndProject

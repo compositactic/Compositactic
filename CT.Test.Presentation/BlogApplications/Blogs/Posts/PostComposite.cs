@@ -15,14 +15,37 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-namespace CT.Data
-{
-    public class SaveParameters
-    {
-        private SaveParameters() { }
+using CT.Blogs.Model.Blogs.Posts;
+using System.Runtime.Serialization;
 
-        public string ModelKeyPropertyName { get; set; }
-        public string SqlColumnList { get; set; }
-        public string SqlInsertColumnList { get; set; }
+namespace CT.Blogs.Presentation.BlogApplications.Blogs.Posts
+{
+    [DataContract]
+    [KeyProperty(nameof(PostComposite.Id))]
+    [ParentProperty(nameof(PostComposite.AllPosts))]
+    [CompositeModel(nameof(PostComposite.PostModel))]
+    public class PostComposite : Composite
+    {
+        public PostCompositeContainer AllPosts { get; }
+
+        internal Post PostModel;
+
+        [DataMember]
+        public long Id
+        {
+            get { return PostModel.Id; }
+        }
+
+        internal PostComposite(Post post, PostCompositeContainer postCompositeContainer)
+        {
+            PostModel = post;
+            AllPosts = postCompositeContainer;
+        }
+
+        [Command]
+        public void Remove()
+        {
+            AllPosts.posts.Remove(Id);
+        }
     }
 }

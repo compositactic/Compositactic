@@ -18,7 +18,7 @@
 using System;
 using System.Threading;
 
-namespace CT.Test.Model
+namespace CT.Blogs.Model
 {
     public static class ExtensionMethods
     {

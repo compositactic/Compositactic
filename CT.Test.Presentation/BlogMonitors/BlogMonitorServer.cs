@@ -15,14 +15,37 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-namespace CT.Data
-{
-    public class SaveParameters
-    {
-        private SaveParameters() { }
+using CT.Hosting;
+using CT.Hosting.Configuration;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Runtime.Serialization;
 
-        public string ModelKeyPropertyName { get; set; }
-        public string SqlColumnList { get; set; }
-        public string SqlInsertColumnList { get; set; }
+namespace CT.Blogs.Presentation.BlogMonitors
+{
+    [DataContract]
+    public class BlogMonitorServer : CompositeRootHttpServer
+    {
+        public BlogMonitorServer(CompositeRootHttpServerConfiguration configuration) : base(configuration)
+        {
+
+        }
+
+        public BlogMonitorServer(CompositeRootHttpServerConfiguration configuration, IEnumerable<IService> services) : base(configuration, services)
+        {
+
+        }
+
+        public BlogMonitorServer(CompositeRootHttpServerConfiguration configuration, IEnumerable<Assembly> serviceAssemblies) : base(configuration, serviceAssemblies)
+        {
+
+        }
+
+        protected override void OnAfterConfiguration(CompositeRootConfiguration configuration)
+        {
+            Console.WriteLine(configuration.Endpoint + " - " + configuration.EndpointPublicDirectory);
+            base.OnAfterConfiguration(configuration);
+        }
     }
 }

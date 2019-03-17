@@ -15,14 +15,33 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-namespace CT.Data
-{
-    public class SaveParameters
-    {
-        private SaveParameters() { }
+using System;
+using System.Runtime.Serialization;
 
-        public string ModelKeyPropertyName { get; set; }
-        public string SqlColumnList { get; set; }
-        public string SqlInsertColumnList { get; set; }
+namespace CT.Blogs.Presentation.BlogApplications.Blogs.Posts.Attachments
+{
+    [DataContract]
+    [ParentProperty(nameof(AttachmentCompositeContainer.Post))]
+    [CompositeDictionaryProperty(nameof(AttachmentCompositeContainer.Attachments))]
+    public class AttachmentCompositeContainer : Composite
+    {
+        public PostComposite Post { get; }
+
+        internal AttachmentCompositeContainer(PostComposite postComposite)
+        {
+            Post = postComposite;
+
+            attachments = new CompositeDictionary<long, AttachmentComposite>();
+            Attachments = new ReadOnlyCompositeDictionary<long, AttachmentComposite>(attachments);
+
+            foreach (var attachment in Post.PostModel.Attachments.Values)
+                attachments.Add(attachment.Id, new AttachmentComposite(attachment, this));
+        }
+
+        [NonSerialized]
+        internal CompositeDictionary<long, AttachmentComposite> attachments;
+        [DataMember]
+        public ReadOnlyCompositeDictionary<long, AttachmentComposite> Attachments { get; }
+
     }
 }

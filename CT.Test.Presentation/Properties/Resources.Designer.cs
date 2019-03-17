@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace CT.Test.Presentation.Properties {
+namespace CT.Blogs.Presentation.Properties {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace CT.Test.Presentation.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("CT.Test.Presentation.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("CT.Blogs.Presentation.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,110 +61,47 @@ namespace CT.Test.Presentation.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Creates a new Cashier with default values.
+        ///   Looks up a localized string similar to All current Blogs.
         /// </summary>
-        internal static string Cashier_CreateNewCashier {
+        internal static string BlogApplicationCompositeRoot_AllBlogs {
             get {
-                return ResourceManager.GetString("Cashier_CreateNewCashier", resourceCulture);
+                return ResourceManager.GetString("BlogApplicationCompositeRoot_AllBlogs", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The acting authority of the Cashier.
+        ///   Looks up a localized string similar to Current error message.
         /// </summary>
-        internal static string Cashier_CreateNewCashier_ParameterAuthority {
+        internal static string BlogApplicationCompositeRoot_ErrorMessage {
             get {
-                return ResourceManager.GetString("Cashier_CreateNewCashier_ParameterAuthority", resourceCulture);
+                return ResourceManager.GetString("BlogApplicationCompositeRoot_ErrorMessage", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The first and last name of the Cashier.
+        ///   Looks up a localized string similar to Creates a new empty Blog.
         /// </summary>
-        internal static string Cashier_CreateNewCashier_ParameterName {
+        internal static string BlogCompositeContainer_CreateNewBlog_CommandHelp {
             get {
-                return ResourceManager.GetString("Cashier_CreateNewCashier_ParameterName", resourceCulture);
+                return ResourceManager.GetString("BlogCompositeContainer_CreateNewBlog_CommandHelp", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Gets the collection of Cashiers loaded for the Shop.
+        ///   Looks up a localized string similar to Returns the created Blog.
         /// </summary>
-        internal static string Shop_AllCashiers {
+        internal static string BlogCompositeContainer_CreateNewBlog_ReturnValueHelp {
             get {
-                return ResourceManager.GetString("Shop_AllCashiers", resourceCulture);
+                return ResourceManager.GetString("BlogCompositeContainer_CreateNewBlog_ReturnValueHelp", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Gets the colleciton of Products loaded for the Shop.
+        ///   Looks up a localized string similar to Login failed.
         /// </summary>
-        internal static string Shop_AllProducts {
+        internal static string BlogMonitorAuthenticator_InvalidLogOn {
             get {
-                return ResourceManager.GetString("Shop_AllProducts", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Gets the collection of Registers loaded for the Shop.
-        /// </summary>
-        internal static string Shop_AllRegisters {
-            get {
-                return ResourceManager.GetString("Shop_AllRegisters", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Get the Shop&apos;s error message.
-        /// </summary>
-        internal static string Shop_ErrorMessage {
-            get {
-                return ResourceManager.GetString("Shop_ErrorMessage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Gets or sets the name of the Shop.
-        /// </summary>
-        internal static string Shop_Name {
-            get {
-                return ResourceManager.GetString("Shop_Name", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Loads Cashier, Register, and Product data for the Shop.
-        /// </summary>
-        internal static string Shop_Setup {
-            get {
-                return ResourceManager.GetString("Shop_Setup", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The id of the Shop to load.
-        /// </summary>
-        internal static string Shop_Setup_ParameterId {
-            get {
-                return ResourceManager.GetString("Shop_Setup_ParameterId", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Returns 1 on success.
-        /// </summary>
-        internal static string Shop_Setup_ReturnValue {
-            get {
-                return ResourceManager.GetString("Shop_Setup_ReturnValue", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Invalid username and password.
-        /// </summary>
-        internal static string ShopMonitor_ShopMonitorAuthenticator_InvalidLogOn {
-            get {
-                return ResourceManager.GetString("ShopMonitor_ShopMonitorAuthenticator_InvalidLogOn", resourceCulture);
+                return ResourceManager.GetString("BlogMonitorAuthenticator_InvalidLogOn", resourceCulture);
             }
         }
     }
