@@ -24,7 +24,6 @@ using System.Linq;
 using CT.Hosting;
 using CT.Properties;
 using System.Globalization;
-using System.Collections.Concurrent;
 
 namespace CT
 {

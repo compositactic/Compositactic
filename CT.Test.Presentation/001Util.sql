@@ -1,7 +1,8 @@
 ﻿
 CREATE OR ALTER PROCEDURE dbo.CreateTable 
     @tableName NVARCHAR(MAX),
-	@parentTableName NVARCHAR(MAX) = ''
+	@parentTableName NVARCHAR(MAX) = '',
+	@baseTableName NVARCHAR(MAX) = ''
 AS
 	DECLARE @sql NVARCHAR(MAX)
 

@@ -15,11 +15,15 @@
       "CustomSettings": {
 
         // This section will contain some documentation.
-        "Database.MSSqlServer": "Data Source=(LocalDb)\\MSSQLLocalDB;Initial Catalog={0};Integrated Security=SSPI;",
-        "Database.MSSqlServer.Master" :  "master",
-        "Database.MSSqlServer.ShopServerV01": "ShopServerV01",
-        "Database.MSSqlServer.ShopServerV02": "ShopServerV02"
+        "Enviornment": "Local",
 
+        "Local.ConnectionString": "Data Source=(LocalDb)\\MSSQLLocalDB;Initial Catalog={0};Integrated Security=SSPI;",
+        "Local.Database.Master": "master",
+        "Local.Database.ShopServerV01": "ShopServerV01",
+
+        "QA.ConnectionString": "Data Source=QA_DATA_SOURCE_HERE;Initial Catalog={0};Integrated Security=SSPI;",
+        "QA.Database.Master": "master",
+        "QA.Database.ShopServerV01": "ShopServerV01"
       }
     }
   }

@@ -30,35 +30,29 @@ namespace CT.Data.MicrosoftSqlServer
 
         protected override T OnExecute<T>(DbConnection connection, DbTransaction transaction, string statement, IEnumerable<DbParameter> parameters)
         {
-            var command = new SqlCommand(statement, (SqlConnection)connection)
+            using (var command = new SqlCommand(statement, (SqlConnection)connection) { Transaction = (SqlTransaction)transaction })
             {
-                Transaction = (SqlTransaction)transaction
-            };
+                if (parameters != null)
+                    command.Parameters.AddRange(parameters.ToArray());
 
-            if (parameters != null)
-                command.Parameters.AddRange(parameters.ToArray());
-
-            var returnValue = (T)command.ExecuteScalar();
-            return returnValue;
+                var returnValue = (T)command.ExecuteScalar();
+                return returnValue;
+            }
         }
 
         protected override IEnumerable<T> OnLoad<T>(DbConnection connection, DbTransaction transaction, string query, IEnumerable<DbParameter> parameters)
         {
-            var command = new SqlCommand(query, (SqlConnection)connection)
+            using (var command = new SqlCommand(query, (SqlConnection)connection) { Transaction = (SqlTransaction)transaction })
             {
-                Transaction = (SqlTransaction)transaction
-            };
+                if (parameters != null)
+                    command.Parameters.AddRange(parameters.ToArray());
 
-            if (parameters != null)
-                command.Parameters.AddRange(parameters.ToArray());
-
-            var dataReader = command.ExecuteReader();
-            while (dataReader.Read())
-            {
-                yield return dataReader.ToModel<T>();
+                using (var dataReader = command.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                        yield return dataReader.ToModel<T>();
+                }
             }
-
-            dataReader.Close();
         }
 
         protected override DbConnection OnOpenNewConnection(string connectionString)

@@ -25,7 +25,8 @@ namespace CT.Test.Model
         private static long lastTimeStamp = DateTime.UtcNow.Ticks;
         public static long NewId(this long value)
         {
-            long originalValue, newValue;
+            long originalValue;
+            long newValue;
             do
             {
                 originalValue = lastTimeStamp;
