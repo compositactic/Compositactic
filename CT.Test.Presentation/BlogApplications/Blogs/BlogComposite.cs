@@ -40,7 +40,6 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs
 
         }
 
-
         [DataMember]
         public PostCompositeContainer AllPosts { get; }
 

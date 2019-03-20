@@ -1,0 +1,2 @@
+﻿
+EXEC CreateTable 'Post', 'Blog'

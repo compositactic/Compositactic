@@ -27,16 +27,34 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="001Util.sql">
+    <None Update="001-Util.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="000BlogServerDatabase.sql">
+    <None Update="000-BlogServerDatabase.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="BlogApplications\Blogs\002-BlogUser.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="BlogApplications\Blogs\000-Blog.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="BlogApplications\Blogs\Posts\000-Post.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="BlogApplications\Blogs\Posts\Attachments\000-Attachment.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="BlogApplications\Blogs\Posts\Comments\000-Comment.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="BlogApplications\Users\001-User.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="BlogApplications\Users\" />
-  </ItemGroup>
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="for /r $(ProjectDir) %F in (*.sql) do @type &quot;%F&quot; &gt;&gt; concatenated.sql" />
+  </Target>
 
 </Project>
