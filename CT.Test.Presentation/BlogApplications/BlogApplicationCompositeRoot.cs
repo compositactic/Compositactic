@@ -22,6 +22,10 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.Serialization;
 using CT.Blogs.Presentation.BlogApplications.Blogs;
+using System.IO;
+using System;
+using CT.Hosting;
+using System.Linq;
 
 namespace CT.Blogs.Presentation.BlogApplications
 {
@@ -63,6 +67,40 @@ namespace CT.Blogs.Presentation.BlogApplications
                 _errorMessage = value;
                 NotifyPropertyChanged(nameof(ErrorMessage));
             }
+        }
+
+        [Command]
+        public void Setup(CompositeRootHttpContext context)
+        {
+            if (context.Request.UserName != "admin")
+                throw new InvalidOperationException();
+
+            var repository = GetService<IMicrosoftSqlServerRepository>();
+            var environment = Configuration.CustomSettings["Environment"];
+
+            var connectionString = Configuration.CustomSettings[$"{environment}.MsSqlConnectionString"];
+            var masterDbConnectionString = string.Format(connectionString, Configuration.CustomSettings[$"{environment}.Database.Master"]);
+            var blogDbConnectionString = string.Format(connectionString, Configuration.CustomSettings[$"{environment}.Database.BlogDb"]);
+
+            var createDatabaseSqlScriptFile = System.IO.Path.Combine(Environment.CurrentDirectory, "000-BlogServerDatabase.sql");
+            var utilityScriptFile = System.IO.Path.Combine(Environment.CurrentDirectory, "001-Util.sql");
+
+            using (var connection = repository.OpenConnection(masterDbConnectionString))
+            using (var transaction = repository.BeginTransaction(connection))
+            {
+                var createDatabaseSql = File.ReadAllText(createDatabaseSqlScriptFile);
+                repository.Execute<object>(connection, transaction, createDatabaseSql, null);
+            }
+
+            using (var connection = repository.OpenConnection(blogDbConnectionString))
+            using (var transaction = repository.BeginTransaction(connection))
+            {
+                var utilitySql = File.ReadAllText(utilityScriptFile);
+                repository.Execute<object>(connection, transaction, utilitySql, null);
+            }
+            
+            //foreach(var scriptFile in Directory.GetFiles(Environment.CurrentDirectory).Except()
+
         }
 
         [Command]

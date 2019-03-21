@@ -15,9 +15,9 @@
       "CustomSettings": {
 
         // This section will contain some documentation.
-        "Enviornment": "Local",
+        "Environment": "Local",
 
-        "Local.ConnectionString": "Data Source=(LocalDb)\\MSSQLLocalDB;Initial Catalog={0};Integrated Security=SSPI;",
+        "Local.MsSqlConnectionString": "Data Source=(LocalDb)\\MSSQLLocalDB;Initial Catalog={0};Integrated Security=SSPI;",
         "Local.Database.Master": "master",
         "Local.Database.ShopServerV01": "ShopServerV01",
 

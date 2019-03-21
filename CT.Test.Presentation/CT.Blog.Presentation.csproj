@@ -53,8 +53,4 @@
     </None>
   </ItemGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="for /r $(ProjectDir) %F in (*.sql) do @type &quot;%F&quot; &gt;&gt; concatenated.sql" />
-  </Target>
-
 </Project>
