@@ -34,16 +34,31 @@ namespace CT.Blogs.Presentation.BlogApplications
     {
         public BlogApplicationCompositeRoot(CompositeRootConfiguration configuration) : base(configuration)
         {
+            Environment = Configuration.CustomSettings["Environment"];
+            ConnectionString = Configuration.CustomSettings[$"{Environment}.MsSqlConnectionString"];
+            MasterDbConnectionString = string.Format(Environment, Configuration.CustomSettings[$"{Environment}.Database.Master"]);
+            BlogDbConnectionString = string.Format(ConnectionString, Configuration.CustomSettings[$"{Environment}.Database.BlogDb"]);
+
             Initialize();
         }
 
         public BlogApplicationCompositeRoot(CompositeRootConfiguration configuration, params IService[] services) : base(configuration, services)
         {
+            Environment = Configuration.CustomSettings["Environment"];
+            ConnectionString = Configuration.CustomSettings[$"{Environment}.MsSqlConnectionString"];
+            MasterDbConnectionString = string.Format(Environment, Configuration.CustomSettings[$"{Environment}.Database.Master"]);
+            BlogDbConnectionString = string.Format(ConnectionString, Configuration.CustomSettings[$"{Environment}.Database.BlogDb"]);
+
             Initialize();
         }
 
         public BlogApplicationCompositeRoot(CompositeRootConfiguration configuration, IEnumerable<Assembly> serviceAssemblies) : base(configuration, serviceAssemblies)
         {
+            Environment = Configuration.CustomSettings["Environment"];
+            ConnectionString = Configuration.CustomSettings[$"{Environment}.MsSqlConnectionString"];
+            MasterDbConnectionString = string.Format(Environment, Configuration.CustomSettings[$"{Environment}.Database.Master"]);
+            BlogDbConnectionString = string.Format(ConnectionString, Configuration.CustomSettings[$"{Environment}.Database.BlogDb"]);
+
             Initialize();
         }
 
@@ -51,6 +66,11 @@ namespace CT.Blogs.Presentation.BlogApplications
         {
             AllBlogs = new BlogCompositeContainer(this);
         }
+
+        internal readonly string BlogDbConnectionString;
+        internal readonly string MasterDbConnectionString;
+        internal readonly string ConnectionString;
+        internal readonly string Environment;
 
         [DataMember]
         [Help(typeof(Resources), nameof(Resources.BlogApplicationCompositeRoot_AllBlogs))]
@@ -76,31 +96,43 @@ namespace CT.Blogs.Presentation.BlogApplications
                 throw new InvalidOperationException();
 
             var repository = GetService<IMicrosoftSqlServerRepository>();
-            var environment = Configuration.CustomSettings["Environment"];
 
-            var connectionString = Configuration.CustomSettings[$"{environment}.MsSqlConnectionString"];
-            var masterDbConnectionString = string.Format(connectionString, Configuration.CustomSettings[$"{environment}.Database.Master"]);
-            var blogDbConnectionString = string.Format(connectionString, Configuration.CustomSettings[$"{environment}.Database.BlogDb"]);
+            var createDatabaseSqlScriptFile = System.IO.Path.Combine(System.Environment.CurrentDirectory, "000-BlogServerDatabase.sql");
+            var utilityScriptFile = System.IO.Path.Combine(System.Environment.CurrentDirectory, "001-Util.sql");
 
-            var createDatabaseSqlScriptFile = System.IO.Path.Combine(Environment.CurrentDirectory, "000-BlogServerDatabase.sql");
-            var utilityScriptFile = System.IO.Path.Combine(Environment.CurrentDirectory, "001-Util.sql");
-
-            using (var connection = repository.OpenConnection(masterDbConnectionString))
+            using (var connection = repository.OpenConnection(MasterDbConnectionString))
             using (var transaction = repository.BeginTransaction(connection))
             {
                 var createDatabaseSql = File.ReadAllText(createDatabaseSqlScriptFile);
                 repository.Execute<object>(connection, transaction, createDatabaseSql, null);
             }
 
-            using (var connection = repository.OpenConnection(blogDbConnectionString))
+            using (var connection = repository.OpenConnection(BlogDbConnectionString))
             using (var transaction = repository.BeginTransaction(connection))
             {
                 var utilitySql = File.ReadAllText(utilityScriptFile);
                 repository.Execute<object>(connection, transaction, utilitySql, null);
             }
-            
-            //foreach(var scriptFile in Directory.GetFiles(Environment.CurrentDirectory).Except()
 
+            RunSetupScripts(Directory.GetFiles(System.Environment.CurrentDirectory).Except(new string[] { createDatabaseSqlScriptFile, utilityScriptFile }).ToArray());
+
+        }
+
+        private void RunSetupScripts(string[] scriptFiles)
+        {
+            if (!scriptFiles.Any())
+                return;
+
+            var scriptFile = string.Empty;
+
+            for(int scriptIndex = 0; scriptIndex < scriptFiles.Count(); scriptIndex++)
+            {
+                scriptFile = scriptFiles[scriptIndex];
+                var script = File.ReadAllText(scriptFile);
+            }
+
+            foreach (var directory in Directory.GetDirectories(System.IO.Path.GetDirectoryName(scriptFile)))
+                RunSetupScripts(Directory.GetFiles(directory));
         }
 
         [Command]
@@ -108,9 +140,7 @@ namespace CT.Blogs.Presentation.BlogApplications
         {
             var repository = GetService<IMicrosoftSqlServerRepository>();
 
-            var connectionString = Configuration.CustomSettings["ConnectionString"];
-
-            using (var connection = repository.OpenConnection(connectionString))
+            using (var connection = repository.OpenConnection(BlogDbConnectionString))
             using (var transaction = repository.BeginTransaction(connection))
             {     
                 repository.Save(connection, transaction, this);
