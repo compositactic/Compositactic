@@ -26,6 +26,7 @@ using System.IO;
 using System;
 using CT.Hosting;
 using System.Linq;
+using System.Data.Common;
 
 namespace CT.Blogs.Presentation.BlogApplications
 {
@@ -105,6 +106,7 @@ namespace CT.Blogs.Presentation.BlogApplications
             {
                 var createDatabaseSql = File.ReadAllText(createDatabaseSqlScriptFile);
                 repository.Execute<object>(connection, transaction, createDatabaseSql, null);
+                repository.CommitTransaction(transaction);
             }
 
             using (var connection = repository.OpenConnection(BlogDbConnectionString))
@@ -112,13 +114,18 @@ namespace CT.Blogs.Presentation.BlogApplications
             {
                 var utilitySql = File.ReadAllText(utilityScriptFile);
                 repository.Execute<object>(connection, transaction, utilitySql, null);
+                repository.CommitTransaction(transaction);
             }
 
-            RunSetupScripts(Directory.GetFiles(System.Environment.CurrentDirectory).Except(new string[] { createDatabaseSqlScriptFile, utilityScriptFile }).ToArray());
-
+            using (var connection = repository.OpenConnection(BlogDbConnectionString))
+            using (var transaction = repository.BeginTransaction(connection))
+            {
+                RunSetupScripts(repository, connection, transaction, Directory.GetFiles(System.Environment.CurrentDirectory).Except(new string[] { createDatabaseSqlScriptFile, utilityScriptFile }).ToArray());
+                repository.CommitTransaction(transaction);
+            }
         }
 
-        private void RunSetupScripts(string[] scriptFiles)
+        private void RunSetupScripts(IMicrosoftSqlServerRepository repository, DbConnection connection, DbTransaction transaction, string[] scriptFiles)
         {
             if (!scriptFiles.Any())
                 return;
@@ -129,10 +136,11 @@ namespace CT.Blogs.Presentation.BlogApplications
             {
                 scriptFile = scriptFiles[scriptIndex];
                 var script = File.ReadAllText(scriptFile);
+                repository.Execute<object>(connection, transaction, script, null);
             }
 
             foreach (var directory in Directory.GetDirectories(System.IO.Path.GetDirectoryName(scriptFile)))
-                RunSetupScripts(Directory.GetFiles(directory));
+                RunSetupScripts(repository, connection, transaction, Directory.GetFiles(directory));
         }
 
         [Command]
