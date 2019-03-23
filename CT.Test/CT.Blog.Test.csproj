@@ -39,7 +39,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="BlogMonitorConfig.json">
+    <None Update="BlogServerMonitorConfig.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="BlogServerConfig.json">

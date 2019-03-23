@@ -12,13 +12,13 @@ namespace Server
     {
         static void Main(string[] args)
         {
-            var shopMonitorConfiguration = JsonConvert.DeserializeObject<RootHttpServerConfiguration>(File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "ShopMonitorConfig.json")));
-            var shopServerConfiguration = JsonConvert.DeserializeObject<RootHttpServerConfiguration>(File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "ShopServerConfig.json")));
+            var blogMonitorConfiguration = JsonConvert.DeserializeObject<RootHttpServerConfiguration>(File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "BlogServerMonitorConfig.json")));
+            var blogServerConfiguration = JsonConvert.DeserializeObject<RootHttpServerConfiguration>(File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "BlogServerConfig.json")));
 
-            using (var server = CompositeRootHttpServerConfiguration.Create(shopMonitorConfiguration).CreateServer())
+            using (var server = CompositeRootHttpServerConfiguration.Create(blogMonitorConfiguration).CreateServer())
             {
                 server.Start();
-                OpenBrowser(shopServerConfiguration.RootConfigurations.First().Value.Endpoint);
+                OpenBrowser(blogServerConfiguration.RootConfigurations.First().Value.Endpoint);
                 Console.ReadLine();
             }
         }

@@ -35,43 +35,33 @@ namespace CT.Blogs.Presentation.BlogApplications
     {
         public BlogApplicationCompositeRoot(CompositeRootConfiguration configuration) : base(configuration)
         {
-            Environment = Configuration.CustomSettings["Environment"];
-            ConnectionString = Configuration.CustomSettings[$"{Environment}.MsSqlConnectionString"];
-            MasterDbConnectionString = string.Format(Environment, Configuration.CustomSettings[$"{Environment}.Database.Master"]);
-            BlogDbConnectionString = string.Format(ConnectionString, Configuration.CustomSettings[$"{Environment}.Database.BlogDb"]);
-
             Initialize();
         }
 
         public BlogApplicationCompositeRoot(CompositeRootConfiguration configuration, params IService[] services) : base(configuration, services)
         {
-            Environment = Configuration.CustomSettings["Environment"];
-            ConnectionString = Configuration.CustomSettings[$"{Environment}.MsSqlConnectionString"];
-            MasterDbConnectionString = string.Format(Environment, Configuration.CustomSettings[$"{Environment}.Database.Master"]);
-            BlogDbConnectionString = string.Format(ConnectionString, Configuration.CustomSettings[$"{Environment}.Database.BlogDb"]);
-
             Initialize();
         }
 
         public BlogApplicationCompositeRoot(CompositeRootConfiguration configuration, IEnumerable<Assembly> serviceAssemblies) : base(configuration, serviceAssemblies)
         {
-            Environment = Configuration.CustomSettings["Environment"];
-            ConnectionString = Configuration.CustomSettings[$"{Environment}.MsSqlConnectionString"];
-            MasterDbConnectionString = string.Format(Environment, Configuration.CustomSettings[$"{Environment}.Database.Master"]);
-            BlogDbConnectionString = string.Format(ConnectionString, Configuration.CustomSettings[$"{Environment}.Database.BlogDb"]);
-
             Initialize();
         }
 
         private void Initialize()
         {
+            Environment = Configuration.CustomSettings["Environment"];
+            ConnectionString = Configuration.CustomSettings[$"{Environment}.MsSqlConnectionString"];
+            MasterDbConnectionString = string.Format(ConnectionString, Configuration.CustomSettings[$"{Environment}.Database.Master"]);
+            BlogDbConnectionString = string.Format(ConnectionString, Configuration.CustomSettings[$"{Environment}.Database.BlogDb"]);
+
             AllBlogs = new BlogCompositeContainer(this);
         }
 
-        internal readonly string BlogDbConnectionString;
-        internal readonly string MasterDbConnectionString;
-        internal readonly string ConnectionString;
-        internal readonly string Environment;
+        internal string BlogDbConnectionString { get; private set; }
+        internal string MasterDbConnectionString { get; private set; }
+        internal string ConnectionString { get; private set; }
+        internal string Environment { get; private set; }
 
         [DataMember]
         [Help(typeof(Resources), nameof(Resources.BlogApplicationCompositeRoot_AllBlogs))]

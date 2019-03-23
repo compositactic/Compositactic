@@ -28,7 +28,7 @@ using CT.Blogs.Presentation.BlogMonitors;
 namespace CT.Blogs.Presentation.BlogApplications
 {
     [DataContract]
-    [ParentProperty(nameof(BlogApplicationServer.BlogMonitor), nameof(BlogMonitorCompositeRoot.BlogServer))]
+    [ParentProperty(nameof(BlogApplicationServer.BlogMonitor), nameof(BlogServerMonitorCompositeRoot.BlogServer))]
     public class BlogApplicationServer : CompositeRootHttpServer
     {
         public BlogApplicationServer(CompositeRootHttpServerConfiguration configuration) : base(configuration)
@@ -43,7 +43,7 @@ namespace CT.Blogs.Presentation.BlogApplications
         {
         }
 
-        public BlogMonitorCompositeRoot BlogMonitor { get; internal set; }
+        public BlogServerMonitorCompositeRoot BlogMonitor { get; internal set; }
 
         protected override void OnAfterConfiguration(CompositeRootConfiguration configuration)
         {

@@ -27,19 +27,19 @@ using System.Runtime.Serialization;
 namespace CT.Blogs.Presentation.BlogMonitors
 {
     [DataContract]
-    public class BlogMonitorCompositeRoot : CompositeRoot
+    public class BlogServerMonitorCompositeRoot : CompositeRoot
     {
-        public BlogMonitorCompositeRoot(CompositeRootConfiguration configuration) : base(configuration)
+        public BlogServerMonitorCompositeRoot(CompositeRootConfiguration configuration) : base(configuration)
         {
             Initialize();
         }
 
-        public BlogMonitorCompositeRoot(CompositeRootConfiguration configuration, params IService[] services) : base(configuration, services)
+        public BlogServerMonitorCompositeRoot(CompositeRootConfiguration configuration, params IService[] services) : base(configuration, services)
         {
             Initialize();
         }
 
-        public BlogMonitorCompositeRoot(CompositeRootConfiguration configuration, IEnumerable<Assembly> serviceAssemblies) : base(configuration, serviceAssemblies)
+        public BlogServerMonitorCompositeRoot(CompositeRootConfiguration configuration, IEnumerable<Assembly> serviceAssemblies) : base(configuration, serviceAssemblies)
         {
             Initialize();
         }

@@ -21,7 +21,7 @@ using System;
 
 namespace CT.Blogs.Presentation.BlogMonitors
 {
-    public class BlogMonitorAuthenticator : CompositeRootAuthenticator
+    public class BlogServerMonitorAuthenticator : CompositeRootAuthenticator
     {
         public override CompositeRootAuthenticatorResponse LogOn(string userName, string password, CompositeRootHttpContext context)
         {
