@@ -92,34 +92,32 @@ namespace CT.Blogs.Presentation.BlogApplications
             var utilityScriptFile = System.IO.Path.Combine(System.Environment.CurrentDirectory, "001-Util.sql");
 
             using (var connection = repository.OpenConnection(MasterDbConnectionString))
-            using (var transaction = repository.BeginTransaction(connection))
             {
                 var createDatabaseSql = File.ReadAllText(createDatabaseSqlScriptFile);
-                repository.Execute<object>(connection, transaction, createDatabaseSql, null);
-                repository.CommitTransaction(transaction);
+                repository.Execute<object>(connection, null, createDatabaseSql, null);
             }
 
             using (var connection = repository.OpenConnection(BlogDbConnectionString))
             using (var transaction = repository.BeginTransaction(connection))
             {
                 var utilitySql = File.ReadAllText(utilityScriptFile);
-                repository.Execute<object>(connection, transaction, utilitySql, null);
+                foreach (var statement in utilitySql.Split("GO" + System.Environment.NewLine).Where(s => !string.IsNullOrEmpty(s)))
+                    repository.Execute<object>(connection, transaction, statement, null);
+
                 repository.CommitTransaction(transaction);
             }
 
             using (var connection = repository.OpenConnection(BlogDbConnectionString))
             using (var transaction = repository.BeginTransaction(connection))
             {
-                RunSetupScripts(repository, connection, transaction, Directory.GetFiles(System.Environment.CurrentDirectory).Except(new string[] { createDatabaseSqlScriptFile, utilityScriptFile }).ToArray());
+                var directoryPath = System.Environment.CurrentDirectory;
+                RunSetupScripts(repository, connection, transaction, directoryPath, Directory.GetFiles(directoryPath, "*.sql").Except(new string[] { createDatabaseSqlScriptFile, utilityScriptFile }).ToArray());
                 repository.CommitTransaction(transaction);
             }
         }
 
-        private void RunSetupScripts(IMicrosoftSqlServerRepository repository, DbConnection connection, DbTransaction transaction, string[] scriptFiles)
+        private void RunSetupScripts(IMicrosoftSqlServerRepository repository, DbConnection connection, DbTransaction transaction, string directoryPath, string[] scriptFiles)
         {
-            if (!scriptFiles.Any())
-                return;
-
             var scriptFile = string.Empty;
 
             for(int scriptIndex = 0; scriptIndex < scriptFiles.Count(); scriptIndex++)
@@ -129,8 +127,8 @@ namespace CT.Blogs.Presentation.BlogApplications
                 repository.Execute<object>(connection, transaction, script, null);
             }
 
-            foreach (var directory in Directory.GetDirectories(System.IO.Path.GetDirectoryName(scriptFile)))
-                RunSetupScripts(repository, connection, transaction, Directory.GetFiles(directory));
+            foreach (var directory in Directory.GetDirectories(directoryPath))
+                RunSetupScripts(repository, connection, transaction, directory, Directory.GetFiles(directory, "*.sql"));
         }
 
         [Command]
