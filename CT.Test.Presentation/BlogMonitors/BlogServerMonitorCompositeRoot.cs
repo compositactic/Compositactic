@@ -47,9 +47,9 @@ namespace CT.Blogs.Presentation.BlogMonitors
         private void Initialize()
         {
             var configurationFile = System.IO.Path.Combine(Environment.CurrentDirectory, "BlogServerConfig.json");
-            var shopServerConfiguration = JsonConvert.DeserializeObject<RootHttpServerConfiguration>(File.ReadAllText(configurationFile));
+            var blogServerConfiguration = JsonConvert.DeserializeObject<RootHttpServerConfiguration>(File.ReadAllText(configurationFile));
 
-            var serverConfiguration = CompositeRootHttpServerConfiguration.Create(shopServerConfiguration);
+            var serverConfiguration = CompositeRootHttpServerConfiguration.Create(blogServerConfiguration);
 
             BlogServer = serverConfiguration.CreateServer() as BlogApplicationServer;
             BlogServer.BlogMonitor = this;

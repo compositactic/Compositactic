@@ -6,19 +6,19 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="BlogServerPrivate\ShopPrivate.html" />
+    <None Remove="BlogServerPrivate\BlogPrivate.html" />
+    <None Remove="BlogServerPublic\Blog.html" />
     <None Remove="BlogServerPublic\images\pixel.jpg" />
-    <None Remove="BlogServerPublic\Shop.html" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="BlogServerPrivate\ShopPrivate.html">
+    <Content Include="BlogServerPrivate\BlogPrivate.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="BlogServerPublic\images\pixel.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="BlogServerPublic\Shop.html">
+    <Content Include="BlogServerPublic\Blog.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

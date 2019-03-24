@@ -1,37 +1,36 @@
 ﻿using CT.Hosting;
 using CT.Hosting.Configuration;
 using CT.Hosting.Test;
-using CT.Blogs.Presentation.BlogMonitors;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Linq;
 
-namespace CT.Blogs.ShopMonitors
+namespace CT.Blogs.Test
 {
     [TestClass]
-    public class TestStartupShopMonitor
+    public class TestBlogServerMonitor
     {
-        private static CompositeRootHttpServerTester _shopMonitorTester;
-        private static CompositeRootConfiguration _shopMonitorConfiguration;
-        private static CompositeRootHttpServerTesterConnection _shopMonitorConnection;
+        private static CompositeRootHttpServerTester _blogServerMonitorTester;
+        private static CompositeRootConfiguration _blogServerMonitorConfiguration;
+        private static CompositeRootHttpServerTesterConnection _blogServerMonitorConnection;
 
         [ClassInitialize]
         public static void Setup(TestContext testContext)
         {
-            _shopMonitorTester = new CompositeRootHttpServerTester(JsonConvert.DeserializeObject<RootHttpServerConfiguration>(File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "ShopMonitorConfig.json"))));
-            _shopMonitorTester.Initialize();
+            _blogServerMonitorTester = new CompositeRootHttpServerTester(JsonConvert.DeserializeObject<RootHttpServerConfiguration>(File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "BlogServerMonitorConfig.json"))));
+            _blogServerMonitorTester.Initialize();
 
-            _shopMonitorConfiguration = _shopMonitorTester.Configuration.ServerRootConfigurations.RootConfigurations.Values.First();
-            _shopMonitorConnection = _shopMonitorTester.LogOnUser(_shopMonitorConfiguration, "username=admin&password=1234");
+            _blogServerMonitorConfiguration = _blogServerMonitorTester.Configuration.ServerRootConfigurations.RootConfigurations.Values.First();
+            _blogServerMonitorConnection = _blogServerMonitorTester.LogOnUser(_blogServerMonitorConfiguration, "username=admin&password=1234");
         }
 
         [TestMethod]
         public void MyTest()
         {
-            var shopMonitorHelpResponse = CompositeRootHttpServerTester.SendRequest(_shopMonitorConfiguration, "?", _shopMonitorConnection.SessionToken);
-            //var request = CompositeRootHttpServerTester.CreateRequest(_shopMonitorConfiguration, "~/test.txt", _shopMonitorConnection.SessionToken);
+            var blogServerMonitorHelpResponse = CompositeRootHttpServerTester.SendRequest(_blogServerMonitorConfiguration, "?", _blogServerMonitorConnection.SessionToken);
+            //var request = CompositeRootHttpServerTester.CreateRequest(_blogServerMonitorConfiguration, "~/test.txt", _blogServerMonitorConnection.SessionToken);
             #region
             //var fq = CompositeRootHttpServerTester.CreateRequest(_configuration, "~/test.txt", _connection.SessionToken);
             ////fq.Headers.Add(HttpRequestHeader.AcceptEncoding, "gzip");
@@ -146,7 +145,7 @@ namespace CT.Blogs.ShopMonitors
         [ClassCleanup]
         public static void Shutdown()
         {
-            _shopMonitorTester.Dispose();
+            _blogServerMonitorTester.Dispose();
         }
 
     }
