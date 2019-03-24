@@ -111,18 +111,18 @@ namespace CT.Blogs.Presentation.BlogApplications
             using (var transaction = repository.BeginTransaction(connection))
             {
                 var directoryPath = System.Environment.CurrentDirectory;
-                RunSetupScripts(repository, connection, transaction, directoryPath, Directory.GetFiles(directoryPath, "*.sql").Except(new string[] { createDatabaseSqlScriptFile, utilityScriptFile }).ToArray());
+
+                RunSetupScripts(repository, connection, transaction, directoryPath,
+                    Directory.GetFiles(directoryPath, "*.sql").Except(new string[] { createDatabaseSqlScriptFile, utilityScriptFile }).ToArray());
+
                 repository.CommitTransaction(transaction);
             }
         }
 
         private void RunSetupScripts(IMicrosoftSqlServerRepository repository, DbConnection connection, DbTransaction transaction, string directoryPath, string[] scriptFiles)
-        {
-            var scriptFile = string.Empty;
-
-            for(int scriptIndex = 0; scriptIndex < scriptFiles.Count(); scriptIndex++)
+        {           
+            foreach(var scriptFile in scriptFiles)
             {
-                scriptFile = scriptFiles[scriptIndex];
                 var script = File.ReadAllText(scriptFile);
                 repository.Execute<object>(connection, transaction, script, null);
             }
