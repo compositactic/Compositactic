@@ -47,4 +47,8 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="System\Stories\My Sample Story\Use Cases\Create A Post\Use Cases\" />
+  </ItemGroup>
+
 </Project>
