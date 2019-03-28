@@ -48,7 +48,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="System\Stories\My Sample Story\Use Cases\Create A Post\Use Cases\" />
+    <Folder Include="System\Actors\Author\Stories\My Sample Story\Use Cases\Create A Post\Use Cases\" />
+    <Folder Include="System\Actors\Reader\Stories\" />
   </ItemGroup>
 
 </Project>
