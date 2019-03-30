@@ -27,7 +27,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="001-Util.sql">
+    <None Update="001-CreateIndex.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="001-DropColumn.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="001-DropTable.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="001-CreateTable.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="000-BlogServerDatabase.sql">

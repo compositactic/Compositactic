@@ -81,7 +81,7 @@ namespace CT.Blogs.Presentation.BlogApplications
         }
 
         [Command]
-        public void Setup(CompositeRootHttpContext context)
+        public void SetupDatabase(CompositeRootHttpContext context)
         {
             if (context.Request.UserName != "admin")
                 throw new InvalidOperationException();
@@ -112,14 +112,14 @@ namespace CT.Blogs.Presentation.BlogApplications
             {
                 var directoryPath = System.Environment.CurrentDirectory;
 
-                RunSetupScripts(repository, connection, transaction, directoryPath,
+                RunSetupDatabaseScripts(repository, connection, transaction, directoryPath,
                     Directory.GetFiles(directoryPath, "*.sql").Except(new string[] { createDatabaseSqlScriptFile, utilityScriptFile }).ToArray());
 
                 repository.CommitTransaction(transaction);
             }
         }
 
-        private void RunSetupScripts(IMicrosoftSqlServerRepository repository, DbConnection connection, DbTransaction transaction, string directoryPath, string[] scriptFiles)
+        private void RunSetupDatabaseScripts(IMicrosoftSqlServerRepository repository, DbConnection connection, DbTransaction transaction, string directoryPath, string[] scriptFiles)
         {           
             foreach(var scriptFile in scriptFiles)
             {
@@ -128,7 +128,7 @@ namespace CT.Blogs.Presentation.BlogApplications
             }
 
             foreach (var directory in Directory.GetDirectories(directoryPath))
-                RunSetupScripts(repository, connection, transaction, directory, Directory.GetFiles(directory, "*.sql"));
+                RunSetupDatabaseScripts(repository, connection, transaction, directory, Directory.GetFiles(directory, "*.sql"));
         }
 
         [Command]
