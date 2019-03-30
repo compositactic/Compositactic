@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 
@@ -26,7 +27,7 @@ namespace CT.Data.MicrosoftSqlServer
 {
     public class MicrosoftSqlServerRepository : Repository, IMicrosoftSqlServerRepository
     {
-        protected MicrosoftSqlServerRepository() {  }
+        protected MicrosoftSqlServerRepository() { }
 
         protected override T OnExecute<T>(DbConnection connection, DbTransaction transaction, string statement, IEnumerable<DbParameter> parameters)
         {
@@ -98,10 +99,10 @@ namespace CT.Data.MicrosoftSqlServer
         {
             var sqlParameterList = new List<SqlParameter>
             (
-                columnValues.Keys.Select(columnName => new SqlParameter("@" + columnName, columnValues[columnName]))    
+                columnValues.Keys.Select(columnName => new SqlParameter("@" + columnName, columnValues[columnName]))
             );
 
-            var updateSql = 
+            var updateSql =
             $@"
                 UPDATE {tableName} 
                 SET {string.Join(',', sqlParameterList.Where(p => p.ParameterName != tableKeyPropertyName).Select(p => p.ParameterName.Substring(1) + " = " + p.ParameterName))}
@@ -159,7 +160,29 @@ namespace CT.Data.MicrosoftSqlServer
                 }
             }
         }
+
+        public void CreateHelperStoredProcedures(DbConnection connection, DbTransaction transaction)
+        {
+            foreach (var helperStoredProcedureScript in HelperStoredProcedureScriptFiles)
+            {
+                var helperStoredProcedure = File.ReadAllText(helperStoredProcedureScript);
+                OnExecute<object>(connection, transaction, helperStoredProcedure, null);
+            }
+        }
+
+        public IEnumerable<string> HelperStoredProcedureScriptFiles { get; } = new string[]
+        {
+            Path.Combine(System.Environment.CurrentDirectory, "000-CreateCheckConstraint.sql"),
+            Path.Combine(System.Environment.CurrentDirectory, "000-CreateIndex.sql"),
+            Path.Combine(System.Environment.CurrentDirectory, "000-CreateOrModifyColumn.sql"),
+            Path.Combine(System.Environment.CurrentDirectory, "000-CreateTable.sql"),
+            Path.Combine(System.Environment.CurrentDirectory, "000-DropCheckConstraint.sql"),
+            Path.Combine(System.Environment.CurrentDirectory, "000-DropColumn.sql"),
+            Path.Combine(System.Environment.CurrentDirectory, "000-DropIndex.sql"),
+            Path.Combine(System.Environment.CurrentDirectory, "000-DropTable.sql")
+        };
     }
+
 
     internal class InsertKeyPair
     {

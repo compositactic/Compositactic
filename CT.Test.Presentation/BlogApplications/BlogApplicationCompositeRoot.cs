@@ -89,7 +89,6 @@ namespace CT.Blogs.Presentation.BlogApplications
             var repository = GetService<IMicrosoftSqlServerRepository>();
 
             var createDatabaseSqlScriptFile = System.IO.Path.Combine(System.Environment.CurrentDirectory, "000-BlogServerDatabase.sql");
-            var utilityScriptFile = System.IO.Path.Combine(System.Environment.CurrentDirectory, "001-Util.sql");
 
             using (var connection = repository.OpenConnection(MasterDbConnectionString))
             {
@@ -97,13 +96,12 @@ namespace CT.Blogs.Presentation.BlogApplications
                 repository.Execute<object>(connection, null, createDatabaseSql, null);
             }
 
+
+
             using (var connection = repository.OpenConnection(BlogDbConnectionString))
             using (var transaction = repository.BeginTransaction(connection))
             {
-                var utilitySql = File.ReadAllText(utilityScriptFile);
-                foreach (var statement in utilitySql.Split("GO" + System.Environment.NewLine).Where(s => !string.IsNullOrEmpty(s)))
-                    repository.Execute<object>(connection, transaction, statement, null);
-
+                repository.CreateHelperStoredProcedures(connection, transaction);
                 repository.CommitTransaction(transaction);
             }
 
@@ -113,7 +111,7 @@ namespace CT.Blogs.Presentation.BlogApplications
                 var directoryPath = System.Environment.CurrentDirectory;
 
                 RunSetupDatabaseScripts(repository, connection, transaction, directoryPath,
-                    Directory.GetFiles(directoryPath, "*.sql").Except(new string[] { createDatabaseSqlScriptFile, utilityScriptFile }).ToArray());
+                    Directory.GetFiles(directoryPath, "*.sql").Except(repository.HelperStoredProcedureScriptFiles).ToArray());
 
                 repository.CommitTransaction(transaction);
             }
@@ -127,8 +125,9 @@ namespace CT.Blogs.Presentation.BlogApplications
                 repository.Execute<object>(connection, transaction, script, null);
             }
 
-            foreach (var directory in Directory.GetDirectories(directoryPath))
-                RunSetupDatabaseScripts(repository, connection, transaction, directory, Directory.GetFiles(directory, "*.sql"));
+            if(!string.IsNullOrEmpty(directoryPath))
+                foreach (var directory in Directory.GetDirectories(directoryPath))
+                    RunSetupDatabaseScripts(repository, connection, transaction, directory, Directory.GetFiles(directory, "*.sql"));
         }
 
         [Command]
