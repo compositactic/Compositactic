@@ -42,22 +42,22 @@
     <None Update="000-BlogServerDatabase.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="BlogApplications\Blogs\002-BlogUser.sql">
+    <None Update="BlogApplications\Blogs\002-Table-BlogUser.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="BlogApplications\Blogs\000-Blog.sql">
+    <None Update="BlogApplications\Blogs\000-Table-Blog.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="BlogApplications\Blogs\Posts\000-Post.sql">
+    <None Update="BlogApplications\Blogs\Posts\000-Table-Post.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="BlogApplications\Blogs\Posts\Attachments\000-Attachment.sql">
+    <None Update="BlogApplications\Blogs\Posts\Attachments\000-Table-Attachment.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="BlogApplications\Blogs\Posts\Comments\000-Comment.sql">
+    <None Update="BlogApplications\Blogs\Posts\Comments\000-Table-Comment.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="BlogApplications\Users\001-User.sql">
+    <None Update="BlogApplications\Users\001-Table-User.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

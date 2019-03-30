@@ -1,2 +1,0 @@
-﻿
-EXEC CreateTable 'Post', 'Blog'

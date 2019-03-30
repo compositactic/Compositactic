@@ -1,3 +1,0 @@
-﻿
-
-EXEC CreateTable 'Comment', 'Post'

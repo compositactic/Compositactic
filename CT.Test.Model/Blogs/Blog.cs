@@ -40,8 +40,6 @@ namespace CT.Blogs.Model.Blogs
 
             blogUsers = new ConcurrentDictionary<long, BlogUser>();
             _blogUsers = new ReadOnlyDictionary<long, BlogUser>(blogUsers);
-
-            var defaultCashier = CreateNewPost();
         }
 
         [DataMember]

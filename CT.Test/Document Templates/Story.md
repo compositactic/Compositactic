@@ -7,7 +7,7 @@
 
 
 ---
-##### Instructions for using this template (Remove this section when no longer needed)
+##### Instructions for using this template (Remove this section when no longer needed):
 *Stories are narratives that summarize distinct usage scenarios performed by Actors.  Actors want to complete Stories successfully as a goal.*
 
 *Definition should highlight the Use Cases the Actor will perform using a short narrative
