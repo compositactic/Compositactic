@@ -5,7 +5,7 @@ AS
 
 	SET @sql = 'IF EXISTS (SELECT * FROM sys.tables WHERE Name = ''' + @tableName + ''')
 		BEGIN
-			DROP TABLE ' + @tableName + '
+			DROP TABLE "' + @tableName + '"
 			PRINT ''Table dropped: ' + @tableName + '''
 		END'
 

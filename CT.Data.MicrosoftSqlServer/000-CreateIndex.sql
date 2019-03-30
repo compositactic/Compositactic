@@ -9,10 +9,9 @@ AS
 
 	SET @sql = 'IF NOT EXISTS(SELECT * FROM sys.indexes WHERE name = ''' + @indexName + ''' AND object_id = OBJECT_ID(''' + @tableName + '''))
 		BEGIN
-			CREATE INDEX ' + @indexName + ' ON ' + @tableName + ' (' + @columnName + ')
+			CREATE INDEX "' + @indexName + '" ON "' + @tableName + '" (' + @columnName + ')
 			PRINT ''Created index: ' + @indexName + ' ON ' + @tableName + '.' + @columnName + '''
 		END'
 
 	PRINT @sql
 	EXEC sp_executesql @sql
-	--	--			CREATE INDEX ' + @indexName + ' ON ' + @tableName + ' (' + @columnName + ')

@@ -6,7 +6,7 @@ AS
 
 	SET @sql = 'IF COL_LENGTH(''' + @tableName + ''',''' + @columnName + ''') IS NOT NULL
 					BEGIN
-						ALTER TABLE ' + @tableName + ' DROP COLUMN ' + @columnName + '
+						ALTER TABLE "' + @tableName + '" DROP COLUMN "' + @columnName + '"
 						PRINT ''Dropped column: ''' + @columnName + ', ' + @tableName + '
 					END'
 	PRINT @sql

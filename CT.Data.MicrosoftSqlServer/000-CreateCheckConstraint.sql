@@ -8,7 +8,7 @@ AS
 
 	SET @sql = 'IF OBJECT_ID(''' + @constraintName + ''') IS NULL AND EXISTS (SELECT * FROM sys.tables WHERE name = ''' + @tableName + ''')
 		BEGIN
-			ALTER TABLE ' + @tableName + ' ADD CONSTRAINT ' + @constraintName + ' CHECK (' + @constraintExpression + ') 
+			ALTER TABLE "' + @tableName + '" ADD CONSTRAINT "' + @constraintName + '" CHECK (' + @constraintExpression + ') 
 			PRINT ''Check constraint added: ' + @tableName + '.' + @constraintName + '''
 		END'
 

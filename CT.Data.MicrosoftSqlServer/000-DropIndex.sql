@@ -9,7 +9,7 @@ AS
 
 	SET @sql = 'IF EXISTS(SELECT * FROM sys.indexes WHERE name = ''' + @indexName + ''' AND object_id = OBJECT_ID(''' + @tableName + '''))
 		BEGIN
-			DROP INDEX ' + @indexName + ' ON ' + @tableName + '
+			DROP INDEX "' + @indexName + '" ON ' + @tableName + '
 			PRINT ''Index Dropped: ' + @indexName + ', ' + @tableName + '''
 		END'
 

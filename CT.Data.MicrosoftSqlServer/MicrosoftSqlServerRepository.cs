@@ -15,6 +15,7 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -172,17 +173,16 @@ namespace CT.Data.MicrosoftSqlServer
 
         public IEnumerable<string> HelperStoredProcedureScriptFiles { get; } = new string[]
         {
-            Path.Combine(System.Environment.CurrentDirectory, "000-CreateCheckConstraint.sql"),
-            Path.Combine(System.Environment.CurrentDirectory, "000-CreateIndex.sql"),
-            Path.Combine(System.Environment.CurrentDirectory, "000-CreateOrModifyColumn.sql"),
-            Path.Combine(System.Environment.CurrentDirectory, "000-CreateTable.sql"),
-            Path.Combine(System.Environment.CurrentDirectory, "000-DropCheckConstraint.sql"),
-            Path.Combine(System.Environment.CurrentDirectory, "000-DropColumn.sql"),
-            Path.Combine(System.Environment.CurrentDirectory, "000-DropIndex.sql"),
-            Path.Combine(System.Environment.CurrentDirectory, "000-DropTable.sql")
+            Path.Combine(Environment.CurrentDirectory, "000-CreateCheckConstraint.sql"),
+            Path.Combine(Environment.CurrentDirectory, "000-CreateIndex.sql"),
+            Path.Combine(Environment.CurrentDirectory, "000-CreateOrModifyColumn.sql"),
+            Path.Combine(Environment.CurrentDirectory, "000-CreateTable.sql"),
+            Path.Combine(Environment.CurrentDirectory, "000-DropCheckConstraint.sql"),
+            Path.Combine(Environment.CurrentDirectory, "000-DropColumn.sql"),
+            Path.Combine(Environment.CurrentDirectory, "000-DropIndex.sql"),
+            Path.Combine(Environment.CurrentDirectory, "000-DropTable.sql")
         };
     }
-
 
     internal class InsertKeyPair
     {

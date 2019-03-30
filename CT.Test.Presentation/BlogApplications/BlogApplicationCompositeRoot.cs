@@ -96,8 +96,6 @@ namespace CT.Blogs.Presentation.BlogApplications
                 repository.Execute<object>(connection, null, createDatabaseSql, null);
             }
 
-
-
             using (var connection = repository.OpenConnection(BlogDbConnectionString))
             using (var transaction = repository.BeginTransaction(connection))
             {
@@ -111,7 +109,10 @@ namespace CT.Blogs.Presentation.BlogApplications
                 var directoryPath = System.Environment.CurrentDirectory;
 
                 RunSetupDatabaseScripts(repository, connection, transaction, directoryPath,
-                    Directory.GetFiles(directoryPath, "*.sql").Except(repository.HelperStoredProcedureScriptFiles).ToArray());
+                    Directory
+                        .GetFiles(directoryPath, "*.sql")
+                        .Except(repository.HelperStoredProcedureScriptFiles)
+                        .Except(new string[] { createDatabaseSqlScriptFile }).ToArray());
 
                 repository.CommitTransaction(transaction);
             }

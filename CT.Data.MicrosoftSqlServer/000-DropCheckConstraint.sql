@@ -7,7 +7,7 @@ AS
 
 	SET @sql = 'IF OBJECT_ID(''' + @constraintName + ''') IS NOT NULL AND EXISTS (SELECT * FROM sys.tables WHERE name = ''' + @tableName + ''')
 		BEGIN
-			ALTER TABLE ' + @tableName + ' DROP CONSTRAINT ' + @constraintName + ' 
+			ALTER TABLE "' + @tableName + '" DROP CONSTRAINT "' + @constraintName + '" 
 			PRINT ''Dropped constraint: ' + @constraintName + ',  ' + @tableName + ''' 
 		END'
 

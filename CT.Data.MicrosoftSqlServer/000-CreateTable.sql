@@ -7,7 +7,7 @@ AS
 
 	SET @sql = 'IF NOT EXISTS (SELECT * FROM sys.tables WHERE Name = ''' + @tableName + ''')
 		BEGIN
-			CREATE TABLE ' + @tableName + ' ( [Id] INT NOT NULL PRIMARY KEY IDENTITY '
+			CREATE TABLE "' + @tableName + '" ( [Id] INT NOT NULL PRIMARY KEY IDENTITY '
 	IF @parentTableName = ''
 		SET @sql = @sql + ')
 			PRINT ''Created table: ' + @tableName + '''
