@@ -2,9 +2,8 @@
 using System.Runtime.Serialization;
 using CT.Hosting;
 using CT.Hosting.Configuration;
-using CT;
 
-namespace FooServer
+namespace CT.Server.Chat
 {
     public class Program
     {

@@ -5,5 +5,3 @@ I tried a test deployment of Compositactic, just to see how NuGet works. It's ou
 https://www.nuget.org/packages/CT/1.0.0
 
 <div style="page-break-after: always;"></div>
-
-Thank you
