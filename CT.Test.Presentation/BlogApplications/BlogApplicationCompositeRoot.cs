@@ -50,10 +50,11 @@ namespace CT.Blogs.Presentation.BlogApplications
 
         private void Initialize()
         {
-            Environment = Configuration.CustomSettings["Environment"];
-            ConnectionString = Configuration.CustomSettings[$"{Environment}.MsSqlConnectionString"];
-            MasterDbConnectionString = string.Format(ConnectionString, Configuration.CustomSettings[$"{Environment}.Database.Master"]);
-            BlogDbConnectionString = string.Format(ConnectionString, Configuration.CustomSettings[$"{Environment}.Database.BlogDb"]);
+            var machineName = System.Environment.MachineName;
+
+            ConnectionString = Configuration.CustomSettings[$"{machineName}.MsSqlConnectionString"] ?? Configuration.CustomSettings["Local.MsSqlConnectionString"];
+            MasterDbConnectionString = string.Format(ConnectionString, Configuration.CustomSettings[$"{machineName}.Database.Master"] ?? Configuration.CustomSettings["Local.Database.Master"]);
+            BlogDbConnectionString = string.Format(ConnectionString, Configuration.CustomSettings[$"{machineName}.Database.BlogDb"] ?? Configuration.CustomSettings["Local.Database.BlogDb"]);
 
             AllBlogs = new BlogCompositeContainer(this);
         }

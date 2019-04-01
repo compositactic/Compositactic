@@ -15,7 +15,6 @@
       "CustomSettings": {
 
         // This section will contain some documentation.
-        "Environment": "Local",
 
         "Local.MsSqlConnectionString": "Data Source=(LocalDb)\\MSSQLLocalDB;Initial Catalog={0};Integrated Security=SSPI;",
         "Local.Database.Master": "master",
