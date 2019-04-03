@@ -14,3 +14,5 @@
 * *Story narrative may optionally mention any Command [Use Cases](UseCase.md)*
 * *Substitute [Actors](Actor.md) mention any other [Actors](Actor.md) that may initiate the Story* 
 ---
+
+<div style="page-break-after: always;"></div>

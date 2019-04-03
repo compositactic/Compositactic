@@ -1,4 +1,4 @@
-﻿# System Statement
+﻿# System - [Name]
 
 [Provide a summary of the overall System goals in terms of stakeholder benefits]
 
@@ -8,3 +8,5 @@
 The System Statement summarizes the benefits and goals the System must deliver to all effected stakeholders.
 
 ---
+
+<div style="page-break-after: always;"></div>
