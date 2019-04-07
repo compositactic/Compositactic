@@ -17,6 +17,7 @@
 
 using CT.Blogs.Model.Blogs;
 using CT.Blogs.Presentation.BlogApplications.Blogs.Posts;
+using System.ComponentModel;
 using System.Runtime.Serialization;
 
 namespace CT.Blogs.Presentation.BlogApplications.Blogs
@@ -25,6 +26,7 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs
     [KeyProperty(nameof(BlogComposite.Id))]
     [ParentProperty(nameof(BlogComposite.AllBlogs))]
     [CompositeModel(nameof(BlogModel))]
+    [DisplayName("Blog")]
     public class BlogComposite : Composite
     {
         public BlogCompositeContainer AllBlogs { get; }

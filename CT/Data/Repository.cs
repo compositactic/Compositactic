@@ -192,7 +192,9 @@ namespace CT.Data
                 if (modelFieldInfo == null)
                     throw new MissingMemberException(string.Format(CultureInfo.CurrentCulture, Resources.CannotFindCompositeModelProperty, compositeModelAttribute.ModelFieldName));
 
+                // TODO: need to set modelKeyPropertyName to the DataMember Name value of the key property.. if that's blank then take the key property name
                 modelKeyPropertyName = modelFieldInfo.FieldType.GetCustomAttribute<KeyPropertyAttribute>().PropertyName;
+
                 var columnProperties = modelFieldInfo
                                         .FieldType
                                         .GetProperties()

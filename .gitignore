@@ -29,3 +29,10 @@
 /CT.Data.MicrosoftSqlServer/obj
 /.vs
 /CT.Data.MicrosoftSqlServer/CT.Data.MicrosoftSqlServer.csproj.user
+/CT/bin/Debug/netcoreapp2.2
+/CT.Data.MicrosoftSqlServer/bin/Debug/netcoreapp2.2
+/CT.Server.Console/bin/Debug/netcoreapp2.2
+/CT.Server.Foo.Console/bin/Debug/netcoreapp2.2
+/CT.Test/bin/Debug/netcoreapp2.2
+/CT.Test.Model/bin/Debug/netcoreapp2.2
+/CT.Test.Presentation/bin/Debug/netcoreapp2.2

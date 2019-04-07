@@ -21,8 +21,8 @@ namespace CT.Data
     {
         private SaveParameters() { }
 
-        public string ModelKeyPropertyName { get; set; }
-        public string SqlColumnList { get; set; }
-        public string SqlInsertColumnList { get; set; }
+        public static readonly string ModelKeyPropertyName;
+        public static readonly string SqlColumnList;
+        public static readonly string SqlInsertColumnList;
     }
 }
