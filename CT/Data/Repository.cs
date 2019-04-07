@@ -177,7 +177,6 @@ namespace CT.Data
             var dataTablesToInsert = new List<DataTable>();
             var newCompositeTypes = newComposites.Select(nc => nc.GetType()).Distinct();
 
-            var modelKeyPropertyName = string.Empty;
             var sqlColumnList = string.Empty;
             var sqlInsertColumnList = string.Empty;
 
@@ -191,9 +190,6 @@ namespace CT.Data
                 modelFieldInfo = compositeType.GetField(compositeModelAttribute.ModelFieldName, BindingFlags.Instance | BindingFlags.NonPublic);
                 if (modelFieldInfo == null)
                     throw new MissingMemberException(string.Format(CultureInfo.CurrentCulture, Resources.CannotFindCompositeModelProperty, compositeModelAttribute.ModelFieldName));
-
-                // TODO: need to set modelKeyPropertyName to the DataMember Name value of the key property.. if that's blank then take the key property name
-                modelKeyPropertyName = modelFieldInfo.FieldType.GetCustomAttribute<KeyPropertyAttribute>().PropertyName;
 
                 var columnProperties = modelFieldInfo
                                         .FieldType
@@ -211,7 +207,13 @@ namespace CT.Data
 
                 var dataTable = newComposites.Where(nc => nc.GetType() == compositeType).ToDataTable();
 
-                dataTable.ExtendedProperties[nameof(SaveParameters.ModelKeyPropertyName)] = modelKeyPropertyName;
+                var modelKeyPropertyName = modelFieldInfo.FieldType.GetCustomAttribute<KeyPropertyAttribute>()?.PropertyName;
+                if (string.IsNullOrEmpty(modelKeyPropertyName))
+                    throw new InvalidOperationException();
+
+                var modelKeyName = modelFieldInfo.FieldType.GetProperty(modelKeyPropertyName)?.GetCustomAttribute<DataMemberAttribute>()?.Name ?? modelKeyPropertyName;
+
+                dataTable.ExtendedProperties[nameof(SaveParameters.ModelKeyPropertyName)] = modelKeyName;
                 dataTable.ExtendedProperties[nameof(SaveParameters.SqlColumnList)] = sqlColumnList;
                 dataTable.ExtendedProperties[nameof(SaveParameters.SqlInsertColumnList)] = sqlInsertColumnList;
 

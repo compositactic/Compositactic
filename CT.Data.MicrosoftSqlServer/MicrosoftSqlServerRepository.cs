@@ -139,7 +139,8 @@ namespace CT.Data.MicrosoftSqlServer
                     THEN INSERT({dataTable.ExtendedProperties[nameof(SaveParameters.SqlColumnList)]})
                       VALUES({dataTable.ExtendedProperties[nameof(SaveParameters.SqlInsertColumnList)]})
                     OUTPUT INSERTED.{dataTable.ExtendedProperties[nameof(SaveParameters.ModelKeyPropertyName)]} AS {nameof(InsertKeyPair.InsertedKey)},
-                      tableToInsert.{dataTable.ExtendedProperties[nameof(SaveParameters.ModelKeyPropertyName)]} AS {nameof(InsertKeyPair.OriginalKey)};
+                      tableToInsert.{dataTable.ExtendedProperties
+                      [nameof(SaveParameters.ModelKeyPropertyName)]} AS {nameof(InsertKeyPair.OriginalKey)};
                 ";
 
                 var insertKeyPairs = OnLoad<InsertKeyPair>(connection, transaction, mergeSql, null);
