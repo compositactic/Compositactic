@@ -29,6 +29,8 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs.Posts
 
         internal PostCompositeContainer(BlogComposite blogComposite)
         {
+            // TODO: make a Composite extension method for below
+            // this.InitializeCompositeDictionary(blogComposite) <-- parent composite
             Blog = blogComposite;
             posts = new CompositeDictionary<long, PostComposite>();
             Posts = new ReadOnlyCompositeDictionary<long, PostComposite>(posts);

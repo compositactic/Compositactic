@@ -88,7 +88,7 @@ namespace CT.Blogs.Presentation.BlogApplications
 
             var repository = GetService<IMicrosoftSqlServerRepository>();
 
-            var createDatabaseSqlScriptFile = System.IO.Path.Combine(System.Environment.CurrentDirectory, "000-BlogServerDatabase.sql");
+            var createDatabaseSqlScriptFile = System.IO.Path.Combine(Environment.CurrentDirectory, "000-BlogServerDatabase.sql");
 
             using (var connection = repository.OpenConnection(MasterDbConnectionString))
             {

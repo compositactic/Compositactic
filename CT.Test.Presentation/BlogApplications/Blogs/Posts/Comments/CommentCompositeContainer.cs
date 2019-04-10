@@ -23,7 +23,7 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs.Posts.Comments
     [DataContract]
     [ParentProperty(nameof(CommentCompositeContainer.Post))]
     [CompositeDictionaryProperty(nameof(CommentCompositeContainer.Comments))]
-    public class CommentCompositeContainer
+    public class CommentCompositeContainer : Composite
     {
         public PostComposite Post { get; }
         internal CommentCompositeContainer(PostComposite postComposite)
