@@ -27,6 +27,7 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs
     [ParentProperty(nameof(BlogComposite.AllBlogs))]
     [CompositeModel(nameof(BlogModel))]
     [DisplayName("Blog")]
+    [Description("wefwef")]
     public class BlogComposite : Composite
     {
         public BlogCompositeContainer AllBlogs { get; }

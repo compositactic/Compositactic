@@ -15,14 +15,15 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
+using CT.Data.MicrosoftSqlServer.Properties;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
-using System.IO;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Resources;
 
 namespace CT.Data.MicrosoftSqlServer
 {
@@ -106,7 +107,7 @@ namespace CT.Data.MicrosoftSqlServer
             var updateSql =
             $@"
                 UPDATE {tableName} 
-                SET {string.Join(',', sqlParameterList.Where(p => p.ParameterName != tableKeyPropertyName).Select(p => p.ParameterName.Substring(1) + " = " + p.ParameterName))}
+                SET {string.Join(',', sqlParameterList.Where(p => p.ParameterName != tableKeyPropertyName).Select(p => p.ParameterName.Substring(1) + " = '" + p.Value.ToString() + "'"))}
                 WHERE {tableKeyPropertyName} = @{tableKeyPropertyName} 
             ";
 
@@ -165,24 +166,11 @@ namespace CT.Data.MicrosoftSqlServer
 
         public void CreateHelperStoredProcedures(DbConnection connection, DbTransaction transaction)
         {
-            foreach (var helperStoredProcedureScript in HelperStoredProcedureScriptFiles)
-            {
-                var helperStoredProcedure = File.ReadAllText(helperStoredProcedureScript);
-                OnExecute<object>(connection, transaction, helperStoredProcedure, null);
-            }
+            var resourceSet = new ResourceManager(typeof(Resources)).GetResourceSet(CultureInfo.InvariantCulture, true, true);
+            
+            foreach (var helperStoredProcedureScript in resourceSet)
+                OnExecute<object>(connection, transaction, helperStoredProcedureScript as string, null);
         }
-
-        public IEnumerable<string> HelperStoredProcedureScriptFiles { get; } = new string[]
-        {
-            Path.Combine(Environment.CurrentDirectory, "000-CreateCheckConstraint.sql"),
-            Path.Combine(Environment.CurrentDirectory, "000-CreateIndex.sql"),
-            Path.Combine(Environment.CurrentDirectory, "000-CreateOrModifyColumn.sql"),
-            Path.Combine(Environment.CurrentDirectory, "000-CreateTable.sql"),
-            Path.Combine(Environment.CurrentDirectory, "000-DropCheckConstraint.sql"),
-            Path.Combine(Environment.CurrentDirectory, "000-DropColumn.sql"),
-            Path.Combine(Environment.CurrentDirectory, "000-DropIndex.sql"),
-            Path.Combine(Environment.CurrentDirectory, "000-DropTable.sql")
-        };
     }
 
     internal class InsertKeyPair

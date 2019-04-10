@@ -50,7 +50,7 @@ namespace CT.Blogs.Presentation.BlogApplications
 
         private void Initialize()
         {
-            var machineName = System.Environment.MachineName;
+            var machineName = Environment.MachineName;
 
             ConnectionString = Configuration.CustomSettings[$"{machineName}.MsSqlConnectionString"] ?? Configuration.CustomSettings["Local.MsSqlConnectionString"];
             MasterDbConnectionString = string.Format(ConnectionString, Configuration.CustomSettings[$"{machineName}.Database.Master"] ?? Configuration.CustomSettings["Local.Database.Master"]);
@@ -62,7 +62,6 @@ namespace CT.Blogs.Presentation.BlogApplications
         internal string BlogDbConnectionString { get; private set; }
         internal string MasterDbConnectionString { get; private set; }
         internal string ConnectionString { get; private set; }
-        internal string Environment { get; private set; }
 
         [DataMember]
         [Help(typeof(Resources), nameof(Resources.BlogApplicationCompositeRoot_AllBlogs))]
@@ -107,12 +106,11 @@ namespace CT.Blogs.Presentation.BlogApplications
             using (var connection = repository.OpenConnection(BlogDbConnectionString))
             using (var transaction = repository.BeginTransaction(connection))
             {
-                var directoryPath = System.Environment.CurrentDirectory;
+                var directoryPath = Environment.CurrentDirectory;
 
                 RunSetupDatabaseScripts(repository, connection, transaction, directoryPath,
                     Directory
                         .GetFiles(directoryPath, "*.sql")
-                        .Except(repository.HelperStoredProcedureScriptFiles)
                         .Except(new string[] { createDatabaseSqlScriptFile }).ToArray());
 
                 repository.CommitTransaction(transaction);
