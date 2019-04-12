@@ -40,7 +40,6 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs
             AllBlogs = blogCompositeContainer;
 
             AllPosts = new PostCompositeContainer(this);
-
         }
 
         [DataMember]

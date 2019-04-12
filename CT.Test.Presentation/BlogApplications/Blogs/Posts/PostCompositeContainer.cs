@@ -22,15 +22,16 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs.Posts
 {
     [DataContract]
     [ParentProperty(nameof(PostCompositeContainer.Blog))]
-    [CompositeDictionaryProperty(nameof(PostCompositeContainer.Posts))]
+    [CompositeContainer(nameof(PostCompositeContainer.Posts))]
     public class PostCompositeContainer : Composite
     {
-        public BlogComposite Blog { get; }
+        public BlogComposite Blog { get; private set; }
 
         internal PostCompositeContainer(BlogComposite blogComposite)
         {
             // TODO: make a Composite extension method for below
-            // this.InitializeCompositeDictionary(blogComposite) <-- parent composite
+            this.InitializeCompositeContainer(posts, blogComposite);
+
             Blog = blogComposite;
             posts = new CompositeDictionary<long, PostComposite>();
             Posts = new ReadOnlyCompositeDictionary<long, PostComposite>(posts);
@@ -42,6 +43,6 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs.Posts
         [NonSerialized]
         internal CompositeDictionary<long, PostComposite> posts;
         [DataMember]
-        public ReadOnlyCompositeDictionary<long, PostComposite> Posts { get; }
+        public ReadOnlyCompositeDictionary<long, PostComposite> Posts { get; private set; }
     }
 }

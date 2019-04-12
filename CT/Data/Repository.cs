@@ -70,7 +70,7 @@ namespace CT.Data
             {
                 var compositeType = c.GetType();
 
-                CompositeDictionaryPropertyAttribute compositeDictionaryPropertyAttribute;
+                CompositeContainerAttribute compositeDictionaryPropertyAttribute;
 
                 var compositeModelAttribute = compositeType.FindCustomAttribute<CompositeModelAttribute>();
                 var modelFieldInfo = compositeType.GetField(compositeModelAttribute?.ModelFieldName, BindingFlags.Instance | BindingFlags.NonPublic);
@@ -79,15 +79,15 @@ namespace CT.Data
                 var modelKeyProperty = modelFieldInfo?.FieldType.GetProperty(modelKeyPropertyAttribute.PropertyName);
                 var modelKeyDataMemberAttribute = modelKeyProperty?.GetCustomAttribute<DataMemberAttribute>();
 
-                if ((compositeDictionaryPropertyAttribute = compositeType.FindCustomAttribute<CompositeDictionaryPropertyAttribute>()) != null)
+                if ((compositeDictionaryPropertyAttribute = compositeType.FindCustomAttribute<CompositeContainerAttribute>()) != null)
                 {
                     var removedIdsProperty = compositeType
-                        .GetProperty(compositeDictionaryPropertyAttribute.CompositeDictionaryPropertyName)
+                        .GetProperty(compositeDictionaryPropertyAttribute.CompositeContainerDictionaryPropertyName)
                         .GetValue(c)
                         .GetType().GetProperty(nameof(CompositeDictionary<object, Composite>.RemovedIds));
 
                     var compositeDictionary = compositeType
-                        .GetProperty(compositeDictionaryPropertyAttribute.CompositeDictionaryPropertyName)
+                        .GetProperty(compositeDictionaryPropertyAttribute.CompositeContainerDictionaryPropertyName)
                         .GetValue(c);
 
                     if (compositeModelAttribute == null)

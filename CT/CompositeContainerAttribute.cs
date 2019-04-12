@@ -16,29 +16,17 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Runtime.Serialization;
 
-namespace CT.Blogs.Presentation.BlogApplications.Blogs.Posts.Comments
+namespace CT
 {
-    [DataContract]
-    [ParentProperty(nameof(CommentCompositeContainer.Post))]
-    [CompositeContainer(nameof(CommentCompositeContainer.Comments))]
-    public class CommentCompositeContainer : Composite
+    [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
+    public sealed class CompositeContainerAttribute : Attribute
     {
-        public PostComposite Post { get; }
-        internal CommentCompositeContainer(PostComposite postComposite)
+        public CompositeContainerAttribute(string compositeContainerDictionaryPropertyName)
         {
-            Post = postComposite;
-            comments = new CompositeDictionary<long, CommentComposite>();
-            Comments = new ReadOnlyCompositeDictionary<long, CommentComposite>(comments);
-
-            foreach (var comment in Post.PostModel.Comments.Values)
-                comments.Add(comment.Id, new CommentComposite(comment, this));
+            CompositeContainerDictionaryPropertyName = compositeContainerDictionaryPropertyName;
         }
 
-        [NonSerialized]
-        internal CompositeDictionary<long, CommentComposite> comments;
-        [DataMember]
-        public ReadOnlyCompositeDictionary<long, CommentComposite> Comments { get; }
+        public string CompositeContainerDictionaryPropertyName { get; private set; }
     }
 }

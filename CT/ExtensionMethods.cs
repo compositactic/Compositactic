@@ -348,6 +348,32 @@ namespace CT
             return newUrl;
         }
 
+        public static void InitializeCompositeContainer<TKey, TComposite>(this Composite compositeContainer, CompositeDictionary<TKey, TComposite> compositeContainerDictionary, Composite parentComposite) where TComposite : Composite
+        {
+            var compositeType = compositeContainer.GetType();
+
+            ParentPropertyAttribute parentPropertyAttribute = null;
+            CompositeContainerAttribute compositeDictionaryPropertyAttribute;
+
+            if ((compositeDictionaryPropertyAttribute = compositeType.FindCustomAttribute<CompositeContainerAttribute>()) == null)
+                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.MustSupplyValidCompositeDictionaryPropertyAttribute, compositeContainer.GetType().Name));
+
+            if (parentComposite != null && (parentPropertyAttribute = compositeType.FindCustomAttribute<ParentPropertyAttribute>()) == null)
+                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.MustSupplyValidParentPropertyAttribute, compositeContainer.GetType().Name));
+
+            compositeType
+                .GetProperty(parentPropertyAttribute.ParentPropertyName, BindingFlags.Instance | BindingFlags.NonPublic)
+                .SetValue(compositeContainer, parentComposite);
+
+            compositeContainerDictionary = new CompositeDictionary<TKey, TComposite>();
+
+            compositeType
+                .GetProperty(compositeDictionaryPropertyAttribute.CompositeContainerDictionaryPropertyName, BindingFlags.Instance | BindingFlags.NonPublic)
+                .SetValue(compositeContainer, new ReadOnlyCompositeDictionary<TKey, TComposite>(compositeContainerDictionary));
+
+            // TODO: finish implementation
+        }
+
         public static string GetPath(this Composite composite)
         {
             if (composite == null)
@@ -377,7 +403,7 @@ namespace CT
 
             var parentProperty = composite.GetType().GetProperty(parentPropertyAttribute.ParentPropertyName);
 
-            var dictionaryPropertyAttribute = compositeType.FindCustomAttribute<CompositeDictionaryPropertyAttribute>();
+            var dictionaryPropertyAttribute = compositeType.FindCustomAttribute<CompositeContainerAttribute>();
             var keyPropertyAttribute = compositeType.FindCustomAttribute<KeyPropertyAttribute>();
 
             if (keyPropertyAttribute != null && parentPropertyAttribute != null && dictionaryPropertyAttribute == null)
@@ -388,8 +414,8 @@ namespace CT
             else if (dictionaryPropertyAttribute != null)
                 propertyPathBuilder.Insert(0, "/" + (property != null ?
                                                     property.Name :
-                                                    compositeType.GetProperty(dictionaryPropertyAttribute.CompositeDictionaryPropertyName).PropertyType.GenericTypeArguments[1].FindCustomAttribute<ParentPropertyAttribute>().ParentPropertyName) + 
-                                                    (propertyPathBuilder.Length > 0 ? "/" + dictionaryPropertyAttribute.CompositeDictionaryPropertyName : string.Empty));
+                                                    compositeType.GetProperty(dictionaryPropertyAttribute.CompositeContainerDictionaryPropertyName).PropertyType.GenericTypeArguments[1].FindCustomAttribute<ParentPropertyAttribute>().ParentPropertyName) + 
+                                                    (propertyPathBuilder.Length > 0 ? "/" + dictionaryPropertyAttribute.CompositeContainerDictionaryPropertyName : string.Empty));
             else
                 propertyPathBuilder.Insert(0, "/" + parentPropertyAttribute.ParentCompositePropertyName);
 
@@ -432,7 +458,7 @@ namespace CT
             TAttribute attribute;
 
             if (type == null)
-                return default(TAttribute);
+                return default;
 
             if ((attribute = type.GetCustomAttribute<TAttribute>()) != null)
                 return attribute;

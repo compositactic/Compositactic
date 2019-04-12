@@ -2,12 +2,13 @@
 
 Document is a Range
 
-Document has a model -- Composite w/model
-Document has a int key named Id
-Document has a string named Name
-Document has a DateTime named LastModified
-Document has a TimeSpan named TotalEditingTime
-Document has a PageSetup named PageSetup
+Document has:
+* a model 
+* an int key named Id
+* a string named Name
+* a DateTime named LastModified
+* a TimeSpan named TotalEditingTime
+* a PageSetup named PageSetup
 
 PageSetup has a model -- Composite w/model
 PageSetup has an Orientation named Orientation -- 
@@ -26,7 +27,7 @@ PaperSize has a decimal named Width
 PaperSize has a decimal named Height
 
 Range has many Range named Ranges with container named SubRanges
-Range has a Guid key named Id
+Range has a int key named Id
 Range has a string named Text
 Range has a Style named Style
 

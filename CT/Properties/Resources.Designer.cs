@@ -19,7 +19,7 @@ namespace CT.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -298,11 +298,29 @@ namespace CT.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The type &apos;{0}&apos; must have a valid CompositeDictionaryPropertyAttribute.
+        /// </summary>
+        internal static string MustSupplyValidCompositeDictionaryPropertyAttribute {
+            get {
+                return ResourceManager.GetString("MustSupplyValidCompositeDictionaryPropertyAttribute", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to A valid endpoint is required.
         /// </summary>
         internal static string MustSupplyValidEndpoint {
             get {
                 return ResourceManager.GetString("MustSupplyValidEndpoint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The type &apos;{0}&apos; must have a valid ParentPropertyAttribute.
+        /// </summary>
+        internal static string MustSupplyValidParentPropertyAttribute {
+            get {
+                return ResourceManager.GetString("MustSupplyValidParentPropertyAttribute", resourceCulture);
             }
         }
         

@@ -22,7 +22,7 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs.Posts.Attachments
 {
     [DataContract]
     [ParentProperty(nameof(AttachmentCompositeContainer.Post))]
-    [CompositeDictionaryProperty(nameof(AttachmentCompositeContainer.Attachments))]
+    [CompositeContainer(nameof(AttachmentCompositeContainer.Attachments))]
     public class AttachmentCompositeContainer : Composite
     {
         public PostComposite Post { get; }

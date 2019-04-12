@@ -25,7 +25,7 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs
 {
     [DataContract]
     [ParentProperty(nameof(BlogCompositeContainer.BlogApplication))]
-    [CompositeDictionaryProperty(nameof(BlogCompositeContainer.Blogs))]
+    [CompositeContainer(nameof(BlogCompositeContainer.Blogs))]
     public class BlogCompositeContainer : Composite
     {
         public BlogApplicationCompositeRoot BlogApplication { get; }

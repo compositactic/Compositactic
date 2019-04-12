@@ -23,7 +23,7 @@ namespace CT.Hosting.Configuration
 {
     [DataContract]
     [ParentProperty(nameof(CompositeRootConfigurationContainer.ServerConfiguration))]
-    [CompositeDictionaryProperty(nameof(CompositeRootConfigurationContainer.RootConfigurations))]
+    [CompositeContainer(nameof(CompositeRootConfigurationContainer.RootConfigurations))]
     public class CompositeRootConfigurationContainer : Composite
     {
         internal CompositeRootConfigurationContainer(CompositeRootHttpServerConfiguration serverConfiguration)

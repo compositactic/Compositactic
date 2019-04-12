@@ -202,4 +202,10 @@
   <data name="MustHaveDataMemberAttribute" xml:space="preserve">
     <value>Property '{0}' must have a DataMemberAttribute</value>
   </data>
+  <data name="MustSupplyValidCompositeDictionaryPropertyAttribute" xml:space="preserve">
+    <value>The type '{0}' must have a valid CompositeDictionaryPropertyAttribute</value>
+  </data>
+  <data name="MustSupplyValidParentPropertyAttribute" xml:space="preserve">
+    <value>The type '{0}' must have a valid ParentPropertyAttribute</value>
+  </data>
 </root>

@@ -1,11 +1,15 @@
 ﻿# Model - [Name]
 [Include a overall description of the Model]
 
+
 |Property|Type|Description
 |:-|:-|:-
 |[Name]|[Text,Number,Date,Datetime,Yes/No,Collection]|[Description of Property]
 |[Name]|[Text,Number,Date,Datetime,Yes/No,Collection]|[Description of Property]
 |[Name]|[Text,Number,Date,Datetime,Yes/No,Collection]|[Description of Property]
+
+Table: caption
+
 
 ##### Parent Model: [Parent Model Name]
 

@@ -25,7 +25,7 @@ namespace CT.Hosting
 {
     [DataContract]
     [ParentProperty(nameof(CompositeRootSessionContainer.Server))]
-    [CompositeDictionaryProperty(nameof(CompositeRootSessionContainer.Sessions))]
+    [CompositeContainer(nameof(CompositeRootSessionContainer.Sessions))]
     public class CompositeRootSessionContainer : Composite
     {
         public CompositeRootHttpServer Server { get; private set; }
