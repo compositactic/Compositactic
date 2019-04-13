@@ -22,22 +22,21 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs.Posts
 {
     [DataContract]
     [ParentProperty(nameof(PostCompositeContainer.Blog))]
-    [CompositeContainer(nameof(PostCompositeContainer.Posts))]
+    [CompositeContainer(nameof(PostCompositeContainer.Posts), nameof(Model.Blogs.Blog.Posts))]
     public class PostCompositeContainer : Composite
     {
         public BlogComposite Blog { get; private set; }
 
         internal PostCompositeContainer(BlogComposite blogComposite)
         {
-            // TODO: make a Composite extension method for below
             this.InitializeCompositeContainer(posts, blogComposite);
 
-            Blog = blogComposite;
-            posts = new CompositeDictionary<long, PostComposite>();
-            Posts = new ReadOnlyCompositeDictionary<long, PostComposite>(posts);
+            //Blog = blogComposite;
+            //posts = new CompositeDictionary<long, PostComposite>();
+            //Posts = new ReadOnlyCompositeDictionary<long, PostComposite>(posts);
 
-            foreach (var post in Blog.BlogModel.Posts.Values)
-                posts.Add(post.Id, new PostComposite(post, this));
+            //foreach (var post in Blog.BlogModel.Posts.Values)
+            //    posts.Add(post.Id, new PostComposite(post, this));
         }
 
         [NonSerialized]

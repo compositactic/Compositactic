@@ -26,7 +26,7 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs.Posts.Comments
     [CompositeModel(nameof(CommentComposite.CommentModel))]
     public class CommentComposite : Composite
     {
-        public CommentCompositeContainer AllComments { get; }
+        public CommentCompositeContainer AllComments { get; private set; }
 
         public Comment CommentModel { get; }
 

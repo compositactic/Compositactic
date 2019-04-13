@@ -26,7 +26,14 @@ namespace CT
         {
             CompositeContainerDictionaryPropertyName = compositeContainerDictionaryPropertyName;
         }
+        public CompositeContainerAttribute(string compositeContainerDictionaryPropertyName, string modelDictionaryPropertyName)
+        {
+            CompositeContainerDictionaryPropertyName = compositeContainerDictionaryPropertyName;
+            ModelDictionaryPropertyName = modelDictionaryPropertyName;
+        }
 
         public string CompositeContainerDictionaryPropertyName { get; private set; }
+
+        public string ModelDictionaryPropertyName { get; private set; }
     }
 }

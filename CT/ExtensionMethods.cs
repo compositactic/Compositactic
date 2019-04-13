@@ -354,6 +354,7 @@ namespace CT
 
             ParentPropertyAttribute parentPropertyAttribute = null;
             CompositeContainerAttribute compositeDictionaryPropertyAttribute;
+            CompositeModelAttribute compositeModelAttribute;
 
             if ((compositeDictionaryPropertyAttribute = compositeType.FindCustomAttribute<CompositeContainerAttribute>()) == null)
                 throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.MustSupplyValidCompositeDictionaryPropertyAttribute, compositeContainer.GetType().Name));
@@ -362,16 +363,59 @@ namespace CT
                 throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.MustSupplyValidParentPropertyAttribute, compositeContainer.GetType().Name));
 
             compositeType
-                .GetProperty(parentPropertyAttribute.ParentPropertyName, BindingFlags.Instance | BindingFlags.NonPublic)
+                .GetProperty(parentPropertyAttribute.ParentPropertyName)
                 .SetValue(compositeContainer, parentComposite);
 
             compositeContainerDictionary = new CompositeDictionary<TKey, TComposite>();
 
             compositeType
-                .GetProperty(compositeDictionaryPropertyAttribute.CompositeContainerDictionaryPropertyName, BindingFlags.Instance | BindingFlags.NonPublic)
+                .GetProperty(compositeDictionaryPropertyAttribute.CompositeContainerDictionaryPropertyName)
                 .SetValue(compositeContainer, new ReadOnlyCompositeDictionary<TKey, TComposite>(compositeContainerDictionary));
 
-            // TODO: finish implementation
+            if(!string.IsNullOrEmpty(compositeDictionaryPropertyAttribute.ModelDictionaryPropertyName))
+            {
+                var parentCompositeType = parentComposite.GetType();
+                if ((compositeModelAttribute = parentCompositeType.FindCustomAttribute<CompositeModelAttribute>()) == null)
+                    throw new InvalidOperationException();
+
+                FieldInfo modelFieldInfo;
+                if ((modelFieldInfo = parentCompositeType.GetField(compositeModelAttribute.ModelFieldName, BindingFlags.NonPublic | BindingFlags.Instance)) == null)
+                    throw new InvalidOperationException();
+
+                object parentModel;
+                if ((parentModel = modelFieldInfo.GetValue(parentComposite)) == null)
+                    throw new InvalidOperationException();
+
+                PropertyInfo modelDictionaryPropertyInfo;
+
+                if ((modelDictionaryPropertyInfo = parentModel.GetType().GetProperty(compositeDictionaryPropertyAttribute.ModelDictionaryPropertyName)) == null)
+                    throw new InvalidOperationException();
+
+                object modelDictionary;
+
+                if ((modelDictionary = modelDictionaryPropertyInfo.GetValue(parentModel)) == null)
+                    throw new InvalidOperationException();
+
+                var models = modelDictionary.GetType().GetProperty("Values").GetValue(modelDictionary) as IEnumerable;
+
+                KeyPropertyAttribute modelKeyPropertyAttribute = null;
+                PropertyInfo modelKeyPropertyInfo = null;
+                Type modelType = null;
+
+                foreach (var model in models)
+                {
+                    modelType = modelType ?? model.GetType();
+
+                    if (modelKeyPropertyAttribute == null && (modelKeyPropertyAttribute = modelType.FindCustomAttribute<KeyPropertyAttribute>()) == null)
+                        throw new InvalidOperationException();
+
+                    if (modelKeyPropertyInfo == null && (modelKeyPropertyInfo = modelType.GetProperty(modelKeyPropertyAttribute.PropertyName)) == null)
+                        throw new InvalidOperationException();
+
+                    var idValue = modelKeyPropertyInfo.GetValue(model);
+                    compositeContainerDictionary.Add((TKey)idValue, Activator.CreateInstance(typeof(TComposite), new object[] { model, compositeContainer }) as TComposite);
+                }
+            }
         }
 
         public static string GetPath(this Composite composite)

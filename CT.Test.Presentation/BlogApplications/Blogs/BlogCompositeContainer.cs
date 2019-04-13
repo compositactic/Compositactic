@@ -28,19 +28,17 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs
     [CompositeContainer(nameof(BlogCompositeContainer.Blogs))]
     public class BlogCompositeContainer : Composite
     {
-        public BlogApplicationCompositeRoot BlogApplication { get; }
+        public BlogApplicationCompositeRoot BlogApplication { get; private set; }
 
         internal BlogCompositeContainer(BlogApplicationCompositeRoot blogApplicationCompositeRoot)
         {
-            BlogApplication = blogApplicationCompositeRoot;
-            blogs = new CompositeDictionary<long, BlogComposite>();
-            Blogs = new ReadOnlyCompositeDictionary<long, BlogComposite>(blogs);
+            this.InitializeCompositeContainer(blogs, blogApplicationCompositeRoot);
         }
 
         [NonSerialized]
         internal CompositeDictionary<long, BlogComposite> blogs;
         [DataMember]
-        public ReadOnlyCompositeDictionary<long, BlogComposite> Blogs { get; }
+        public ReadOnlyCompositeDictionary<long, BlogComposite> Blogs { get; private set; }
 
         [Command]
         [Help(typeof(Resources), nameof(Resources.BlogCompositeContainer_CreateNewBlog_CommandHelp))]

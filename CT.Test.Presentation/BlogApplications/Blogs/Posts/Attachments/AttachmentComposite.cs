@@ -27,7 +27,7 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs.Posts.Attachments
     public class AttachmentComposite : Composite
     {
         public Attachment AttachmentModel { get; }
-        public AttachmentCompositeContainer AllAttachments { get; }
+        public AttachmentCompositeContainer AllAttachments { get; private set; }
 
         internal AttachmentComposite(Attachment attachment, AttachmentCompositeContainer attachmentCompositeContainer)
         {

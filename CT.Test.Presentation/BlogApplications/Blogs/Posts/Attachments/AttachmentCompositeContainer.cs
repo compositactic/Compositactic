@@ -22,26 +22,28 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs.Posts.Attachments
 {
     [DataContract]
     [ParentProperty(nameof(AttachmentCompositeContainer.Post))]
-    [CompositeContainer(nameof(AttachmentCompositeContainer.Attachments))]
+    [CompositeContainer(nameof(AttachmentCompositeContainer.Attachments), nameof(Model.Blogs.Posts.Post.Attachments))]
     public class AttachmentCompositeContainer : Composite
     {
         public PostComposite Post { get; }
 
         internal AttachmentCompositeContainer(PostComposite postComposite)
         {
-            Post = postComposite;
+            this.InitializeCompositeContainer(attachments, postComposite);
 
-            attachments = new CompositeDictionary<long, AttachmentComposite>();
-            Attachments = new ReadOnlyCompositeDictionary<long, AttachmentComposite>(attachments);
+            //Post = postComposite;
 
-            foreach (var attachment in Post.PostModel.Attachments.Values)
-                attachments.Add(attachment.Id, new AttachmentComposite(attachment, this));
+            //attachments = new CompositeDictionary<long, AttachmentComposite>();
+            //Attachments = new ReadOnlyCompositeDictionary<long, AttachmentComposite>(attachments);
+
+            //foreach (var attachment in Post.PostModel.Attachments.Values)
+            //    attachments.Add(attachment.Id, new AttachmentComposite(attachment, this));
         }
 
         [NonSerialized]
         internal CompositeDictionary<long, AttachmentComposite> attachments;
         [DataMember]
-        public ReadOnlyCompositeDictionary<long, AttachmentComposite> Attachments { get; }
+        public ReadOnlyCompositeDictionary<long, AttachmentComposite> Attachments { get; private set; }
 
     }
 }

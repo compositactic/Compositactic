@@ -54,8 +54,6 @@ namespace CT
                                         CompositeRoot != null && CompositeRoot.CompositeRootSession != null ?
                                             CompositeRoot.CompositeRootSession.Mode :
                                             CompositeRootMode.None));
-
-            State = CompositeState.Modified;
         }
 
         protected internal void AddEvent(CompositeEventType eventType, string path, object eventData)

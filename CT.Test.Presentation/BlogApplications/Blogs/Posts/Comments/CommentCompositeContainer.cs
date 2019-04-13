@@ -22,23 +22,25 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs.Posts.Comments
 {
     [DataContract]
     [ParentProperty(nameof(CommentCompositeContainer.Post))]
-    [CompositeContainer(nameof(CommentCompositeContainer.Comments))]
+    [CompositeContainer(nameof(CommentCompositeContainer.Comments), nameof(Model.Blogs.Posts.Post.Comments))]
     public class CommentCompositeContainer : Composite
     {
         public PostComposite Post { get; }
         internal CommentCompositeContainer(PostComposite postComposite)
         {
-            Post = postComposite;
-            comments = new CompositeDictionary<long, CommentComposite>();
-            Comments = new ReadOnlyCompositeDictionary<long, CommentComposite>(comments);
+            this.InitializeCompositeContainer(comments, postComposite);
 
-            foreach (var comment in Post.PostModel.Comments.Values)
-                comments.Add(comment.Id, new CommentComposite(comment, this));
+            //Post = postComposite;
+            //comments = new CompositeDictionary<long, CommentComposite>();
+            //Comments = new ReadOnlyCompositeDictionary<long, CommentComposite>(comments);
+
+            //foreach (var comment in Post.PostModel.Comments.Values)
+            //    comments.Add(comment.Id, new CommentComposite(comment, this));
         }
 
         [NonSerialized]
         internal CompositeDictionary<long, CommentComposite> comments;
         [DataMember]
-        public ReadOnlyCompositeDictionary<long, CommentComposite> Comments { get; }
+        public ReadOnlyCompositeDictionary<long, CommentComposite> Comments { get; private set; }
     }
 }
