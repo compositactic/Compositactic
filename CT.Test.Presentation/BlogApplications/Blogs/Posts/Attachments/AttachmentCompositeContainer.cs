@@ -29,7 +29,7 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs.Posts.Attachments
 
         internal AttachmentCompositeContainer(PostComposite postComposite)
         {
-            this.InitializeCompositeContainer(attachments, postComposite);
+            this.InitializeCompositeContainer(out attachments, postComposite);
 
             //Post = postComposite;
 

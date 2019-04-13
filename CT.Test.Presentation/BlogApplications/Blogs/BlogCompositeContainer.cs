@@ -32,7 +32,7 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs
 
         internal BlogCompositeContainer(BlogApplicationCompositeRoot blogApplicationCompositeRoot)
         {
-            this.InitializeCompositeContainer(blogs, blogApplicationCompositeRoot);
+            this.InitializeCompositeContainer(out blogs, blogApplicationCompositeRoot);
         }
 
         [NonSerialized]

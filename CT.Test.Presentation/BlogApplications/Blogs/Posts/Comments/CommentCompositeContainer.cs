@@ -28,7 +28,7 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs.Posts.Comments
         public PostComposite Post { get; }
         internal CommentCompositeContainer(PostComposite postComposite)
         {
-            this.InitializeCompositeContainer(comments, postComposite);
+            this.InitializeCompositeContainer(out comments, postComposite);
 
             //Post = postComposite;
             //comments = new CompositeDictionary<long, CommentComposite>();

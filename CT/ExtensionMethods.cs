@@ -348,7 +348,7 @@ namespace CT
             return newUrl;
         }
 
-        public static void InitializeCompositeContainer<TKey, TComposite>(this Composite compositeContainer, CompositeDictionary<TKey, TComposite> compositeContainerDictionary, Composite parentComposite) where TComposite : Composite
+        public static void InitializeCompositeContainer<TKey, TComposite>(this Composite compositeContainer, out CompositeDictionary<TKey, TComposite> compositeContainerDictionary, Composite parentComposite) where TComposite : Composite
         {
             var compositeType = compositeContainer.GetType();
 

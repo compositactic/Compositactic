@@ -29,7 +29,7 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs.Posts
 
         internal PostCompositeContainer(BlogComposite blogComposite)
         {
-            this.InitializeCompositeContainer(posts, blogComposite);
+            this.InitializeCompositeContainer(out posts, blogComposite);
 
             //Blog = blogComposite;
             //posts = new CompositeDictionary<long, PostComposite>();
