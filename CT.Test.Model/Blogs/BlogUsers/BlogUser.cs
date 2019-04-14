@@ -30,7 +30,7 @@ namespace CT.Blogs.Model.Blogs.BlogUsers
 
         public void Remove()
         {
-            Blog.blogUsers.TryRemove(Id, out BlogUser removedValue);
+            Blog.blogUsers.TryRemove(Id, out _);
         }
     }
 }

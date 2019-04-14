@@ -44,7 +44,7 @@ namespace CT.Blogs.Model.Blogs.Posts.Attachments
 
         public void Remove()
         {
-            Post.attachments.TryRemove(Id, out Attachment removedValue);
+            Post.attachments.TryRemove(Id, out _);
         }
     }
 }

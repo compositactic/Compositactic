@@ -30,13 +30,6 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs.Posts
         internal PostCompositeContainer(BlogComposite blogComposite)
         {
             this.InitializeCompositeContainer(out posts, blogComposite);
-
-            //Blog = blogComposite;
-            //posts = new CompositeDictionary<long, PostComposite>();
-            //Posts = new ReadOnlyCompositeDictionary<long, PostComposite>(posts);
-
-            //foreach (var post in Blog.BlogModel.Posts.Values)
-            //    posts.Add(post.Id, new PostComposite(post, this));
         }
 
         [NonSerialized]

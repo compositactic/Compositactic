@@ -60,7 +60,7 @@ namespace CT.Blogs.Model.Blogs
 
         [DataMember]
         internal ConcurrentDictionary<long, BlogUser> blogUsers;
-        private ReadOnlyDictionary<long, BlogUser> _blogUsers;
+        private readonly ReadOnlyDictionary<long, BlogUser> _blogUsers;
         public IReadOnlyDictionary<long, BlogUser> BlogUsers
         {
             get { return _blogUsers; }

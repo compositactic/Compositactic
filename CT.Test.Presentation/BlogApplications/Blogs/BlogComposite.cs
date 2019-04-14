@@ -16,6 +16,7 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using CT.Blogs.Model.Blogs;
+using CT.Blogs.Presentation.BlogApplications.Blogs.BlogUsers;
 using CT.Blogs.Presentation.BlogApplications.Blogs.Posts;
 using System.ComponentModel;
 using System.Runtime.Serialization;
@@ -40,10 +41,14 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs
             AllBlogs = blogCompositeContainer;
 
             AllPosts = new PostCompositeContainer(this);
+            SubscribedUsers = new BlogUserCompositeContainer(this);
         }
 
         [DataMember]
         public PostCompositeContainer AllPosts { get; }
+
+        [DataMember]
+        public BlogUserCompositeContainer SubscribedUsers { get; }
 
         [DataMember]
         public long Id

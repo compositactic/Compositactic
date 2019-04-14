@@ -58,7 +58,7 @@ namespace CT.Blogs.Model.Blogs.Posts
 
         public void Remove()
         {
-            Blog.posts.TryRemove(Id, out Post removedValue);
+            Blog.posts.TryRemove(Id, out _);
         }
 
         public Comment CreateNewComment()
