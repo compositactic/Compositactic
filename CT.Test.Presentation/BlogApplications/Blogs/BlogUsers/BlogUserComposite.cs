@@ -1,5 +1,4 @@
-﻿using CT.Blogs.Model.Blogs.BlogUsers;
-// Compositactic - Made in the USA - Indianapolis, IN  - Copyright (c) 2017 Matt J. Crouch
+﻿// Compositactic - Made in the USA - Indianapolis, IN  - Copyright (c) 2017 Matt J. Crouch
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software
 // and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -17,6 +16,7 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Runtime.Serialization;
+using CT.Blogs.Model.Blogs.BlogUsers;
 
 namespace CT.Blogs.Presentation.BlogApplications.Blogs.BlogUsers
 {
@@ -26,7 +26,6 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs.BlogUsers
     [CompositeModel(nameof(BlogUserComposite.BlogUserModel))]
     public class BlogUserComposite : Composite
     {
-
         public BlogUserCompositeContainer SubscribedUsers { get; }
 
         internal BlogUser BlogUserModel;

@@ -117,4 +117,29 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="CreateCheckConstraint" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\createcheckconstraint.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="CreateIndex" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\createindex.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="CreateOrModifyColumn" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\createormodifycolumn.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="CreateTable" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\createtable.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="DropCheckConstraint" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\dropcheckconstraint.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="DropColumn" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\dropcolumn.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="DropIndex" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\dropindex.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="DropTable" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\droptable.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
 </root>

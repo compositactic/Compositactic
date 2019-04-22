@@ -16,6 +16,7 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using CT.Data.MicrosoftSqlServer.Properties;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -169,7 +170,7 @@ namespace CT.Data.MicrosoftSqlServer
             var resourceSet = new ResourceManager(typeof(Resources)).GetResourceSet(CultureInfo.InvariantCulture, true, true);
             
             foreach (var helperStoredProcedureScript in resourceSet)
-                OnExecute<object>(connection, transaction, helperStoredProcedureScript as string, null);
+                OnExecute<object>(connection, transaction, ((DictionaryEntry)helperStoredProcedureScript).Value as string, null);
         }
     }
 
