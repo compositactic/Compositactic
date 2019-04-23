@@ -1,1 +1,1 @@
-﻿# Actor - Editor
+﻿# [Actor](../../../DocumentTemplates/Actor.md) - Editor

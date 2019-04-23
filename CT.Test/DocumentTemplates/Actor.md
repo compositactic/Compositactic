@@ -15,7 +15,7 @@
 
 * *Definition must reference Actor's role in delivering on the [System](System.md) Statement*
 * *Definition must mention all Actor's top-level [Stories](Story.md)*
-* *Goal Summary should explain how Actor's [Stories](Story.md) help accomplish the main benefit mentioned in [System](System.md) Statement*
+* *Goal Summary should explain how Actor's [Stories](Story.md) align with [System](System.md)*
 * *Begin to identify [Models](Model.md) when appropriate*
 
 <div style="page-break-after: always;"></div>

@@ -48,9 +48,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Systems\Actors\Author\Stories\My Sample Story\Use Cases\Create A Post\Use Cases\" />
+    <Folder Include="Systems\Actors\Editor\Author\Stories\My Sample Story\Use Cases\Create A Post\Use Cases\" />
     <Folder Include="Systems\Actors\Editor\Stories\" />
-    <Folder Include="Systems\Actors\Reader\Stories\" />
+    <Folder Include="Systems\Actors\Editor\Author\Reader\Stories\" />
   </ItemGroup>
 
 </Project>

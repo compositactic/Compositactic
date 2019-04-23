@@ -1,4 +1,4 @@
-﻿# Actor - Author
+﻿# [Actor](../../../DocumentTemplates/Actor.md) - Author
 
 
 

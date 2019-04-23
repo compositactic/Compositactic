@@ -5,7 +5,7 @@
 ---
 ##### Instructions for using this template (Remove this section when no longer needed):
 
-*The System Statement summarizes the benefits and goals the System must deliver to all effected stakeholders. The System must mention each [Actor](Actor.md) and their primary goal summarized as briefly and completely as possible.*
+*The System summarizes the benefits and goals the System must deliver to all effected stakeholders. The System must mention each [Actor](Actor.md) and their primary goal summarized as briefly and completely as possible.*
 
 ---
 
