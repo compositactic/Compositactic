@@ -680,7 +680,7 @@ namespace CT
                     Type columnType = null;
                     foreach(var modelProperty in modelProperties)
                     {
-                        var columnName = modelProperty.GetCustomAttribute<DataMemberAttribute>().Name ?? modelProperty.Name;
+                        var columnName = modelProperty.GetCustomAttribute<DataMemberAttribute>()?.Name ?? modelProperty.Name;
 
                         if ((columnType = Nullable.GetUnderlyingType(modelProperty.PropertyType)) != null)
                             dataTable.Columns.Add(new DataColumn(columnName, columnType) { AllowDBNull = true });
@@ -696,7 +696,7 @@ namespace CT
                 
                 foreach (var modelProperty in modelProperties)
                 {
-                    var columnName = modelProperty.GetCustomAttribute<DataMemberAttribute>().Name ?? modelProperty.Name;
+                    var columnName = modelProperty.GetCustomAttribute<DataMemberAttribute>()?.Name ?? modelProperty.Name;
                     dataRow[columnName] = modelProperty.GetValue(model) ?? DBNull.Value;
                 }
 
@@ -707,9 +707,9 @@ namespace CT
             return dataTable;
         }
 
-        public static void ToModel(this IDataRecord record, object model)
+        public static object ToModel(this IDataRecord record, Type modelType)
         {
-            var modelType = model.GetType();
+            var model = Activator.CreateInstance(modelType);
             var modelProperties = modelType.GetProperties();
             PropertyInfo propertyInfo = null;
 
@@ -718,7 +718,7 @@ namespace CT
                 var columnName = record.GetName(columnIndex);
                 try
                 {
-                    if ((propertyInfo = modelProperties.SingleOrDefault(p => p.GetCustomAttribute<DataMemberAttribute>()?.Name == columnName)) == null)
+                    if ((propertyInfo = modelProperties.SingleOrDefault(p => (p.GetCustomAttribute<DataMemberAttribute>()?.Name ?? p.Name) == columnName)) == null)
                         if ((propertyInfo = modelProperties.SingleOrDefault(p => p.Name == columnName)) == null)
                             throw new InvalidOperationException(Resources.MustMapToASingleProperty);
                 }
@@ -729,13 +729,9 @@ namespace CT
 
                 propertyInfo.SetValue(model, record[columnIndex]);
             }
-        }
 
-        public static T ToModel<T>(this IDataRecord record) where T : new()
-        {
-            var model = new T();
-            record.ToModel(model);
             return model;
         }
+
     }
 }

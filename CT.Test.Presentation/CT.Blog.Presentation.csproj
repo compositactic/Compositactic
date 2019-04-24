@@ -42,6 +42,9 @@
     <None Update="000-BlogServerDatabase.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="BlogApplications\Blogs\001-Data-Blog.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="BlogApplications\Blogs\BlogUsers\002-Table-BlogUser.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -49,6 +52,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="BlogApplications\Blogs\Posts\000-Table-Post.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="BlogApplications\Blogs\Posts\001-Data-Post.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="BlogApplications\Blogs\Posts\Attachments\000-Table-Attachment.sql">

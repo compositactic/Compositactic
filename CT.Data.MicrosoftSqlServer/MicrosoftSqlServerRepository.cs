@@ -16,6 +16,7 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using CT.Data.MicrosoftSqlServer.Properties;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
@@ -30,6 +31,11 @@ namespace CT.Data.MicrosoftSqlServer
 {
     public class MicrosoftSqlServerRepository : Repository, IMicrosoftSqlServerRepository
     {
+        public static MicrosoftSqlServerRepository Create()
+        {
+            return new MicrosoftSqlServerRepository();   
+        }
+
         protected MicrosoftSqlServerRepository() { }
 
         protected override T OnExecute<T>(DbConnection connection, DbTransaction transaction, string statement, IEnumerable<DbParameter> parameters)
@@ -44,7 +50,7 @@ namespace CT.Data.MicrosoftSqlServer
             }
         }
 
-        protected override IEnumerable<T> OnLoad<T>(DbConnection connection, DbTransaction transaction, string query, IEnumerable<DbParameter> parameters)
+        protected override IEnumerable<object> OnLoad(DbConnection connection, DbTransaction transaction, string query, IEnumerable<DbParameter> parameters, Type modelType)
         {
             using (var command = new SqlCommand(query, (SqlConnection)connection) { Transaction = (SqlTransaction)transaction })
             {
@@ -54,7 +60,7 @@ namespace CT.Data.MicrosoftSqlServer
                 using (var dataReader = command.ExecuteReader())
                 {
                     while (dataReader.Read())
-                        yield return dataReader.ToModel<T>();
+                        yield return dataReader.ToModel(modelType);
                 }
             }
         }
@@ -145,7 +151,7 @@ namespace CT.Data.MicrosoftSqlServer
                       [nameof(SaveParameters.ModelKeyPropertyName)]} AS {nameof(InsertKeyPair.OriginalKey)};
                 ";
 
-                var insertKeyPairs = OnLoad<InsertKeyPair>(connection, transaction, mergeSql, null);
+                var insertKeyPairs = OnLoad(connection, transaction, mergeSql, null, typeof(InsertKeyPair)).Cast<InsertKeyPair>();
 
                 OnExecute<object>(connection, transaction, $@"DROP TABLE #{dataTable.TableName}", null);
 

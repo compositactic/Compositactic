@@ -6,6 +6,9 @@ using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Linq;
+using CT.Data.MicrosoftSqlServer;
+using CT.Blogs.Model.Blogs.Posts;
+using System.Collections.Generic;
 
 namespace CT.Blogs.Test
 {
@@ -19,11 +22,24 @@ namespace CT.Blogs.Test
         [ClassInitialize]
         public static void Setup(TestContext testContext)
         {
-            _blogServerMonitorTester = new CompositeRootHttpServerTester(JsonConvert.DeserializeObject<RootHttpServerConfiguration>(File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "BlogServerMonitorConfig.json"))));
-            _blogServerMonitorTester.Initialize();
+            //_blogServerMonitorTester = new CompositeRootHttpServerTester(JsonConvert.DeserializeObject<RootHttpServerConfiguration>(File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "BlogServerMonitorConfig.json"))));
+            //_blogServerMonitorTester.Initialize();
 
-            _blogServerMonitorConfiguration = _blogServerMonitorTester.Configuration.ServerRootConfigurations.RootConfigurations.Values.First();
-            _blogServerMonitorConnection = _blogServerMonitorTester.LogOnUser(_blogServerMonitorConfiguration, "username=admin&password=1234");
+            //_blogServerMonitorConfiguration = _blogServerMonitorTester.Configuration.ServerRootConfigurations.RootConfigurations.Values.First();
+            //_blogServerMonitorConnection = _blogServerMonitorTester.LogOnUser(_blogServerMonitorConfiguration, "username=admin&password=1234");
+        }
+
+
+        [TestMethod]
+        public void MicrosoftSqlServerRepositoryTest()
+        {
+            var repository = MicrosoftSqlServerRepository.Create();
+
+            using (var connection = repository.OpenConnection(@"Data Source=(LocalDb)\\MSSQLLocalDB;Initial Catalog=master;Integrated Security=SSPI;"))
+            using (var transaction = repository.BeginTransaction(connection))
+            {
+                var posts = repository.Load(connection, transaction, "SELECT * FROM Post", null, typeof(Post)).Cast<Post>();
+            }
         }
 
         [TestMethod]
