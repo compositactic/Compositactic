@@ -716,16 +716,9 @@ namespace CT
             for (int columnIndex = 0; columnIndex < record.FieldCount; columnIndex++)
             {
                 var columnName = record.GetName(columnIndex);
-                try
-                {
-                    if ((propertyInfo = modelProperties.SingleOrDefault(p => (p.GetCustomAttribute<DataMemberAttribute>()?.Name ?? p.Name) == columnName)) == null)
-                        if ((propertyInfo = modelProperties.SingleOrDefault(p => p.Name == columnName)) == null)
-                            throw new InvalidOperationException(Resources.MustMapToASingleProperty);
-                }
-                catch(InvalidOperationException e)
-                {
-                    throw new InvalidOperationException(Resources.MustMapToASingleProperty, e);
-                }
+
+                if ((propertyInfo = modelProperties.SingleOrDefault(p => (p.GetCustomAttribute<DataMemberAttribute>()?.Name ?? p.Name).ToLowerInvariant() == columnName.ToLowerInvariant())) == null)
+                    continue;
 
                 propertyInfo.SetValue(model, record[columnIndex]);
             }

@@ -52,6 +52,8 @@ namespace CT.Data.MicrosoftSqlServer
 
         protected override IEnumerable<object> OnLoad(DbConnection connection, DbTransaction transaction, string query, IEnumerable<DbParameter> parameters, Type modelType)
         {
+            var results = new List<object>();
+
             using (var command = new SqlCommand(query, (SqlConnection)connection) { Transaction = (SqlTransaction)transaction })
             {
                 if (parameters != null)
@@ -60,9 +62,11 @@ namespace CT.Data.MicrosoftSqlServer
                 using (var dataReader = command.ExecuteReader())
                 {
                     while (dataReader.Read())
-                        yield return dataReader.ToModel(modelType);
+                        results.Add(dataReader.ToModel(modelType));
                 }
             }
+
+            return results;
         }
 
         protected override DbConnection OnOpenNewConnection(string connectionString)

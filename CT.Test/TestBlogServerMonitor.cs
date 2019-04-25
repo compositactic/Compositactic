@@ -2,16 +2,16 @@
 using CT.Hosting.Configuration;
 using CT.Hosting.Test;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json;
-using System;
-using System.IO;
-using System.Linq;
 using CT.Data.MicrosoftSqlServer;
-using CT.Blogs.Model.Blogs.Posts;
-using System.Collections.Generic;
+using System.Linq;
 
 namespace CT.Blogs.Test
 {
+    public class TableInfo
+    {
+        public string Name { get; set; }
+        public int ObjectId { get; set; }
+    }
     [TestClass]
     public class TestBlogServerMonitor
     {
@@ -35,10 +35,22 @@ namespace CT.Blogs.Test
         {
             var repository = MicrosoftSqlServerRepository.Create();
 
-            using (var connection = repository.OpenConnection(@"Data Source=(LocalDb)\\MSSQLLocalDB;Initial Catalog=master;Integrated Security=SSPI;"))
+            using (var connection = repository.OpenConnection(@"Data Source=(LocalDb)\MSSQLLocalDB;Initial Catalog=master;Integrated Security=SSPI;"))
             using (var transaction = repository.BeginTransaction(connection))
             {
-                var posts = repository.Load(connection, transaction, "SELECT * FROM Post", null, typeof(Post)).Cast<Post>();
+                var objs = repository.Load(connection,
+                    transaction,
+                    @"
+                        WITH Query AS
+                        (
+	                        SELECT ROW_NUMBER() OVER(ORDER BY name DESC) AS RowNumber, name, object_id
+	                        FROM sys.tables
+                        )
+                        SELECT RowNumber, name, object_id AS ObjectId
+                        FROM Query
+                        WHERE RowNumber BETWEEN 1 AND 500
+
+                    ", null, typeof(TableInfo)).Cast<TableInfo>();
             }
         }
 
@@ -161,7 +173,8 @@ namespace CT.Blogs.Test
         [ClassCleanup]
         public static void Shutdown()
         {
-            _blogServerMonitorTester.Dispose();
+            if(_blogServerMonitorTester != null)
+                _blogServerMonitorTester.Dispose();
         }
 
     }
