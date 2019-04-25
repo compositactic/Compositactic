@@ -4,6 +4,7 @@ using CT.Hosting.Test;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using CT.Data.MicrosoftSqlServer;
 using System.Linq;
+using System.Dynamic;
 
 namespace CT.Blogs.Test
 {
@@ -12,6 +13,7 @@ namespace CT.Blogs.Test
         public string Name { get; set; }
         public int ObjectId { get; set; }
     }
+
     [TestClass]
     public class TestBlogServerMonitor
     {
@@ -44,11 +46,11 @@ namespace CT.Blogs.Test
                         WITH Query AS
                         (
 	                        SELECT ROW_NUMBER() OVER(ORDER BY name DESC) AS RowNumber, name, object_id
-	                        FROM sys.tables
+	                        FROM sys.columns
                         )
                         SELECT RowNumber, name, object_id AS ObjectId
                         FROM Query
-                        WHERE RowNumber BETWEEN 1 AND 500
+                        WHERE RowNumber BETWEEN 1 AND 10000
 
                     ", null, typeof(TableInfo)).Cast<TableInfo>();
             }

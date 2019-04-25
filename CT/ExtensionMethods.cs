@@ -599,7 +599,7 @@ namespace CT
             return delegates;
         }
 
-        public static void TraverseBreadthFirst(this Composite composite, Action<Composite> action)
+        public static void TraverseDepthFirst(this Composite composite, Action<Composite> action)
         {
             action(composite);
 
@@ -609,13 +609,13 @@ namespace CT
                 var compositePropertyGenericType = compositePropertyType.IsGenericType ? compositePropertyType.GetGenericTypeDefinition() : null;
 
                 if (compositePropertyType.IsSubclassOf(typeof(Composite)))
-                    TraverseBreadthFirst(composite.GetType().GetProperty(compositePropertyInfo.Name).GetValue(composite) as Composite, action);
+                    TraverseDepthFirst(composite.GetType().GetProperty(compositePropertyInfo.Name).GetValue(composite) as Composite, action);
 
                 if(compositePropertyGenericType == typeof(ReadOnlyCompositeDictionary<,>))
                 {
                     var compositeDictionary = compositePropertyInfo.GetValue(composite) as dynamic;
                     foreach (var c in compositeDictionary.Values as IEnumerable<Composite>)
-                        TraverseBreadthFirst(c, action);
+                        TraverseDepthFirst(c, action);
                 }
             }
         }

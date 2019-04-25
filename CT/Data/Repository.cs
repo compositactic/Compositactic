@@ -66,7 +66,7 @@ namespace CT.Data
         {
             var newComposites = new List<Composite>();
 
-            composite.TraverseBreadthFirst((c) =>
+            composite.TraverseDepthFirst((c) =>
             {
                 var compositeType = c.GetType();
 
