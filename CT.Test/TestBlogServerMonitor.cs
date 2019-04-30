@@ -36,7 +36,11 @@ namespace CT.Blogs.Test
         [TestMethod]
         public void DirTest()
         {
-            var dirs = Directory.GetDirectories(Path.Combine(Environment.CurrentDirectory, "BlogApplications"), "", SearchOption.AllDirectories).OrderBy(d => d.Split(Path.DirectorySeparatorChar).Count());
+            var dirs = Directory
+                        .GetDirectories(Path.Combine(Environment.CurrentDirectory, "BlogApplications"), "", SearchOption.AllDirectories)
+                        .GroupBy(d => new { Depth = d.Split(Path.DirectorySeparatorChar).Count(), Directory = d })
+                        .OrderBy(g => g.Key.Depth).ThenBy(g => g.Key.Directory)
+                        .Select(g => g.Key.Directory);
         }
 
 
