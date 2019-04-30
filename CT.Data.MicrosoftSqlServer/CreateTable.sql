@@ -14,7 +14,7 @@ AS
 		END'
 	ELSE
 		SET @sql = @sql + ', [' + @parentTableName + 'Id] INT NOT NULL,
-			CONSTRAINT [FK_' + @tableName + '_To_' + @parentTableName + '] FOREIGN KEY ([' + @parentTableName + 'Id]) REFERENCES ['  + @parentTableName + ']([Id]))
+			CONSTRAINT [FK_' + @tableName + '_To_' + @parentTableName + '] FOREIGN KEY ([' + @parentTableName + 'Id]) REFERENCES ['  + @parentTableName + ']([Id]) ON DELETE CASCADE)
 			PRINT ''Created table: ' + @tableName + '''
 		END'
 	PRINT @sql

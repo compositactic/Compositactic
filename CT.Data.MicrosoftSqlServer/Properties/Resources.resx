@@ -121,6 +121,9 @@
   <data name="CreateCheckConstraint" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\createcheckconstraint.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
+  <data name="CreateForeignKeyConstraint" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\createforeignkeyconstraint.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
   <data name="CreateIndex" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\createindex.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
@@ -130,11 +133,11 @@
   <data name="CreateTable" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\createtable.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
-  <data name="DropCheckConstraint" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\dropcheckconstraint.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
-  </data>
   <data name="DropColumn" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\dropcolumn.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="DropConstraint" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\dropconstraint.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
   <data name="DropIndex" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\dropindex.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>

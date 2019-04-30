@@ -1,4 +1,4 @@
-﻿CREATE OR ALTER PROCEDURE dbo.DropCheckConstraint
+﻿CREATE OR ALTER PROCEDURE dbo.DropConstraint
 	@tableName NVARCHAR(MAX),
 	@constraintName NVARCHAR(MAX)
 AS

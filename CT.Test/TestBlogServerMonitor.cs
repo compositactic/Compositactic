@@ -4,7 +4,8 @@ using CT.Hosting.Test;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using CT.Data.MicrosoftSqlServer;
 using System.Linq;
-using System.Dynamic;
+using System.IO;
+using System;
 
 namespace CT.Blogs.Test
 {
@@ -29,6 +30,13 @@ namespace CT.Blogs.Test
 
             //_blogServerMonitorConfiguration = _blogServerMonitorTester.Configuration.ServerRootConfigurations.RootConfigurations.Values.First();
             //_blogServerMonitorConnection = _blogServerMonitorTester.LogOnUser(_blogServerMonitorConfiguration, "username=admin&password=1234");
+        }
+
+
+        [TestMethod]
+        public void DirTest()
+        {
+            var dirs = Directory.GetDirectories(Path.Combine(Environment.CurrentDirectory, "BlogApplications"), "", SearchOption.AllDirectories).OrderBy(d => d.Split(Path.DirectorySeparatorChar).Count());
         }
 
 

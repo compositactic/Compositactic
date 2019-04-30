@@ -45,6 +45,36 @@
     <None Update="BlogServerConfig.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Systems\000-System-BlogSystem.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Systems\Actors\Editor\000-Actor-Editor.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Systems\Actors\Editor\Author\000-Actor-Author.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Systems\Actors\Editor\Author\Reader\000-Actor-Reader.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Systems\Actors\Editor\Author\Stories\My Sample Story\000-Story-My Sample Story.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Systems\Model\Blog\000-Model-Blog.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Systems\Model\Blog\Post\000-Model-Post.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Systems\Model\Blog\Post\Attachment\000-Model-Attachment.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Systems\Model\Blog\Post\Comment\000-Model-Comment.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Systems\Model\User\000-Model-User.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>

@@ -40,7 +40,7 @@
     <None Update="CreateTable.sql">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
-    <None Update="DropCheckConstraint.sql">
+    <None Update="DropConstraint.sql">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Update="DropColumn.sql">

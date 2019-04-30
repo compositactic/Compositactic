@@ -81,6 +81,30 @@ namespace CT.Data.MicrosoftSqlServer.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to CREATE OR ALTER PROCEDURE dbo.CreateForeignKeyConstraint
+        ///	@tableName NVARCHAR(MAX),
+        ///	@parentTableName NVARCHAR(MAX),
+        ///	@keyColumnName NVARCHAR(MAX),
+        ///	@parentKeyColumnName NVARCHAR(MAX),
+        ///	@constraintName NVARCHAR(MAX) = null
+        ///
+        ///AS
+        ///	DECLARE @sql NVARCHAR(MAX)
+        ///	DECLARE @indexName NVARCHAR(MAX)
+        ///
+        ///	IF @constraintName IS NULL
+        ///		SET @constraintName = &apos;FK_&apos; + @tableName + @keyColumnName + &apos;_To_&apos; + @parentTableName + @parentKeyColumnName
+        ///
+        ///
+        ///	SET @sql = &apos;IF OBJECT_ID(&apos;&apos;&apos; + @constraintName + &apos;&apos;&apos;) IS NULL AND [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string CreateForeignKeyConstraint {
+            get {
+                return ResourceManager.GetString("CreateForeignKeyConstraint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to CREATE OR ALTER PROCEDURE dbo.CreateIndex
         ///	@tableName NVARCHAR(MAX),
         ///	@columnName NVARCHAR(MAX)
@@ -149,28 +173,6 @@ namespace CT.Data.MicrosoftSqlServer.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to CREATE OR ALTER PROCEDURE dbo.DropCheckConstraint
-        ///	@tableName NVARCHAR(MAX),
-        ///	@constraintName NVARCHAR(MAX)
-        ///AS
-        ///	DECLARE @sql NVARCHAR(MAX)
-        ///	DECLARE @indexName NVARCHAR(MAX)
-        ///
-        ///	SET @sql = &apos;IF OBJECT_ID(&apos;&apos;&apos; + @constraintName + &apos;&apos;&apos;) IS NOT NULL AND EXISTS (SELECT * FROM sys.tables WHERE name = &apos;&apos;&apos; + @tableName + &apos;&apos;&apos;)
-        ///		BEGIN
-        ///			ALTER TABLE &quot;&apos; + @tableName + &apos;&quot; DROP CONSTRAINT &quot;&apos; + @constraintName + &apos;&quot; 
-        ///			PRINT &apos;&apos;Dropped constraint: &apos; + @constraintName + &apos;,  &apos; + @tableName + &apos;&apos;&apos; 
-        ///		END&apos;
-        ///
-        ///	PRINT @sq [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string DropCheckConstraint {
-            get {
-                return ResourceManager.GetString("DropCheckConstraint", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to CREATE OR ALTER PROCEDURE dbo.DropColumn
         ///	@tableName NVARCHAR(MAX),
         ///	@columnName NVARCHAR(MAX)
@@ -188,6 +190,29 @@ namespace CT.Data.MicrosoftSqlServer.Properties {
         internal static string DropColumn {
             get {
                 return ResourceManager.GetString("DropColumn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CREATE OR ALTER PROCEDURE dbo.DropConstraint
+        ///	@tableName NVARCHAR(MAX),
+        ///	@constraintName NVARCHAR(MAX)
+        ///AS
+        ///	DECLARE @sql NVARCHAR(MAX)
+        ///	DECLARE @indexName NVARCHAR(MAX)
+        ///
+        ///	SET @sql = &apos;IF OBJECT_ID(&apos;&apos;&apos; + @constraintName + &apos;&apos;&apos;) IS NOT NULL AND EXISTS (SELECT * FROM sys.tables WHERE name = &apos;&apos;&apos; + @tableName + &apos;&apos;&apos;)
+        ///		BEGIN
+        ///			ALTER TABLE &quot;&apos; + @tableName + &apos;&quot; DROP CONSTRAINT &quot;&apos; + @constraintName + &apos;&quot; 
+        ///			PRINT &apos;&apos;Dropped constraint: &apos; + @constraintName + &apos;,  &apos; + @tableName + &apos;&apos;&apos; 
+        ///		END&apos;
+        ///
+        ///	PRINT @sql
+        ///	E [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string DropConstraint {
+            get {
+                return ResourceManager.GetString("DropConstraint", resourceCulture);
             }
         }
         

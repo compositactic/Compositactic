@@ -63,7 +63,13 @@
     <None Update="BlogApplications\Blogs\Posts\Comments\000-Table-Comment.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="BlogApplications\Blogs\Posts\Comments\001-Data-Comment.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="BlogApplications\Users\001-Table-User.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="BlogApplications\Users\002-Data-User.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
