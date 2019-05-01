@@ -29,13 +29,6 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs.Posts.Comments
         internal CommentCompositeContainer(PostComposite postComposite)
         {
             this.InitializeCompositeContainer(out comments, postComposite);
-
-            //Post = postComposite;
-            //comments = new CompositeDictionary<long, CommentComposite>();
-            //Comments = new ReadOnlyCompositeDictionary<long, CommentComposite>(comments);
-
-            //foreach (var comment in Post.PostModel.Comments.Values)
-            //    comments.Add(comment.Id, new CommentComposite(comment, this));
         }
 
         [NonSerialized]

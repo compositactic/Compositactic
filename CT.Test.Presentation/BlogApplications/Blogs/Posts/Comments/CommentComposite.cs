@@ -16,7 +16,12 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using CT.Blogs.Model.Blogs.Posts.Comments;
+using CT.Blogs.Model.Users;
+using CT.Blogs.Presentation.BlogApplications.Users;
+using CT.Data.MicrosoftSqlServer;
+using System.Data.SqlClient;
 using System.Runtime.Serialization;
+using System.Linq;
 
 namespace CT.Blogs.Presentation.BlogApplications.Blogs.Posts.Comments
 {
@@ -34,6 +39,48 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs.Posts.Comments
         public long Id
         {
             get { return CommentModel.Id; }
+        }
+
+
+        [DataMember]
+        public string Text
+        {
+            get { return CommentModel.Text; }
+            set
+            {
+                CommentModel.Text = value;
+                NotifyPropertyChanged(Text);
+            }
+        }
+
+
+        private UserComposite _user;
+
+        [DataMember]
+        public UserComposite User
+        {
+            get
+            {
+                var repository = CompositeRoot.GetService<IMicrosoftSqlServerRepository>();
+                var connectionString = ((BlogApplicationCompositeRoot)CompositeRoot).BlogDbConnectionString;
+                using (var connection = repository.OpenConnection(connectionString))
+                {
+                    var user = repository
+                        .Load(connection,
+                                null,
+                                "SELECT * FROM \"User\" WHERE Id = @userId",
+                                new SqlParameter[] 
+                                {
+                                    new SqlParameter("@userId", CommentModel.UserId)
+                                },
+                                typeof(User)).FirstOrDefault() as User;
+
+
+                    _user = new UserComposite(user) ?? null;
+                }
+   
+                return _user;
+            }
         }
 
         internal CommentComposite(Comment comment, CommentCompositeContainer commentCompositeContainer)

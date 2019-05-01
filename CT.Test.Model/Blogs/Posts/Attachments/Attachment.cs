@@ -32,6 +32,9 @@ namespace CT.Blogs.Model.Blogs.Posts.Attachments
         public long PostId { get; set; }
         public Post Post { get; internal set; }
 
+        [DataMember]
+        public string FilePath { get; set; }
+
         private Attachment() { }
 
         internal Attachment(Post post)

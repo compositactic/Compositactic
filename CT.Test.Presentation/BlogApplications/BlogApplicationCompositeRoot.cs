@@ -26,7 +26,6 @@ using System.IO;
 using System;
 using CT.Hosting;
 using System.Linq;
-using System.Data.Common;
 
 namespace CT.Blogs.Presentation.BlogApplications
 {

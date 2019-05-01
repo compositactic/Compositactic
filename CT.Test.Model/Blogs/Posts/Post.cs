@@ -80,6 +80,12 @@ namespace CT.Blogs.Model.Blogs.Posts
         }
 
         [DataMember]
+        public string Title { get; set; }
+
+        [DataMember]
+        public string Text { get; set; }
+
+        [DataMember]
         internal ConcurrentDictionary<long, Attachment> attachments;
         private ReadOnlyDictionary<long, Attachment> _attachments;
         public IReadOnlyDictionary<long, Attachment> Attachments

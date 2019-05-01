@@ -32,6 +32,12 @@ namespace CT.Blogs.Model.Blogs.Posts.Comments
         public long PostId { get; set; }
         public Post Post { get; internal set; }
 
+        [DataMember]
+        public string Text { get; set; }
+
+        [DataMember]
+        public long UserId { get; set; }
+
         private Comment() { }
 
         internal Comment(Post post)
