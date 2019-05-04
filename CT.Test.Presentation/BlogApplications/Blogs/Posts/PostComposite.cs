@@ -16,6 +16,8 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using CT.Blogs.Model.Blogs.Posts;
+using CT.Blogs.Presentation.BlogApplications.Blogs.Posts.Attachments;
+using CT.Blogs.Presentation.BlogApplications.Blogs.Posts.Comments;
 using System.Runtime.Serialization;
 
 namespace CT.Blogs.Presentation.BlogApplications.Blogs.Posts
@@ -26,6 +28,15 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs.Posts
     [CompositeModel(nameof(PostComposite.PostModel))]
     public class PostComposite : Composite
     {
+        internal PostComposite(Post post, PostCompositeContainer postCompositeContainer)
+        {
+            PostModel = post;
+            AllPosts = postCompositeContainer;
+
+            AllComments = new CommentCompositeContainer(this);
+            AllAttachments = new AttachmentCompositeContainer(this);
+        }
+
         public PostCompositeContainer AllPosts { get; }
 
         internal Post PostModel;
@@ -36,11 +47,33 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs.Posts
             get { return PostModel.Id; }
         }
 
-        internal PostComposite(Post post, PostCompositeContainer postCompositeContainer)
+        [DataMember]
+        public string Title
         {
-            PostModel = post;
-            AllPosts = postCompositeContainer;
+            get { return PostModel.Title; }
+            set
+            {
+                PostModel.Title = value;
+                NotifyPropertyChanged(nameof(PostComposite.Title));
+            }
         }
+
+        [DataMember]
+        public string Text
+        {
+            get { return PostModel.Text; }
+            set
+            {
+                PostModel.Text = value;
+                NotifyPropertyChanged(nameof(PostComposite.Text));
+            }
+        }
+
+        [DataMember]
+        public CommentCompositeContainer AllComments { get; }
+
+        [DataMember]
+        public AttachmentCompositeContainer AllAttachments { get; }
 
         [Command]
         public void Remove()

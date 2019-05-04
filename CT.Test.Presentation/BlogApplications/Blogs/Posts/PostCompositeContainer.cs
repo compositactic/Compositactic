@@ -15,6 +15,7 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using CT.Hosting;
 using System;
 using System.Runtime.Serialization;
 
@@ -36,5 +37,17 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs.Posts
         internal CompositeDictionary<long, PostComposite> posts;
         [DataMember]
         public ReadOnlyCompositeDictionary<long, PostComposite> Posts { get; private set; }
+
+        [Command]
+        public PostComposite CreateNewPost(CompositeRootHttpContext context)
+        {
+            var newPost = new PostComposite(Blog.BlogModel.CreateNewPost(), this)
+            {
+                State = CompositeState.New
+            };
+
+            posts.Add(newPost.Id, newPost);
+            return newPost;
+        }
     }
 }

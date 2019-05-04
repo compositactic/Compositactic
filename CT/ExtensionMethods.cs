@@ -120,12 +120,15 @@ namespace CT
             if (composite == null && commandPathSegmentIndex == 1)
                 throw new ArgumentNullException(nameof(composite));
 
-            if(composite == null)
+            if(composite == null && commandPathSegmentIndex == compositePath.Segments.Length)
                 return new CommandResponse
                 {
                     ReturnValue = null,
                     Context = context == null ? null : new CompositeRootHttpContext(context, uploadedFiles, userName, sessionToken)
                 };
+
+            if (composite == null && commandPathSegmentIndex < compositePath.Segments.Length)
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "{0}: {1}", CommandRequestError.InvalidPropertyOrCommand, compositePath.Segments[commandPathSegmentIndex]));
 
             var compositeType = composite.GetType();
             var isDictionary = compositeType.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IReadOnlyDictionary<,>));
@@ -137,6 +140,8 @@ namespace CT
             {
                 segment = UnEscape(compositePath.Segments[commandPathSegmentIndex - 1].Trim('/', '\\'));
                 member = compositeType.GetMember(segment, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).FirstOrDefault();
+                Match badUrlMatch;
+
                 if (composite is Composite lastComposite && compositePath.PathAndQuery.EndsWith("/?", StringComparison.OrdinalIgnoreCase))
                 {
                     return new CommandResponse
@@ -145,9 +150,9 @@ namespace CT
                         Context = context == null ? null : new CompositeRootHttpContext(context, uploadedFiles, userName, sessionToken)
                     };
                 }
-                else if (context.Request.RawUrl.EndsWith("?"))
+                else if ((badUrlMatch = Regex.Match(context.Request.RawUrl, @"\?.*$")).Success)
                 {
-                    throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "{0}", CommandRequestError.InvalidPropertyOrCommand));
+                    throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "{0}: {1}", CommandRequestError.InvalidPropertyOrCommand, badUrlMatch.Value));
                 }
                 else return new CommandResponse
                 {
@@ -195,6 +200,10 @@ namespace CT
                     if (memberPropertyInfo.SetMethod != null && !memberPropertyInfo.SetMethod.IsPublic)
                         throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "{0}: {1}", CommandRequestError.PropertyReadOnly, memberPropertyInfo.Name));
 
+                    Match badUrlMatch;
+                    if ((badUrlMatch = Regex.Match(compositePath.PathAndQuery, @"/\?.*$")).Success)
+                        throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "{0}: {1}", CommandRequestError.InvalidPropertyOrCommand, badUrlMatch.Value));
+
                     memberPropertyInfo.SetValue(composite, propertyValueIsNull ? null : TypeDescriptor.GetConverter(memberPropertyInfo.PropertyType).ConvertFrom(null, GetCultureInfo(context.Request.UserLanguages), UnEscape(compositePath.Query.Substring(1))));
                     return new CommandResponse
                     {
@@ -214,7 +223,7 @@ namespace CT
         private static CommandResponse ExecuteMethod(object composite, CompositePath compositePath, int commandPathSegmentIndex, HttpListenerContext context, string userName, string sessionToken, IEnumerable<CompositeUploadedFile> uploadedFiles, MemberInfo member)
         {
             if (commandPathSegmentIndex != compositePath.Segments.Length - 1)
-                throw new ArgumentException(compositePath.Segments[commandPathSegmentIndex + 1]);
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "{0}: {1}", CommandRequestError.InvalidPropertyOrCommand, compositePath.Segments[commandPathSegmentIndex + 1]));
 
             var queryStringParameterNames = !string.IsNullOrEmpty(compositePath.Query) ? compositePath.Query.Substring(1).Split('&').Select(p => p.Split('=')[0].ToLowerInvariant()) : new string[] { };
             var overloadMethod = composite.GetType().GetMethods().Where(m => m.Name == member.Name &&

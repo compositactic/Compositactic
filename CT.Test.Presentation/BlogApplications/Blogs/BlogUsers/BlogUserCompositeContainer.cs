@@ -27,7 +27,7 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs.BlogUsers
     public class BlogUserCompositeContainer : Composite
     {
 
-        public BlogComposite Blog { get; }
+        public BlogComposite Blog { get; private set; }
         internal BlogUserCompositeContainer(BlogComposite blog)
         {
             this.InitializeCompositeContainer(out blogUsers, blog);

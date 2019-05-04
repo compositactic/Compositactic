@@ -15,6 +15,7 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using CT.Hosting;
 using System;
 using System.Runtime.Serialization;
 
@@ -25,19 +26,11 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs.Posts.Attachments
     [CompositeContainer(nameof(AttachmentCompositeContainer.Attachments), nameof(Model.Blogs.Posts.Post.Attachments))]
     public class AttachmentCompositeContainer : Composite
     {
-        public PostComposite Post { get; }
+        public PostComposite Post { get; private set; }
 
         internal AttachmentCompositeContainer(PostComposite postComposite)
         {
             this.InitializeCompositeContainer(out attachments, postComposite);
-
-            //Post = postComposite;
-
-            //attachments = new CompositeDictionary<long, AttachmentComposite>();
-            //Attachments = new ReadOnlyCompositeDictionary<long, AttachmentComposite>(attachments);
-
-            //foreach (var attachment in Post.PostModel.Attachments.Values)
-            //    attachments.Add(attachment.Id, new AttachmentComposite(attachment, this));
         }
 
         [NonSerialized]
@@ -45,5 +38,17 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs.Posts.Attachments
         [DataMember]
         public ReadOnlyCompositeDictionary<long, AttachmentComposite> Attachments { get; private set; }
 
+
+        [Command]
+        public AttachmentComposite CreateNewAttachment(CompositeRootHttpContext context)
+        {
+            var newAttachment = new AttachmentComposite(Post.PostModel.CreateNewAttachment(), this)
+            {
+                State = CompositeState.New
+            };
+
+            attachments.Add(newAttachment.Id, newAttachment);
+            return newAttachment;
+        }
     }
 }

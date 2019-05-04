@@ -31,6 +31,13 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs.Posts.Comments
     [CompositeModel(nameof(CommentComposite.CommentModel))]
     public class CommentComposite : Composite
     {
+        internal CommentComposite(Comment comment, CommentCompositeContainer commentCompositeContainer)
+        {
+            CommentModel = comment;
+            AllComments = commentCompositeContainer;
+        }
+
+
         public CommentCompositeContainer AllComments { get; private set; }
 
         public Comment CommentModel { get; }
@@ -83,11 +90,6 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs.Posts.Comments
             }
         }
 
-        internal CommentComposite(Comment comment, CommentCompositeContainer commentCompositeContainer)
-        {
-            CommentModel = comment;
-            AllComments = commentCompositeContainer;
-        }
 
         [Command]
         public void Remove()

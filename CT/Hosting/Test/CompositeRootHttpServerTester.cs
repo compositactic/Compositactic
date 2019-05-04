@@ -307,11 +307,10 @@ namespace CT.Hosting.Test
 
         private static IEnumerable<CompositeRootCommandResponse> GetCommandResponses(WebRequest request, IEnumerable<CompositeRootCommandRequest> commands)
         {
-            byte[] returnedBytes = null;
-
             using (var requestContentStream = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(commands))))
             {
-                returnedBytes = CompositeRootHttpServerTesterConnection.SendRequest(request, "application/json", requestContentStream, out string responseContentType, out string responseContentEncoding);
+                var returnedBytes = CompositeRootHttpServerTesterConnection.SendRequest(request, "application/json", requestContentStream, out string responseContentType, out string responseContentEncoding);
+
                 try
                 {
                     return JsonConvert.DeserializeObject<CompositeRootCommandResponse[]>(Encoding.UTF8.GetString(returnedBytes)) as IEnumerable<CompositeRootCommandResponse>;

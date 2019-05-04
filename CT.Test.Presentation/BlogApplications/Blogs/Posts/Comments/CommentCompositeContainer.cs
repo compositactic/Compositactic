@@ -15,6 +15,7 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using CT.Hosting;
 using System;
 using System.Runtime.Serialization;
 
@@ -25,7 +26,7 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs.Posts.Comments
     [CompositeContainer(nameof(CommentCompositeContainer.Comments), nameof(Model.Blogs.Posts.Post.Comments))]
     public class CommentCompositeContainer : Composite
     {
-        public PostComposite Post { get; }
+        public PostComposite Post { get; private set; }
         internal CommentCompositeContainer(PostComposite postComposite)
         {
             this.InitializeCompositeContainer(out comments, postComposite);
@@ -35,5 +36,17 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs.Posts.Comments
         internal CompositeDictionary<long, CommentComposite> comments;
         [DataMember]
         public ReadOnlyCompositeDictionary<long, CommentComposite> Comments { get; private set; }
+
+        [Command]
+        public CommentComposite CreateNewComment(CompositeRootHttpContext context)
+        {
+            var newComment = new CommentComposite(Post.PostModel.CreateNewComment(), this)
+            {
+                State = CompositeState.New
+            };
+
+            comments.Add(newComment.Id, newComment);
+            return newComment;
+        }
     }
 }

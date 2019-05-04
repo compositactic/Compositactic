@@ -32,7 +32,7 @@ namespace CT.Blogs.Model.Blogs.Posts
     [KeyProperty(nameof(Post.Id))]
     public class Post
     {
-        private Post() { }
+        internal Post() { }
 
         [DataMember]
         public long Id { get; set; }
