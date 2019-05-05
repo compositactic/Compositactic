@@ -160,6 +160,10 @@ namespace CT
                                             CompositeRootMode.None));
         }
 
+        public virtual void OnLogOn(CompositeRootHttpContext compositeRootHttpContext)
+        {
+        }
+
         private EventHandler _eventAdded;
         public event EventHandler EventAdded
         {

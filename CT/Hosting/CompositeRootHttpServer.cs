@@ -705,6 +705,8 @@ namespace CT.Hosting
             CompositeRootSession compositeRootSession = null;
             CompositeRootAuthenticatorResponse authenticatorResponse = null;
 
+            var userName = Regex.Match(requestParameters, @"username=(?'username'[^&]*)", RegexOptions.IgnoreCase).Groups["username"]?.Value ?? string.Empty;
+
             try
             {
                 CompositeRoot compositeRoot = null;
@@ -714,13 +716,15 @@ namespace CT.Hosting
                 else
                     compositeRoot = CompositeRoot.Create(ActiveCompositeRoots, compositeRootConfiguration, CompositeRoot_EventAdded, _services);
 
-                var loginResponse = compositeRoot.Authenticator.Execute(nameof(CompositeRootAuthenticator.LogOn) + "?" + requestParameters, httpListenerContext, string.Empty, string.Empty, uploadedFiles);
+                var loginResponse = compositeRoot.Authenticator.Execute(nameof(CompositeRootAuthenticator.LogOn) + "?" + requestParameters, httpListenerContext, userName, string.Empty, uploadedFiles);
                 compositeRootHttpContext = loginResponse.Context;
                 authenticatorResponse = loginResponse.ReturnValue as CompositeRootAuthenticatorResponse;
 
                 response = authenticatorResponse;
                 if (authenticatorResponse.IsAuthenticationSuccessful)
                     compositeRootSession = ActiveSessions.CreateNewCompositeRootSession(compositeRootConfiguration.Endpoint, authenticatorResponse.UserName, authenticatorResponse.SessionToken, compositeRootConfiguration.SessionExpiration, compositeRootConfiguration.Mode, compositeRoot);
+
+                compositeRoot.OnLogOn(compositeRootHttpContext);
             }
             catch (Exception e)
             {

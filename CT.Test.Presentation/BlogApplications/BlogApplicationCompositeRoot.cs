@@ -62,6 +62,10 @@ namespace CT.Blogs.Presentation.BlogApplications
         internal string MasterDbConnectionString { get; private set; }
         internal string ConnectionString { get; private set; }
 
+        public override void OnLogOn(CompositeRootHttpContext compositeRootHttpContext)
+        {
+        }
+
         [DataMember]
         [Help(typeof(Resources), nameof(Resources.BlogApplicationCompositeRoot_AllBlogs))]
         public BlogCompositeContainer AllBlogs { get; private set; }
