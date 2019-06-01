@@ -56,7 +56,7 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs.Posts.Comments
             set
             {
                 CommentModel.Text = value;
-                NotifyPropertyChanged(Text);
+                NotifyPropertyChanged(nameof(Text));
             }
         }
 

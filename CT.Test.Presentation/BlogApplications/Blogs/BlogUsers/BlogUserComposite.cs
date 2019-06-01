@@ -42,6 +42,12 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs.BlogUsers
             get { return BlogUserModel.Id; }
         }
 
+        [DataMember]
+        public long UserId
+        {
+            get { return BlogUserModel.UserId; }
+        }
+
         [Command]
         public void Remove()
         {

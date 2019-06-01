@@ -472,6 +472,7 @@ namespace CT.Hosting
                     requestTasks.Add(requestTask);
 
                 requestTasks.Add(_httpListener.GetContextAsync());
+
             } while (true);
         }
 

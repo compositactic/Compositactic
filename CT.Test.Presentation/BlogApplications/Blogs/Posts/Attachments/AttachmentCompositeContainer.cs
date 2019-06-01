@@ -38,7 +38,6 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs.Posts.Attachments
         [DataMember]
         public ReadOnlyCompositeDictionary<long, AttachmentComposite> Attachments { get; private set; }
 
-
         [Command]
         public AttachmentComposite CreateNewAttachment(CompositeRootHttpContext context)
         {

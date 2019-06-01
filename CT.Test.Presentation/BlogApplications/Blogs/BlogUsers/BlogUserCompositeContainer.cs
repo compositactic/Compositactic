@@ -15,7 +15,6 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using CT.Blogs.Model.Blogs.BlogUsers;
 using System;
 using System.Runtime.Serialization;
 
@@ -26,7 +25,6 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs.BlogUsers
     [CompositeContainer(nameof(BlogUserCompositeContainer.BlogUsers), nameof(Model.Blogs.Blog.BlogUsers))]
     public class BlogUserCompositeContainer : Composite
     {
-
         public BlogComposite Blog { get; private set; }
         internal BlogUserCompositeContainer(BlogComposite blog)
         {
@@ -41,7 +39,7 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs.BlogUsers
         [Command]
         public BlogUserComposite AddBlogSubscriber(long userId)
         {
-            var newBlogUser = new BlogUserComposite(new BlogUser(Blog.BlogModel, userId), this)
+            var newBlogUser = new BlogUserComposite(Blog.BlogModel.CreateNewBlogUser(userId), this)
             {
                 State = CompositeState.New
             };
