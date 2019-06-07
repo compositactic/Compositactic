@@ -1051,7 +1051,13 @@ namespace CT.Hosting
             if (writer == null)
                 throw new ArgumentNullException(nameof(writer));
 
-            writer.Write(content);
+            try
+            {
+                writer.Write(content);
+            }
+            catch(HttpListenerException)
+            {
+            }
         }
 
         protected virtual void OnAfterWriteResponse(HttpListenerContext httpListenerContext, CompositeRootConfiguration compositeRootConfiguration, object value, string sessionToken)
