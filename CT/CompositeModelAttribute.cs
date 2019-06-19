@@ -15,6 +15,7 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using CT.Properties;
 using System;
 
 namespace CT
@@ -24,7 +25,7 @@ namespace CT
     {
         public CompositeModelAttribute(string modelFieldName)
         {
-            ModelFieldName = modelFieldName;
+            ModelFieldName = string.IsNullOrEmpty(modelFieldName) ? throw new ArgumentException(Resources.MustSupplyModelFieldName) : modelFieldName;
         }
 
         public string ModelFieldName { get; set; }

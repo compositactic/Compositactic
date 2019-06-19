@@ -20,6 +20,9 @@ using CT.Blogs.Presentation.Properties;
 using System;
 using System.Runtime.Serialization;
 using CT.Blogs.Model.Blogs;
+using CT.Data.MicrosoftSqlServer;
+using System.Data.SqlClient;
+using System.Linq;
 
 namespace CT.Blogs.Presentation.BlogApplications.Blogs
 {
@@ -56,6 +59,25 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs
             }
             else
                 throw new UnauthorizedAccessException();
+        }
+
+        [Command]
+        public void LoadBlog(CompositeRootHttpContext context, int id)
+        {
+            var repository = CompositeRoot.GetService<IMicrosoftSqlServerRepository>();
+
+            using (var connection = repository.OpenConnection(BlogApplication.BlogDbConnectionString))
+            {
+                repository.Load(connection, null,
+                                    @"SELECT * 
+                                      FROM Blog
+                                      WHERE ID = @ID",
+                                    new SqlParameter[]
+                                    {
+                                        new SqlParameter("@ID", id)
+                                    },
+                                    typeof(Blog));
+            }
         }
     }
 }

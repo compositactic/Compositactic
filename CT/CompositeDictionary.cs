@@ -24,6 +24,8 @@ using System.Collections;
 using System;
 using System.Linq;
 using System.Reflection;
+using CT.Properties;
+using System.Globalization;
 
 namespace CT
 {
@@ -66,6 +68,26 @@ namespace CT
             {
                 value.AddEvent(CompositeEventType.Add, value.GetPath(), value);
                 RaiseEvents();
+            }
+        }
+
+        public void AddRange(IEnumerable<TValue> composites)
+        {
+            KeyPropertyAttribute keyPropertyAttribute;
+            PropertyInfo keyProperty;
+
+            var compositeType = typeof(TValue);
+
+            if ((keyPropertyAttribute = compositeType.GetCustomAttribute<KeyPropertyAttribute>()) == null)
+                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveKeyPropertyAttribute, typeof(TValue).Name));
+
+            if ((keyProperty = compositeType.GetProperty(keyPropertyAttribute.PropertyName)) == null)
+                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidPropertyName, keyPropertyAttribute.PropertyName));
+
+            foreach(var composite in composites)
+            {
+                var keyValue = (TKey)keyProperty.GetValue(composite);
+                Add(keyValue, composite);
             }
         }
 

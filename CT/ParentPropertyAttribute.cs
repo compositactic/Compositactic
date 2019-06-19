@@ -15,6 +15,7 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using CT.Properties;
 using System;
 
 namespace CT
@@ -24,13 +25,13 @@ namespace CT
     {
         public ParentPropertyAttribute(string parentPropertyName)
         {
-            ParentPropertyName = parentPropertyName;
+            ParentPropertyName = string.IsNullOrEmpty(parentPropertyName) ? throw new ArgumentException(Resources.MustSupplyParentPropertyName) : parentPropertyName;
         }
 
         public ParentPropertyAttribute(string parentPropertyName, string parentCompositePropertyName)
         {
-            ParentPropertyName = parentPropertyName;
-            ParentCompositePropertyName = parentCompositePropertyName;
+            ParentPropertyName = string.IsNullOrEmpty(parentPropertyName) ? throw new ArgumentException(Resources.MustSupplyParentPropertyName) : parentPropertyName;
+            ParentCompositePropertyName = string.IsNullOrEmpty(parentCompositePropertyName) ? throw new ArgumentException(Resources.MustSupplyParentCompositePropertyName) : parentCompositePropertyName;
         }
 
         public string ParentPropertyName { get; private set; }

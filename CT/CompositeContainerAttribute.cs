@@ -15,7 +15,9 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using CT.Properties;
 using System;
+using System.Globalization;
 
 namespace CT
 {
@@ -24,12 +26,12 @@ namespace CT
     {
         public CompositeContainerAttribute(string compositeContainerDictionaryPropertyName)
         {
-            CompositeContainerDictionaryPropertyName = compositeContainerDictionaryPropertyName;
+            CompositeContainerDictionaryPropertyName = string.IsNullOrEmpty(compositeContainerDictionaryPropertyName) ? throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidPropertyName, string.Empty)) : compositeContainerDictionaryPropertyName;
         }
         public CompositeContainerAttribute(string compositeContainerDictionaryPropertyName, string modelDictionaryPropertyName)
         {
-            CompositeContainerDictionaryPropertyName = compositeContainerDictionaryPropertyName;
-            ModelDictionaryPropertyName = modelDictionaryPropertyName;
+            CompositeContainerDictionaryPropertyName = string.IsNullOrEmpty(compositeContainerDictionaryPropertyName) ? throw new ArgumentException(Resources.MustSupplyCompositeContainerDictionaryPropertyName) : compositeContainerDictionaryPropertyName;
+            ModelDictionaryPropertyName = string.IsNullOrEmpty(modelDictionaryPropertyName) ? throw new ArgumentException(Resources.MustSupplyModelDictionaryPropertyName) : modelDictionaryPropertyName;
         }
 
         public string CompositeContainerDictionaryPropertyName { get; private set; }

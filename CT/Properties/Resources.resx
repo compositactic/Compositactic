@@ -208,4 +208,22 @@
   <data name="MustSupplyValidParentPropertyAttribute" xml:space="preserve">
     <value>The type '{0}' must have a valid ParentPropertyAttribute</value>
   </data>
+  <data name="MustSupplyCompositeContainerDictionaryPropertyName" xml:space="preserve">
+    <value>Must supply a compositeContainerDictionaryPropertyName value</value>
+  </data>
+  <data name="MustSupplyModelDictionaryPropertyName" xml:space="preserve">
+    <value>Must supply a modelDictionaryPropertyName value</value>
+  </data>
+  <data name="MustSupplyModelFieldName" xml:space="preserve">
+    <value>Must supply a modelFieldName value</value>
+  </data>
+  <data name="MustSupplyParentCompositePropertyName" xml:space="preserve">
+    <value>Must supply a parentCompositePropertyName value</value>
+  </data>
+  <data name="MustSupplyParentPropertyName" xml:space="preserve">
+    <value>Must supply a parentPropertyName value</value>
+  </data>
+  <data name="MustSupplyPropertyName" xml:space="preserve">
+    <value>Must supply a propertyName value</value>
+  </data>
 </root>

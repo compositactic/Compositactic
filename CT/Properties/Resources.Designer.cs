@@ -298,6 +298,60 @@ namespace CT.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Must supply a compositeContainerDictionaryPropertyName value.
+        /// </summary>
+        internal static string MustSupplyCompositeContainerDictionaryPropertyName {
+            get {
+                return ResourceManager.GetString("MustSupplyCompositeContainerDictionaryPropertyName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Must supply a modelDictionaryPropertyName value.
+        /// </summary>
+        internal static string MustSupplyModelDictionaryPropertyName {
+            get {
+                return ResourceManager.GetString("MustSupplyModelDictionaryPropertyName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Must supply a modelFieldName value.
+        /// </summary>
+        internal static string MustSupplyModelFieldName {
+            get {
+                return ResourceManager.GetString("MustSupplyModelFieldName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Must supply a parentCompositePropertyName value.
+        /// </summary>
+        internal static string MustSupplyParentCompositePropertyName {
+            get {
+                return ResourceManager.GetString("MustSupplyParentCompositePropertyName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Must supply a parentPropertyName value.
+        /// </summary>
+        internal static string MustSupplyParentPropertyName {
+            get {
+                return ResourceManager.GetString("MustSupplyParentPropertyName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Must supply a propertyName value.
+        /// </summary>
+        internal static string MustSupplyPropertyName {
+            get {
+                return ResourceManager.GetString("MustSupplyPropertyName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The type &apos;{0}&apos; must have a valid CompositeDictionaryPropertyAttribute.
         /// </summary>
         internal static string MustSupplyValidCompositeDictionaryPropertyAttribute {
