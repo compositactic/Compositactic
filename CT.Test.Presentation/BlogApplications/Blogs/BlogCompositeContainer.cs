@@ -65,10 +65,10 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs
         public void LoadBlog(CompositeRootHttpContext context, int id)
         {
             var repository = CompositeRoot.GetService<IMicrosoftSqlServerRepository>();
-
+            
             using (var connection = repository.OpenConnection(BlogApplication.BlogDbConnectionString))
             {
-                repository.Load(connection, null,
+                blogs.AddRange(repository.Load(connection, null,
                                     @"SELECT * 
                                       FROM Blog
                                       WHERE ID = @ID",
@@ -76,7 +76,7 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs
                                     {
                                         new SqlParameter("@ID", id)
                                     },
-                                    typeof(Blog));
+                                    typeof(Blog)).Cast<Blog>().Select(b => new BlogComposite(b, this)));
             }
         }
     }
