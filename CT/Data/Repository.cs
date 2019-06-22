@@ -57,9 +57,9 @@ namespace CT.Data
             return OnExecute<T>(connection, transaction, statement, parameters);
         }
 
-        public IEnumerable<object> Load(DbConnection connection, DbTransaction transaction, string query, IEnumerable<DbParameter> parameters, Type modelType)
+        public IEnumerable<T> Load<T>(DbConnection connection, DbTransaction transaction, string query, IEnumerable<DbParameter> parameters) where T : new()
         {
-            return OnLoad(connection, transaction, query, parameters, modelType);
+            return OnLoad<T>(connection, transaction, query, parameters);
         }
 
         public void Save(DbConnection connection, DbTransaction transaction, Composite composite)
@@ -236,7 +236,7 @@ namespace CT.Data
         protected abstract void OnInsert(DbConnection connection, DbTransaction transaction, IReadOnlyList<DataTable> dataTablesToInsert);
         protected abstract void OnUpdate(DbConnection connection, DbTransaction transaction, string tableName, string tableKeyPropertyName, object tableKeyValue, IReadOnlyDictionary<string, object> columnValues);
         protected abstract void OnCommit(DbConnection connection, DbTransaction transaction);
-        protected abstract IEnumerable<object> OnLoad(DbConnection connection, DbTransaction transaction, string query, IEnumerable<DbParameter> parameters, Type modelType);
+        protected abstract IEnumerable<T> OnLoad<T>(DbConnection connection, DbTransaction transaction, string query, IEnumerable<DbParameter> parameters) where T : new();
         protected abstract T OnExecute<T>(DbConnection connection, DbTransaction transaction, string statement, IEnumerable<DbParameter> parameters);
     }
 }

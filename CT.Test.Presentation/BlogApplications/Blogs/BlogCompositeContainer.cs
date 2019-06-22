@@ -68,15 +68,15 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs
             
             using (var connection = repository.OpenConnection(BlogApplication.BlogDbConnectionString))
             {
-                blogs.AddRange(repository.Load(connection, null,
+                blogs.AddRange(repository.Load<Blog>(connection, null,
                                     @"SELECT * 
                                       FROM Blog
                                       WHERE ID = @ID",
                                     new SqlParameter[]
                                     {
                                         new SqlParameter("@ID", id)
-                                    },
-                                    typeof(Blog)).Cast<Blog>().Select(b => new BlogComposite(b, this)));
+                                    })
+                                    .Select(b => new BlogComposite(b, this)));
             }
         }
     }

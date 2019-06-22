@@ -16,7 +16,6 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using CT.Data.MicrosoftSqlServer.Properties;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
@@ -50,9 +49,9 @@ namespace CT.Data.MicrosoftSqlServer
             }
         }
 
-        protected override IEnumerable<object> OnLoad(DbConnection connection, DbTransaction transaction, string query, IEnumerable<DbParameter> parameters, Type modelType)
+        protected override IEnumerable<T> OnLoad<T>(DbConnection connection, DbTransaction transaction, string query, IEnumerable<DbParameter> parameters)
         {
-            var results = new List<object>();
+            var results = new List<T>();
 
             using (var command = new SqlCommand(query, (SqlConnection)connection) { Transaction = (SqlTransaction)transaction })
             {
@@ -62,7 +61,7 @@ namespace CT.Data.MicrosoftSqlServer
                 using (var dataReader = command.ExecuteReader())
                 {
                     while (dataReader.Read())
-                        results.Add(dataReader.ToModel(modelType));
+                        results.Add(dataReader.ToModel<T>());
                 }
             }
 
@@ -155,7 +154,7 @@ namespace CT.Data.MicrosoftSqlServer
                       [nameof(SaveParameters.ModelKeyPropertyName)]} AS {nameof(InsertKeyPair.OriginalKey)};
                 ";
 
-                var insertKeyPairs = OnLoad(connection, transaction, mergeSql, null, typeof(InsertKeyPair)).Cast<InsertKeyPair>();
+                var insertKeyPairs = OnLoad<InsertKeyPair>(connection, transaction, mergeSql, null);
 
                 OnExecute<object>(connection, transaction, $@"DROP TABLE #{dataTable.TableName}", null);
 

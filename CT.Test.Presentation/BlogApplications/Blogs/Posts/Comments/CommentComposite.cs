@@ -73,14 +73,13 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs.Posts.Comments
                 using (var connection = repository.OpenConnection(connectionString))
                 {
                     var user = repository
-                        .Load(connection,
+                        .Load<User>(connection,
                                 null,
                                 "SELECT * FROM \"User\" WHERE Id = @userId",
                                 new SqlParameter[] 
                                 {
                                     new SqlParameter("@userId", CommentModel.UserId)
-                                },
-                                typeof(User)).FirstOrDefault() as User;
+                                }).FirstOrDefault();
 
 
                     _user = new UserComposite(user) ?? null;

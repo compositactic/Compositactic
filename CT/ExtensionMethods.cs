@@ -716,9 +716,10 @@ namespace CT
             return dataTable;
         }
 
-        public static object ToModel(this IDataRecord record, Type modelType)
+        public static T ToModel<T>(this IDataRecord record) where T : new()
         {
-            var model = Activator.CreateInstance(modelType);
+            var modelType = typeof(T);
+            var model = new T();
             var modelProperties = modelType.GetProperties();
             PropertyInfo propertyInfo = null;
 

@@ -52,7 +52,7 @@ namespace CT.Blogs.Test
             using (var connection = repository.OpenConnection(@"Data Source=(LocalDb)\MSSQLLocalDB;Initial Catalog=master;Integrated Security=SSPI;"))
             using (var transaction = repository.BeginTransaction(connection))
             {
-                var objs = repository.Load(connection,
+                var objs = repository.Load<TableInfo>(connection,
                     transaction,
                     @"
                         WITH Query AS
@@ -64,7 +64,7 @@ namespace CT.Blogs.Test
                         FROM Query
                         WHERE RowNumber BETWEEN 1 AND 10000
 
-                    ", null, typeof(TableInfo)).Cast<TableInfo>();
+                    ", null);
             }
         }
 
