@@ -72,10 +72,7 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs
                                     @"SELECT * 
                                       FROM Blog
                                       WHERE ID = @ID",
-                                    new SqlParameter[]
-                                    {
-                                        new SqlParameter("@ID", id)
-                                    })
+                                    new SqlParameter[] { new SqlParameter("@ID", id) })
                                     .Select(b => new BlogComposite(b, this)));
             }
         }

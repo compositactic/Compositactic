@@ -53,6 +53,17 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs
             get { return BlogModel.Id; }
         }
 
+        [DataMember]
+        public string Name
+        {
+            get { return BlogModel.Name; }
+            set
+            {
+                BlogModel.Name = value;
+                NotifyPropertyChanged(nameof(BlogComposite.Name));
+            }
+        }
+
         [Command]
         public void Remove()
         {

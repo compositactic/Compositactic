@@ -74,7 +74,6 @@ namespace CT.Blogs.Model.Blogs
         [OnDeserialized]
         private void OnDeserialized(StreamingContext context)
         {
-            this.RestoreParentReferences();
             _posts = new ReadOnlyDictionary<long, Post>(posts);
         }
     }

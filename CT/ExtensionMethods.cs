@@ -481,7 +481,7 @@ namespace CT
 
         internal static bool IsRequestForEvents(this Uri url, CompositeRootConfiguration compositeRootConfiguration)
         {
-            return Regex.IsMatch(url.ToString(), "^" + compositeRootConfiguration.Endpoint + @"[^/]+/event$", RegexOptions.IgnoreCase);
+            return Regex.IsMatch(url.ToString(), "^" + compositeRootConfiguration.Endpoint + @"[^/]+/event", RegexOptions.IgnoreCase);
         }
 
         internal static bool IsRequestForPublicFile(this Uri url, CompositeRootConfiguration compositeRootConfiguration, ref string filePath)
