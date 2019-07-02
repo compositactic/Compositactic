@@ -548,7 +548,13 @@ namespace CT.Hosting
                 else if (Regex.IsMatch(requestContentType, @"application/x-www-form-urlencoded|application/json"))
                 {
                     requestBody = requestEncoding.GetString(requestContent);
-                    multipleCommandRequest = JsonConvert.DeserializeObject<IEnumerable<CompositeRootCommandRequest>>(requestBody, new JsonSerializerSettings { Culture = cultureInfo });
+                    try
+                    {
+                        multipleCommandRequest = JsonConvert.DeserializeObject<IEnumerable<CompositeRootCommandRequest>>(requestBody, new JsonSerializerSettings { Culture = cultureInfo });
+                    }
+                    catch (JsonReaderException)
+                    {
+                    }
                 }
                 else
                     throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "{0}: {1}", CommandRequestError.RequestContentTypeNotSupported, request.ContentType));

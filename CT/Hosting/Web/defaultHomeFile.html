@@ -451,12 +451,13 @@ function getEvents(eventUrl) {
     <script>
 
         function execute(url) {
-
+            
             var settings = {
                 "async": true,
                 "crossDomain": true,
-                "url": url,
-                "method": "GET",
+                "url": url.indexOf('?') <= 0 ? url : url.substring(0, url.indexOf('?')),
+                "data": url.indexOf('?') <= 0 ? "" : url.substring(url.indexOf('?') + 1),
+                "method": "POST",
                 "headers": { "Cache-Control": "no-cache" }
             };
 
