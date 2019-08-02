@@ -226,4 +226,7 @@
   <data name="MustSupplyPropertyName" xml:space="preserve">
     <value>Must supply a propertyName value</value>
   </data>
+  <data name="MustSupplyRequestId" xml:space="preserve">
+    <value>The X-Request-ID header must be set to a unique value for each request</value>
+  </data>
 </root>

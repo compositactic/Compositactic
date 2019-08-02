@@ -446,26 +446,40 @@ function getEvents(eventUrl) {
                 <h2 id="test">Testing Compositactic Applications</h2>
             </div>
         </div>
+        <form action="/BlogServer/Logon" method="post">
+            Username: <input type="text" name="username" />
+            Password: <input type="text" name="password" />
+            <input type="submit" value="Submit"/>
+        </form>
     </div>
 
     <script>
+        function uuidv4() {
+              return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+                (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16))
+        }
 
         function execute(url) {
             
-            var settings = {
-                "async": true,
-                "crossDomain": true,
-                "url": url.indexOf('?') <= 0 ? url : url.substring(0, url.indexOf('?')),
-                "data": url.indexOf('?') <= 0 ? "" : url.substring(url.indexOf('?') + 1),
-                "method": "POST",
-                "headers": { "Cache-Control": "no-cache" }
-            };
 
-            $.ajax(settings).done(function (response) {
-                console.log(response);
+            var data = url.indexOf('?') <= 0 ? "" : url.substring(url.indexOf('?') + 1);
+
+            var xhr = new XMLHttpRequest();
+        
+            xhr.addEventListener("readystatechange", function () {
+              if (this.readyState === 4) {
+                console.log(this.responseText);
+              }
             });
 
+            xhr.open("POST", url.indexOf('?') <= 0 ? url : url.substring(0, url.indexOf('?')));
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.setRequestHeader("X-Request-ID", uuidv4());
+
+            xhr.send(data);
             return true;
+
+
         }
 
         function getEvents(eventUrl) {

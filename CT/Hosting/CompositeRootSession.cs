@@ -18,6 +18,7 @@
 using CT.Properties;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Threading;
 
@@ -37,10 +38,17 @@ namespace CT.Hosting
         private void Initialize()
         {
             _events = new BlockingCollection<CompositeEvent>(new ConcurrentQueue<CompositeEvent>());
+            commandLog = new Dictionary<string, CompositeCommandLogEntry>();
             EventsDone = new ManualResetEvent(true);
         }
 
         public CompositeRootSessionContainer ActiveSessions { get; }
+
+        [NonSerialized]
+        internal Dictionary<string, CompositeCommandLogEntry> commandLog;
+
+        [NonSerialized]
+        internal readonly object commandLogLock = new object();
 
         [Command]
         public void Remove()

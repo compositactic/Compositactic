@@ -79,6 +79,12 @@ namespace CT.Hosting
 
         private Dictionary<string, CompositeRootConfiguration> _configurations;
 
+        [NonSerialized]
+        private Dictionary<string, CompositeCommandLogEntry> _logOnLog;
+
+        [NonSerialized]
+        private readonly object _logOnLogLock = new object();
+
         private void Initialize(CompositeRootHttpServerConfiguration configuration)
         {
             InitializeHttpListener(configuration);
@@ -166,6 +172,8 @@ namespace CT.Hosting
             {
                 IgnoreWriteExceptions = true
             };
+
+            _logOnLog = new Dictionary<string, CompositeCommandLogEntry>();
 
             HttpListenerProperties = new HttpListenerProperties(_httpListener);
         }
@@ -344,8 +352,8 @@ namespace CT.Hosting
         { 
             if(Status == CompositeRootHttpServerStatus.Running)
             {
-                foreach (var context in ActiveSessions.Sessions.Values)
-                    context.LastAccessed = DateTime.MinValue;
+                foreach (var session in ActiveSessions.Sessions.Values)
+                    session.LastAccessed = DateTime.MinValue;
 
                 RemoveExpiredCompositeRoots();
                 _httpListener.Close();
@@ -396,20 +404,7 @@ namespace CT.Hosting
                         requestTask = Task.Run(() => { WriteFile(context, new FileInfo(System.IO.Path.Combine(compositeRootConfiguration.ActiveRootConfigurations.ServerConfiguration.PhysicalPath, filePath)), null, null, compositeRootConfiguration); });
                 else if (requestUrl.IsRequestForLogin(compositeRootConfiguration))
                 {
-                    requestTask = Task.Run(() =>
-                    {
-                        string requestBody;
-
-                        try
-                        {
-                            requestBody = GetRequest(context, context.Request.UserLanguages.GetCultureInfo(), out IEnumerable<CompositeUploadedFile> uploadedFiles, out IEnumerable<CompositeRootCommandRequest> dummy);
-                            LogOn(context, requestBody, uploadedFiles, compositeRootConfiguration);
-                        }
-                        catch (Exception e)
-                        {
-                            WriteResponse(context, compositeRootConfiguration, GetExceptionResponse(e), null);
-                        }
-                    });
+                    requestTask = Task.Run(() => { LogOn(context, compositeRootConfiguration); });
                 }
                 else
                 {
@@ -439,30 +434,7 @@ namespace CT.Hosting
                         else if (requestUrl.IsRequestForPrivateFile(compositeRootConfiguration, compositeRoot, ref filePath))
                             requestTask = Task.Run(() => { WriteFile(context, new FileInfo(System.IO.Path.Combine(compositeRootConfiguration.ActiveRootConfigurations.ServerConfiguration.PhysicalPath, filePath)), compositeRoot, alternateSourcedSessionToken ?? sessionToken, compositeRootConfiguration); });
                         else
-                        {
-                            requestTask = Task.Run(() =>
-                            {
-                                try
-                                {
-                                    var requestBody = GetRequest(context, context.Request.UserLanguages.GetCultureInfo(), out IEnumerable<CompositeUploadedFile> uploadedFiles, out IEnumerable<CompositeRootCommandRequest> multipleCommandRequests);
-
-                                    ExecuteCommandRequests(context, compositeRoot, alternateSourcedSessionToken ?? sessionToken, multipleCommandRequests ??
-                                        new CompositeRootCommandRequest[]
-                                        {
-                                            new CompositeRootCommandRequest(1)
-                                            {
-                                                CommandPath = string.IsNullOrEmpty(alternateSourcedSessionToken) ?
-                                                                Regex.Replace(requestUrl.ToString(), @"^" + compositeRootConfiguration.Endpoint + "*" + sessionToken + "/*", string.Empty) :
-                                                                Regex.Replace(requestUrl.ToString(), @"^" + compositeRootConfiguration.Endpoint + "*", string.Empty)
-                                            }
-                                        }, uploadedFiles, compositeRootConfiguration);
-                                }
-                                catch (Exception e)
-                                {
-                                    WriteResponse(context, compositeRootConfiguration, GetExceptionResponse(e), alternateSourcedSessionToken ?? sessionToken);
-                                }
-                            });
-                        }
+                            requestTask = Task.Run(() => { ExecuteCommandRequests(context, compositeRoot, alternateSourcedSessionToken, sessionToken, compositeRootConfiguration); });
                     }
                 }
 
@@ -512,19 +484,19 @@ namespace CT.Hosting
                 throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "{0}: {1}", CommandRequestError.InvalidSessionToken.ToString(), sessionToken));
 
             compositeRoot = compositeRootSession.Mode == CompositeRootMode.SingleHost ?
-                                    compositeRoot = ActiveCompositeRoots.CompositeRoots[compositeRootConfiguration.Id.ToString()] :
-                                    compositeRoot = ActiveCompositeRoots.CompositeRoots[key];
+                                    ActiveCompositeRoots.CompositeRoots[compositeRootConfiguration.Id.ToString()] :
+                                    ActiveCompositeRoots.CompositeRoots[key];
 
             ActiveSessions.Sessions[key].LastAccessed = DateTime.Now;
 
             return compositeRoot;
         }
 
-        private static string GetRequest(HttpListenerContext httpListenerContext, CultureInfo cultureInfo, out IEnumerable<CompositeUploadedFile> uploadedFiles, out IEnumerable<CompositeRootCommandRequest> multipleCommandRequest)
+        private static string GetRequest(HttpListenerContext context, CultureInfo cultureInfo, out IEnumerable<CompositeUploadedFile> uploadedFiles, out IEnumerable<CompositeRootCommandRequest> multipleCommandRequest, out string requestId)
         {
             multipleCommandRequest = null;
             var uploadedFilesList = new List<CompositeUploadedFile>();
-            var request = httpListenerContext.Request;
+            var request = context.Request;
 
             var requestBody = string.Empty;
             if (request.InputStream != Stream.Null)
@@ -563,6 +535,9 @@ namespace CT.Hosting
                 requestBody = request.Url.Query.Substring(1);
 
             uploadedFiles = uploadedFilesList;
+
+            requestId = context.Request.Headers["X-Request-ID"];
+
             return requestBody;
         }
 
@@ -630,11 +605,26 @@ namespace CT.Hosting
             return RequestProcessingAction.Continue;
         }
 
-        private void ExecuteCommandRequests(HttpListenerContext httpListenerContext, CompositeRoot compositeRoot, string sessionToken, IEnumerable<CompositeRootCommandRequest> commandRequests, IEnumerable<CompositeUploadedFile> uploadedFiles, CompositeRootConfiguration compositeRootConfiguration)
+        private void ExecuteCommandRequests(HttpListenerContext context, CompositeRoot compositeRoot, string alternateSourcedSessionToken, string sessionToken, CompositeRootConfiguration compositeRootConfiguration)
         {
-            if(OnBeforeExecuteCommandRequests(httpListenerContext, compositeRoot, sessionToken, commandRequests, uploadedFiles) == RequestProcessingAction.Stop)
+            var requestUrl = context.Request.Url;
+            var requestBody = GetRequest(context, context.Request.UserLanguages.GetCultureInfo(), out IEnumerable<CompositeUploadedFile> uploadedFiles, out IEnumerable<CompositeRootCommandRequest> multipleCommandRequests, out string requestId);
+            var activeSession = ActiveSessions.Sessions[compositeRootConfiguration.Endpoint + sessionToken];
+
+            var commandRequests = multipleCommandRequests ??
+                                        new CompositeRootCommandRequest[]
+                                        {
+                                            new CompositeRootCommandRequest(1)
+                                            {
+                                                CommandPath = string.IsNullOrEmpty(alternateSourcedSessionToken) ?
+                                                                Regex.Replace(requestUrl.ToString(), @"^" + compositeRootConfiguration.Endpoint + "*" + sessionToken + "/*", string.Empty) :
+                                                                Regex.Replace(requestUrl.ToString(), @"^" + compositeRootConfiguration.Endpoint + "*", string.Empty)
+                                            }
+                                        };
+
+            if (OnBeforeExecuteCommandRequests(context, compositeRoot, sessionToken, commandRequests, uploadedFiles) == RequestProcessingAction.Stop)
             {
-                httpListenerContext.Response.Close();
+                context.Response.Close();
                 return;
             }
 
@@ -642,51 +632,71 @@ namespace CT.Hosting
 
             CompositeRootHttpContext compositeRootHttpContext = null;
             var returnValue = new object();
-            try
+            CompositeCommandLogEntry compositeCommandLogEntry = null;
+
+            lock(activeSession.commandLogLock)
             {
-                foreach(var commandRequest in commandRequests)
+                try
                 {
-                    var commandResponseReturnValuePlaceholderMatches = Regex.Matches(commandRequest.CommandPath, @"{(?'commandId'\d+)/?(?'path'.+?)?}").Cast<Match>();
+                    if (string.IsNullOrEmpty(requestId))
+                        throw new ArgumentNullException(Resources.MustSupplyRequestId);
 
-                    foreach (var commandResponseReturnValuePlaceholderMatch in commandResponseReturnValuePlaceholderMatches)
+                    if (activeSession.commandLog.ContainsKey(requestId))
+                        compositeCommandLogEntry = activeSession.commandLog[requestId];
+                    else
                     {
-                        var commandResponseReturnValue = commandResponses.Single(cr => cr.Id == int.Parse(commandResponseReturnValuePlaceholderMatch.Groups["commandId"].Value, CultureInfo.InvariantCulture)).ReturnValue;
-                        var commandResponseReturnValuePath = commandResponseReturnValuePlaceholderMatch.Groups["path"].Value;
-                        var commandResponseReturnValueComposite = commandResponseReturnValue as Composite;
-                        var returnValuePlaceholder = commandRequest.CommandPath.Substring(commandResponseReturnValuePlaceholderMatch.Index, commandResponseReturnValuePlaceholderMatch.Length);
-                        if (commandResponseReturnValueComposite != null && !string.IsNullOrEmpty(commandResponseReturnValuePath))
+                        foreach (var commandRequest in commandRequests)
                         {
-                            var valueForPlaceholder = commandResponseReturnValueComposite.Execute(commandResponseReturnValuePath, httpListenerContext, string.Empty, sessionToken, uploadedFiles);
-                            if (!valueForPlaceholder.ReturnValue.GetType().IsConvertable())
-                                throw new ArgumentException(
-                                    string.Format(CultureInfo.CurrentCulture, Resources.PlaceholderValueConversionError,
-                                                            valueForPlaceholder.ReturnValue.GetType().FullName,
-                                                            nameof(System.ComponentModel.TypeConverter),
-                                                            nameof(String)));
+                            var commandResponseReturnValuePlaceholderMatches = Regex.Matches(commandRequest.CommandPath, @"{(?'commandId'\d+)/?(?'path'.+?)?}").Cast<Match>();
 
-                            commandRequest.CommandPath = commandRequest.CommandPath.Replace(returnValuePlaceholder, valueForPlaceholder.ReturnValue.ToString());
+                            foreach (var commandResponseReturnValuePlaceholderMatch in commandResponseReturnValuePlaceholderMatches)
+                            {
+                                var commandResponseReturnValue = commandResponses.Single(cr => cr.Id == int.Parse(commandResponseReturnValuePlaceholderMatch.Groups["commandId"].Value, CultureInfo.InvariantCulture)).ReturnValue;
+                                var commandResponseReturnValuePath = commandResponseReturnValuePlaceholderMatch.Groups["path"].Value;
+                                var commandResponseReturnValueComposite = commandResponseReturnValue as Composite;
+                                var returnValuePlaceholder = commandRequest.CommandPath.Substring(commandResponseReturnValuePlaceholderMatch.Index, commandResponseReturnValuePlaceholderMatch.Length);
+                                if (commandResponseReturnValueComposite != null && !string.IsNullOrEmpty(commandResponseReturnValuePath))
+                                {
+                                    var valueForPlaceholder = commandResponseReturnValueComposite.Execute(commandResponseReturnValuePath, context, string.Empty, sessionToken, uploadedFiles);
+                                    if (!valueForPlaceholder.ReturnValue.GetType().IsConvertable())
+                                        throw new ArgumentException(
+                                            string.Format(CultureInfo.CurrentCulture, Resources.PlaceholderValueConversionError,
+                                                                    valueForPlaceholder.ReturnValue.GetType().FullName,
+                                                                    nameof(System.ComponentModel.TypeConverter),
+                                                                    nameof(String)));
+
+                                    commandRequest.CommandPath = commandRequest.CommandPath.Replace(returnValuePlaceholder, valueForPlaceholder.ReturnValue.ToString());
+                                }
+                                else if (commandResponseReturnValueComposite != null && string.IsNullOrEmpty(commandResponseReturnValuePath))
+                                    throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.PlaceholderPathRequiredError, commandResponseReturnValueComposite.GetType().FullName));
+                                else
+                                    commandRequest.CommandPath = commandRequest.CommandPath.Replace(returnValuePlaceholder, commandResponseReturnValue.ToString());
+                            }
+
+                            var commandResponse = compositeRoot.Execute(commandRequest.CommandPath, context, activeSession.UserName, sessionToken, uploadedFiles);
+                            compositeRootHttpContext = commandResponse.Context;
+                            returnValue = commandResponse.ReturnValue;
+                            commandResponses.Add(new CompositeRootCommandResponse { Id = commandRequest.Id, Success = true, ReturnValue = returnValue, ReturnValueContentType = compositeRootHttpContext?.Response.ContentType });
                         }
-                        else if(commandResponseReturnValueComposite != null && string.IsNullOrEmpty(commandResponseReturnValuePath))
-                            throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.PlaceholderPathRequiredError, commandResponseReturnValueComposite.GetType().FullName));
-                        else
-                            commandRequest.CommandPath = commandRequest.CommandPath.Replace(returnValuePlaceholder, commandResponseReturnValue.ToString());
-                    }
 
-                    var commandResponse = compositeRoot.Execute(commandRequest.CommandPath, httpListenerContext, ActiveSessions.Sessions[compositeRootConfiguration.Endpoint + sessionToken].UserName, sessionToken, uploadedFiles);
-                    compositeRootHttpContext = commandResponse.Context;
-                    returnValue = commandResponse.ReturnValue;
-                    commandResponses.Add(new CompositeRootCommandResponse { Id = commandRequest.Id, Success = true, ReturnValue = returnValue, ReturnValueContentType = compositeRootHttpContext?.Response.ContentType });
+                        compositeCommandLogEntry = new CompositeCommandLogEntry(requestId, activeSession, returnValue is byte[]? returnValue : commandResponses);
+                        activeSession.commandLog.Add(requestId, compositeCommandLogEntry);
+                    }
                 }
-            }
-            catch (Exception e)
-            {
-                commandResponses.Add(new CompositeRootCommandResponse { Success = false, Errors = GetErrorMessages(e) });
-            }
-            finally
-            {
-                SetHttpListenerResponse(compositeRootHttpContext, httpListenerContext.Response);
-                OnAfterExecuteCommandRequests(httpListenerContext, compositeRootConfiguration, returnValue, commandResponses, sessionToken);
-                WriteResponse(httpListenerContext, compositeRootConfiguration, returnValue is byte[] ? returnValue : commandResponses, sessionToken);
+                catch (Exception e)
+                {
+                    commandResponses.Add(new CompositeRootCommandResponse { Success = false, Errors = GetErrorMessages(e) });
+                }
+                finally
+                {
+                    if(!compositeCommandLogEntry.IsWritten)
+                    {
+                        SetHttpListenerResponse(compositeRootHttpContext, context.Response);
+                        OnAfterExecuteCommandRequests(context, compositeRootConfiguration, returnValue, commandResponses, sessionToken);
+                        compositeCommandLogEntry.IsWritten = WriteResponse(context, compositeRootConfiguration, compositeCommandLogEntry.Response, sessionToken);
+                        compositeCommandLogEntry.Response = compositeCommandLogEntry.IsWritten ? null : compositeCommandLogEntry.Response;
+                    }
+                }
             }
         }
 
@@ -699,51 +709,72 @@ namespace CT.Hosting
             return RequestProcessingAction.Continue;
         }
 
-        private void LogOn(HttpListenerContext httpListenerContext, string requestParameters, IEnumerable<CompositeUploadedFile> uploadedFiles, CompositeRootConfiguration compositeRootConfiguration)
+        private void LogOn(HttpListenerContext context, CompositeRootConfiguration compositeRootConfiguration)
         {
-            if(OnBeforeLogOn(httpListenerContext, compositeRootConfiguration, requestParameters, uploadedFiles) == RequestProcessingAction.Stop)
+            var requestBody = GetRequest(context, context.Request.UserLanguages.GetCultureInfo(), out IEnumerable<CompositeUploadedFile> uploadedFiles, out IEnumerable<CompositeRootCommandRequest> dummy, out string requestId);
+
+            if (OnBeforeLogOn(context, compositeRootConfiguration, requestBody, uploadedFiles) == RequestProcessingAction.Stop)
             {
-                httpListenerContext.Response.Close();
+                context.Response.Close();
                 return;
             }
 
-            var response = new object();
             CompositeRootHttpContext compositeRootHttpContext = null;
             CompositeRootSession compositeRootSession = null;
             CompositeRootAuthenticatorResponse authenticatorResponse = null;
+            CompositeCommandLogEntry compositeCommandLogEntry = null;
 
-            var userName = Regex.Match(requestParameters, @"username=(?'username'[^&]*)", RegexOptions.IgnoreCase).Groups["username"]?.Value ?? string.Empty;
+            var userName = Regex.Match(requestBody, @"username=(?'username'[^&]*)", RegexOptions.IgnoreCase).Groups["username"]?.Value ?? string.Empty;
 
-            try
+            lock(_logOnLogLock)
             {
-                CompositeRoot compositeRoot = null;
+                try
+                {
+                    if (string.IsNullOrEmpty(requestId))
+                        throw new ArgumentNullException(Resources.MustSupplyRequestId);
 
-                if (compositeRootConfiguration.Mode == CompositeRootMode.SingleHost)
-                    compositeRoot = ActiveCompositeRoots.CompositeRoots.Values.Single(h => h.GetType() == compositeRootConfiguration.CompositeRootType);
-                else
-                    compositeRoot = CompositeRoot.Create(ActiveCompositeRoots, compositeRootConfiguration, CompositeRoot_EventAdded, _services);
+                    if (_logOnLog.ContainsKey(requestId))
+                        compositeCommandLogEntry = _logOnLog[requestId];
+                    else
+                    {
+                        CompositeRoot compositeRoot = null;
 
-                var loginResponse = compositeRoot.Authenticator.Execute(nameof(CompositeRootAuthenticator.LogOn) + "?" + requestParameters, httpListenerContext, userName, string.Empty, uploadedFiles);
-                compositeRootHttpContext = loginResponse.Context;
-                authenticatorResponse = loginResponse.ReturnValue as CompositeRootAuthenticatorResponse;
+                        if (compositeRootConfiguration.Mode == CompositeRootMode.SingleHost)
+                            compositeRoot = ActiveCompositeRoots.CompositeRoots.Values.Single(h => h.GetType() == compositeRootConfiguration.CompositeRootType);
+                        else
+                            compositeRoot = CompositeRoot.Create(ActiveCompositeRoots, compositeRootConfiguration, CompositeRoot_EventAdded, _services);
 
-                response = authenticatorResponse;
-                if (authenticatorResponse.IsAuthenticationSuccessful)
-                    compositeRootSession = ActiveSessions.CreateNewCompositeRootSession(compositeRootConfiguration.Endpoint, authenticatorResponse.UserName, authenticatorResponse.SessionToken, compositeRootConfiguration.SessionExpiration, compositeRootConfiguration.Mode, compositeRoot);
+                        var loginResponse = compositeRoot.Authenticator.Execute(nameof(CompositeRootAuthenticator.LogOn) + "?" + requestBody, context, userName, string.Empty, uploadedFiles);
+                        compositeRootHttpContext = loginResponse.Context;
+                        authenticatorResponse = loginResponse.ReturnValue as CompositeRootAuthenticatorResponse;
 
-                compositeRoot.OnLogOn(compositeRootHttpContext);
-            }
-            catch (Exception e)
-            {
-                compositeRootSession = null;
-                compositeRootSession?.Dispose();
-                response = new CompositeRootCommandResponse { Success = false, Errors = GetErrorMessages(e) };
-            }
-            finally
-            {
-                SetHttpListenerResponse(compositeRootHttpContext, httpListenerContext.Response);
-                OnAfterLogOn(httpListenerContext, compositeRootConfiguration, requestParameters, uploadedFiles, authenticatorResponse);
-                WriteResponse(httpListenerContext, compositeRootConfiguration, response, compositeRootSession?.Token);
+                        compositeCommandLogEntry = new CompositeCommandLogEntry(requestId, null, authenticatorResponse);
+
+                        if (authenticatorResponse.IsAuthenticationSuccessful)
+                            compositeRootSession = ActiveSessions.CreateNewCompositeRootSession(compositeRootConfiguration.Endpoint, authenticatorResponse.UserName, authenticatorResponse.SessionToken, compositeRootConfiguration.SessionExpiration, compositeRootConfiguration.Mode, compositeRoot);
+
+                        compositeRoot.OnLogOn(compositeRootHttpContext);
+
+                        compositeCommandLogEntry.Session = compositeRootSession;
+                        _logOnLog.Add(requestId, compositeCommandLogEntry);
+                    }
+                }
+                catch (Exception e)
+                {
+                    compositeRootSession = null;
+                    compositeRootSession?.Dispose();
+                    compositeCommandLogEntry = new CompositeCommandLogEntry(requestId, null, new CompositeRootCommandResponse { Success = false, Errors = GetErrorMessages(e) });
+                }
+                finally
+                {
+                    if (!compositeCommandLogEntry.IsWritten)
+                    {
+                        SetHttpListenerResponse(compositeRootHttpContext, context.Response);
+                        OnAfterLogOn(context, compositeRootConfiguration, requestBody, uploadedFiles, authenticatorResponse);
+                        compositeCommandLogEntry.IsWritten = WriteResponse(context, compositeRootConfiguration, compositeCommandLogEntry.Response, compositeRootSession?.Token);
+                        compositeCommandLogEntry.Response = compositeCommandLogEntry.IsWritten ? null : compositeCommandLogEntry.Response;
+                    }
+                }
             }
         }
 
@@ -934,18 +965,17 @@ namespace CT.Hosting
 
         private IEnumerable<Tuple<long, long>> GetFileSeekOffsetsAndLengths(FileInfo fileInfo, IEnumerable<Tuple<long?, long?>> ranges)
         {
-            Tuple<long, long> fileOffsetAndLength = null;
-            
             foreach (var range in ranges)
             {
-                if(range.Item1.HasValue && range.Item1.Value > 0 && range.Item1.Value < fileInfo.Length - 1)
+                Tuple<long, long> fileOffsetAndLength;
+                if (range.Item1.HasValue && range.Item1.Value > 0 && range.Item1.Value < fileInfo.Length - 1)
                     fileOffsetAndLength = new Tuple<long, long>(range.Item1.Value, (range.Item2 == null ? fileInfo.Length - 1 : -range.Item2.Value) - range.Item1.Value + 1);
                 else if (range.Item2.HasValue && -range.Item2.Value > 0 && -range.Item2.Value < fileInfo.Length)
                     fileOffsetAndLength = new Tuple<long, long>((fileInfo.Length - 1) - (-range.Item2.Value - 1), -range.Item2.Value);
                 else
                     yield break;
 
-                yield return fileOffsetAndLength; 
+                yield return fileOffsetAndLength;
             }
         }
 
@@ -1012,7 +1042,7 @@ namespace CT.Hosting
             return RequestProcessingAction.Continue;
         }
 
-        private void WriteResponse(HttpListenerContext httpListenerContext, CompositeRootConfiguration compositeRootConfiguration, object value, string sessionToken)
+        private bool WriteResponse(HttpListenerContext httpListenerContext, CompositeRootConfiguration compositeRootConfiguration, object value, string sessionToken)
         {
             if (httpListenerContext == null)
                 throw new ArgumentNullException(nameof(httpListenerContext));
@@ -1022,48 +1052,51 @@ namespace CT.Hosting
             if (OnBeforeWriteResponse(httpListenerContext, compositeRootConfiguration, value, sessionToken) == RequestProcessingAction.Stop)
             {
                 response.Close();
-                return;
+                return true;
             }
 
-            if (value is byte[] binaryResponse)
+            bool wroteResponse;
+            try
             {
-                response.ContentEncoding = httpListenerContext.Request.ContentEncoding;
-                response.ContentLength64 = binaryResponse.LongLength;
-                using (var writer = new BinaryWriter(response.OutputStream, response.ContentEncoding))
+                if (value is byte[] binaryResponse)
                 {
-                    OnWriteResponse(httpListenerContext, compositeRootConfiguration, value, writer, binaryResponse, sessionToken);
+                    response.ContentEncoding = httpListenerContext.Request.ContentEncoding;
+                    response.ContentLength64 = binaryResponse.LongLength;
+                    using (var writer = new BinaryWriter(response.OutputStream, response.ContentEncoding))
+                    {
+                        OnWriteResponse(httpListenerContext, compositeRootConfiguration, value, writer, binaryResponse, sessionToken);
+                    }
                 }
+                else
+                {
+                    var responseContent = JsonConvert.SerializeObject(value, compositeRootConfiguration.ActiveRootConfigurations.ServerConfiguration.JsonSettings.jsonSettings.jsonSerializerSettings);
+
+                    response.ContentEncoding = httpListenerContext.Request.ContentEncoding;
+                    response.ContentLength64 = response.ContentEncoding.GetByteCount(responseContent);
+                    response.ContentType = "application/json";
+
+                    using (var writer = new BinaryWriter(response.OutputStream, response.ContentEncoding))
+                    {
+                        OnWriteResponse(httpListenerContext, compositeRootConfiguration, value, writer, response.ContentEncoding.GetBytes(responseContent), sessionToken);
+                    }
+                }
+
+                wroteResponse = true;
             }
-            else
+            catch (HttpListenerException)
             {
-                var responseContent = JsonConvert.SerializeObject(value, compositeRootConfiguration.ActiveRootConfigurations.ServerConfiguration.JsonSettings.jsonSettings.jsonSerializerSettings);
-
-                response.ContentEncoding = httpListenerContext.Request.ContentEncoding;
-                response.ContentLength64 = response.ContentEncoding.GetByteCount(responseContent);
-                response.ContentType = "application/json";
-
-                using (var writer = new BinaryWriter(response.OutputStream, response.ContentEncoding))
-                {
-                    OnWriteResponse(httpListenerContext, compositeRootConfiguration, value, writer, response.ContentEncoding.GetBytes(responseContent), sessionToken);
-                }
+                wroteResponse = false;
             }
 
             OnAfterWriteResponse(httpListenerContext, compositeRootConfiguration, value, sessionToken);
             response.Close();
+
+            return wroteResponse;
         }
 
         protected virtual void OnWriteResponse(HttpListenerContext httpListenerContext, CompositeRootConfiguration compositeRootConfiguration, object value, BinaryWriter writer, byte[] content, string sessionToken)
         {
-            if (writer == null)
-                throw new ArgumentNullException(nameof(writer));
-
-            try
-            {
-                writer.Write(content);
-            }
-            catch(HttpListenerException)
-            {
-            }
+            writer.Write(content);
         }
 
         protected virtual void OnAfterWriteResponse(HttpListenerContext httpListenerContext, CompositeRootConfiguration compositeRootConfiguration, object value, string sessionToken)

@@ -352,6 +352,15 @@ namespace CT.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The X-Request-ID header must be set to a unique value for each request.
+        /// </summary>
+        internal static string MustSupplyRequestId {
+            get {
+                return ResourceManager.GetString("MustSupplyRequestId", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The type &apos;{0}&apos; must have a valid CompositeDictionaryPropertyAttribute.
         /// </summary>
         internal static string MustSupplyValidCompositeDictionaryPropertyAttribute {
