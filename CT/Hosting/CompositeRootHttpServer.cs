@@ -536,7 +536,7 @@ namespace CT.Hosting
 
             uploadedFiles = uploadedFilesList;
 
-            requestId = context.Request.Headers["X-Request-ID"];
+            requestId = context.Request.Headers["X-Request-ID"] ?? Regex.Match(requestBody, @"x-request-id=(?'xrequestid'[^&]*)", RegexOptions.IgnoreCase).Groups["xrequestid"].Value;
 
             return requestBody;
         }
@@ -713,12 +713,6 @@ namespace CT.Hosting
         {
             var requestBody = GetRequest(context, context.Request.UserLanguages.GetCultureInfo(), out IEnumerable<CompositeUploadedFile> uploadedFiles, out IEnumerable<CompositeRootCommandRequest> dummy, out string requestId);
 
-            if (OnBeforeLogOn(context, compositeRootConfiguration, requestBody, uploadedFiles) == RequestProcessingAction.Stop)
-            {
-                context.Response.Close();
-                return;
-            }
-
             CompositeRootHttpContext compositeRootHttpContext = null;
             CompositeRootSession compositeRootSession = null;
             CompositeRootAuthenticatorResponse authenticatorResponse = null;
@@ -732,6 +726,12 @@ namespace CT.Hosting
                 {
                     if (string.IsNullOrEmpty(requestId))
                         throw new ArgumentNullException(Resources.MustSupplyRequestId);
+
+                    if (OnBeforeLogOn(context, compositeRootConfiguration, requestBody, uploadedFiles) == RequestProcessingAction.Stop)
+                    {
+                        context.Response.Close();
+                        return;
+                    }
 
                     if (_logOnLog.ContainsKey(requestId))
                         compositeCommandLogEntry = _logOnLog[requestId];

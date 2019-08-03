@@ -19,7 +19,7 @@ using System.Data.Common;
 
 namespace CT.Data.MicrosoftSqlServer
 {
-    public interface IMicrosoftSqlServerRepository : IRepository
+    public interface IMicrosoftSqlServerRepository : ISqlRepository
     {
         void CreateHelperStoredProcedures(DbConnection connection, DbTransaction transaction);
     }

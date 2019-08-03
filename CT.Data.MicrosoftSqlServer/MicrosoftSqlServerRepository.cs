@@ -28,7 +28,7 @@ using System.Resources;
 
 namespace CT.Data.MicrosoftSqlServer
 {
-    public class MicrosoftSqlServerRepository : Repository, IMicrosoftSqlServerRepository
+    public class MicrosoftSqlServerRepository : SqlRepository, IMicrosoftSqlServerRepository
     {
         public static MicrosoftSqlServerRepository Create()
         {

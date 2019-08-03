@@ -15,13 +15,12 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
 using System.Collections.Generic;
 using System.Data.Common;
 
 namespace CT.Data
 {
-    public interface IRepository : IService
+    public interface ISqlRepository : IService
     {
         IEnumerable<T> Load<T>(DbConnection connection, DbTransaction transaction, string query, IEnumerable<DbParameter> parameters) where T : new();
         void Save(DbConnection connection, DbTransaction transaction, Composite composite);

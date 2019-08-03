@@ -28,7 +28,7 @@ using System.Text.RegularExpressions;
 
 namespace CT.Data
 {
-    public abstract class Repository : IRepository
+    public abstract class SqlRepository : ISqlRepository
     {
         public CompositeRoot CompositeRoot { get; set; }
 
