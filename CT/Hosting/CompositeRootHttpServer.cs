@@ -727,16 +727,16 @@ namespace CT.Hosting
                     if (string.IsNullOrEmpty(requestId))
                         throw new ArgumentNullException(Resources.MustSupplyRequestId);
 
-                    if (OnBeforeLogOn(context, compositeRootConfiguration, requestBody, uploadedFiles) == RequestProcessingAction.Stop)
-                    {
-                        context.Response.Close();
-                        return;
-                    }
-
                     if (_logOnLog.ContainsKey(requestId))
                         compositeCommandLogEntry = _logOnLog[requestId];
                     else
                     {
+                        if (OnBeforeLogOn(context, compositeRootConfiguration, requestBody, uploadedFiles) == RequestProcessingAction.Stop)
+                        {
+                            context.Response.Close();
+                            return;
+                        }
+
                         CompositeRoot compositeRoot = null;
 
                         if (compositeRootConfiguration.Mode == CompositeRootMode.SingleHost)
