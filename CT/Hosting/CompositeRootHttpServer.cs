@@ -280,6 +280,9 @@ namespace CT.Hosting
                 }
 
                 ActiveSessions.sessions.Remove(sessionToken);
+
+                _logOnLog.Remove(_logOnLog.Values.SingleOrDefault(c => c.Session.Token == sessionToken).RequestId);
+
                 compositeRootSession.Dispose();
             });
 
