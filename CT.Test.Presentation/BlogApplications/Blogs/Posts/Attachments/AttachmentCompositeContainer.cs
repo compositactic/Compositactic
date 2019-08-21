@@ -17,6 +17,8 @@
 
 using CT.Hosting;
 using System;
+using System.IO;
+using System.Linq;
 using System.Runtime.Serialization;
 
 namespace CT.Blogs.Presentation.BlogApplications.Blogs.Posts.Attachments
@@ -45,6 +47,14 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs.Posts.Attachments
             {
                 State = CompositeState.New
             };
+
+            var fileAttachment = context.Request.UploadedFiles.FirstOrDefault();
+            if (fileAttachment != null)
+            {
+                var fileAttachmentPath = System.IO.Path.GetTempFileName();
+                File.WriteAllBytes(fileAttachmentPath, fileAttachment.GetContent());
+                newAttachment.FilePath = fileAttachmentPath;
+            }
 
             attachments.Add(newAttachment.Id, newAttachment);
             return newAttachment;

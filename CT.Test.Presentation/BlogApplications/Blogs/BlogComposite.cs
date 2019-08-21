@@ -16,8 +16,8 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using CT.Blogs.Model.Blogs;
-using CT.Blogs.Presentation.BlogApplications.Blogs.BlogUsers;
 using CT.Blogs.Presentation.BlogApplications.Blogs.Posts;
+using CT.Data.MicrosoftSqlServer;
 using System.Runtime.Serialization;
 
 namespace CT.Blogs.Presentation.BlogApplications.Blogs
@@ -36,16 +36,11 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs
         {
             BlogModel = blog;
             AllBlogs = blogCompositeContainer;
-
             AllPosts = new PostCompositeContainer(this);
-            SubscribedUsers = new BlogUserCompositeContainer(this);
         }
 
         [DataMember]
         public PostCompositeContainer AllPosts { get; }
-
-        [DataMember]
-        public BlogUserCompositeContainer SubscribedUsers { get; }
 
         [DataMember]
         public long Id
@@ -68,6 +63,20 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs
         public void Remove()
         {
             AllBlogs.blogs.Remove(Id);
+        }
+
+        [Command]
+        public void Save()
+        {
+            var blogApplication = CompositeRoot as BlogApplicationCompositeRoot;
+            var repository = blogApplication.GetService<IMicrosoftSqlServerRepository>();
+
+            using (var connection = repository.OpenConnection(blogApplication.BlogDbConnectionString))
+            using (var transaction = repository.BeginTransaction(connection))
+            {
+                repository.Save(connection, transaction, this);
+                transaction.Commit();
+            }
         }
     }
 }

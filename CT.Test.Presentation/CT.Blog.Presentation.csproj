@@ -45,9 +45,6 @@
     <None Update="BlogApplications\Blogs\001-Data-Blog.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="BlogApplications\Blogs\BlogUsers\002-Table-BlogUser.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="BlogApplications\Blogs\000-Table-Blog.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

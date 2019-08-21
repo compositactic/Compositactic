@@ -36,6 +36,17 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs.Posts.Attachments
         }
 
         [DataMember]
+        public string FilePath
+        {
+            get { return AttachmentModel.FilePath; }
+            set
+            {
+                AttachmentModel.FilePath = value;
+                NotifyPropertyChanged(nameof(AttachmentComposite.FilePath));
+            }
+        }
+
+        [DataMember]
         public long Id
         {
             get { return AttachmentModel.Id; }

@@ -68,8 +68,10 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs.Posts.Comments
         {
             get
             {
-                var repository = CompositeRoot.GetService<IMicrosoftSqlServerRepository>();
-                var connectionString = ((BlogApplicationCompositeRoot)CompositeRoot).BlogDbConnectionString;
+                var blogApplication = CompositeRoot as BlogApplicationCompositeRoot;
+                var repository = blogApplication.GetService<IMicrosoftSqlServerRepository>();
+                var connectionString = blogApplication.BlogDbConnectionString;
+
                 using (var connection = repository.OpenConnection(connectionString))
                 {
                     var user = repository
@@ -87,8 +89,12 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs.Posts.Comments
    
                 return _user;
             }
+            
+            internal set
+            {
+                _user = value;
+            }
         }
-
 
         [Command]
         public void Remove()

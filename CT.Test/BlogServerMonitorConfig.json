@@ -9,7 +9,7 @@
       "CompositeRootAuthenticatorTypeName": "CT.Blogs.Presentation.BlogMonitors.BlogServerMonitorAuthenticator, CT.Blog.Presentation",
       "SessionExpiration": "00:25:30",
       "Mode": "SingleHost",
-      "Endpoint": "http://localhost:8000/BlogMonitor/"
+      "Endpoint": "https://localhost:8000/BlogMonitor/"
     }
   }
 }

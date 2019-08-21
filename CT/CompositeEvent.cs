@@ -32,14 +32,44 @@ namespace CT
             Path = path;
         }
 
-        [NonSerialized]
-        public readonly CompositeRootMode Mode;
+        public CompositeEvent(CompositeEventType eventType, string path, object data)
+        {
+            EventType = eventType;
+            Data = data;
+            Path = path;
+        }
 
         [NonSerialized]
-        public readonly string SessionToken;
+        internal readonly CompositeRootMode Mode;
+
+        [NonSerialized]
+        internal readonly string SessionToken;
 
         public string Path;
         public readonly CompositeEventType EventType;
         public readonly object Data;
+
+        public override bool Equals(object obj)
+        {
+            var compositeEvent = (CompositeEvent)obj;
+            return Path.Equals(compositeEvent.Path) &&
+                    EventType.Equals(compositeEvent.EventType) &&
+                    Data.Equals(compositeEvent.Data);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                const int hashingBase = (int)2166136261;
+                const int hashingMultiplier = 16777619;
+
+                int hash = hashingBase;
+                hash = (hash * hashingMultiplier) ^ (Path is object ? Path.GetHashCode() : 0);
+                hash = (hash * hashingMultiplier) ^ (EventType.GetHashCode());
+                hash = (hash * hashingMultiplier) ^ (Data is object ? Data.GetHashCode() : 0);
+                return hash;
+            }
+        }
     }
 }

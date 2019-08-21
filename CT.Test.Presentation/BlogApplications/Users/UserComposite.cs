@@ -23,11 +23,6 @@ namespace CT.Blogs.Presentation.BlogApplications.Users
         public string Name
         {
             get { return _user.Name; }
-            set
-            {
-                _user.Name = value;
-                NotifyPropertyChanged(nameof(Name));
-            }
         }
     }
 }

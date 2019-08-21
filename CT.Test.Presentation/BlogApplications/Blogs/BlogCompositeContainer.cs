@@ -64,9 +64,10 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs
         [Command]
         public void LoadBlog(CompositeRootHttpContext context, int id)
         {
-            var repository = CompositeRoot.GetService<IMicrosoftSqlServerRepository>();
-            
-            using (var connection = repository.OpenConnection(BlogApplication.BlogDbConnectionString))
+            var blogApplication = CompositeRoot as BlogApplicationCompositeRoot;
+            var repository = blogApplication.GetService<IMicrosoftSqlServerRepository>();
+
+            using (var connection = repository.OpenConnection(blogApplication.BlogDbConnectionString))
             {
                 blogs.AddRange(repository.Load<Blog>(connection, null,
                                     @"SELECT * 

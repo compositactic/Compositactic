@@ -26,6 +26,9 @@ using System.IO;
 using System;
 using CT.Hosting;
 using System.Linq;
+using CT.Blogs.Presentation.BlogApplications.Users;
+using System.Data.SqlClient;
+using CT.Blogs.Model.Users;
 
 namespace CT.Blogs.Presentation.BlogApplications
 {
@@ -64,6 +67,26 @@ namespace CT.Blogs.Presentation.BlogApplications
 
         public override void OnLogOn(CompositeRootHttpContext compositeRootHttpContext)
         {
+            var blogApplication = CompositeRoot as BlogApplicationCompositeRoot;
+            var repository = blogApplication.GetService<IMicrosoftSqlServerRepository>();
+            var connectionString = blogApplication.BlogDbConnectionString;
+
+            using (var connection = repository.OpenConnection(connectionString))
+            {
+                var user = repository.Load<User>(connection, null,
+                            @"SELECT * 
+                                FROM ""User"" 
+                                WHERE Name = @userName
+                                ",
+                            new SqlParameter[]
+                            {
+                                    new SqlParameter("@userName", compositeRootHttpContext.Request.UserName)
+                            }).FirstOrDefault();
+
+
+                CurrentUser = new UserComposite(user) ?? null;
+            }
+            
         }
 
         [DataMember]
@@ -128,17 +151,7 @@ namespace CT.Blogs.Presentation.BlogApplications
             }
         }
 
-        [Command]
-        public void Save()
-        {
-            var repository = GetService<IMicrosoftSqlServerRepository>();
-
-            using (var connection = repository.OpenConnection(BlogDbConnectionString))
-            using (var transaction = repository.BeginTransaction(connection))
-            {     
-                repository.Save(connection, transaction, this);
-                repository.CommitTransaction(transaction);
-            }
-        }
+        [DataMember]
+        public UserComposite CurrentUser { get; private set; }
     }
 }

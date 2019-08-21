@@ -32,6 +32,14 @@ namespace CT.Blogs.Test
             //_blogServerMonitorConnection = _blogServerMonitorTester.LogOnUser(_blogServerMonitorConfiguration, "username=admin&password=1234");
         }
 
+        [TestMethod]
+        public void CompositeEventTest()
+        {
+            var e1 = new CompositeEvent(CompositeEventType.Listening, string.Empty, true);
+            var e2 = new CompositeEvent(CompositeEventType.Listening, string.Empty, true);
+            Assert.IsTrue(e1.Equals(e2));
+        }
+
 
         [TestMethod]
         public void DirTest()

@@ -16,6 +16,7 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using CT.Properties;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -35,28 +36,23 @@ namespace CT.Hosting.Test
             if (string.IsNullOrEmpty(sessionToken))
                 throw new InvalidOperationException(Resources.MustHaveValidSessionToken);
 
-            _eventWaitHandles = new Dictionary<string, EventWaitHandle>();
-            _events = new StringBuilder();
+            var listeningEvent = new CompositeEvent(CompositeEventType.Listening, string.Empty, true);
+
+            _eventWaitHandles = new Dictionary<CompositeEvent, EventWaitHandle>();
             Client = new WebClient();
             Client.OpenReadCompleted += _webClient_OpenReadCompleted;
-            AddEventWaitHandle("listening", new ManualResetEvent(false));
+            AddEventWaitHandle(listeningEvent);
 
             Client.OpenReadAsync(new Uri(string.Format(CultureInfo.InvariantCulture, prefix + "{0}/event", sessionToken)));
-            _eventWaitHandles["listening"].WaitOne();
+            _eventWaitHandles[listeningEvent].WaitOne();
             SessionToken = sessionToken;
         }
 
         public string SessionToken { get; }
 
-        private Dictionary<string, EventWaitHandle> _eventWaitHandles;
-        public IReadOnlyDictionary<string, EventWaitHandle> EventWaitHandles {  get { return _eventWaitHandles; } }
+        private Dictionary<CompositeEvent, EventWaitHandle> _eventWaitHandles;
+        public IReadOnlyDictionary<CompositeEvent, EventWaitHandle> EventWaitHandles {  get { return _eventWaitHandles; } }
         public WebClient Client { get; }
-
-        private StringBuilder _events;
-        public string Events
-        {
-            get { return _events.ToString(); }
-        }
 
         private void _webClient_OpenReadCompleted(object sender, OpenReadCompletedEventArgs e)
         {
@@ -65,61 +61,63 @@ namespace CT.Hosting.Test
                 while (reader.BaseStream.CanRead && !reader.EndOfStream)
                 {
                     var eventData = reader.ReadLine();
-                    _events.AppendLine(eventData);
-                    Match eventName;
-                    if ((eventName = Regex.Match(eventData, @"^event: (?'eventName'.+)$")).Success)
+
+                    eventData = Regex.Match(eventData, @"^data: *(?'eventData'.*)$").Groups["eventData"].Value;
+
+                    var receivedCompositeEvent = JsonConvert.DeserializeObject<CompositeEvent>(eventData);
+
+                    if(receivedCompositeEvent != null && _eventWaitHandles.ContainsKey(receivedCompositeEvent))
                     {
-                        var eventExpression = _eventWaitHandles.Keys.SingleOrDefault(ev => Regex.IsMatch(eventName.Groups["eventName"].Value, ev));
-                        if(eventExpression != null)
-                            _eventWaitHandles[eventExpression].Set();
+                        _eventWaitHandles[receivedCompositeEvent].Set();
+                        _eventWaitHandles.Remove(receivedCompositeEvent);
                     }
                 }
             }
         }
 
-        public void AddEventWaitHandle(string eventExpression, EventWaitHandle eventWaitHandle)
+        public void AddEventWaitHandle(CompositeEvent compositeEvent)
         {
-            _eventWaitHandles.Add(eventExpression, eventWaitHandle);
+            _eventWaitHandles.Add(compositeEvent, new ManualResetEvent(false));
         }
 
-        public void WaitForEvent(string eventExpression)
+        public void WaitForEvent(CompositeEvent compositeEvent)
         {
-            if (!_eventWaitHandles.ContainsKey(eventExpression))
-                throw new KeyNotFoundException(eventExpression);
+            if (!_eventWaitHandles.ContainsKey(compositeEvent))
+                throw new KeyNotFoundException(JsonConvert.SerializeObject(compositeEvent));
 
-            _eventWaitHandles[eventExpression].WaitOne();
+            _eventWaitHandles[compositeEvent].WaitOne();
         }
 
-        public void WaitForEvent(string eventExpression, int millisecondsTimeout)
+        public void WaitForEvent(CompositeEvent compositeEvent, int millisecondsTimeout)
         {
-            if (!_eventWaitHandles.ContainsKey(eventExpression))
-                throw new KeyNotFoundException(eventExpression);
+            if (!_eventWaitHandles.ContainsKey(compositeEvent))
+                throw new KeyNotFoundException(JsonConvert.SerializeObject(compositeEvent));
 
-            _eventWaitHandles[eventExpression].WaitOne(millisecondsTimeout);
+            _eventWaitHandles[compositeEvent].WaitOne(millisecondsTimeout);
         }
 
-        public void WaitForEvent(string eventExpression, TimeSpan timeout)
+        public void WaitForEvent(CompositeEvent compositeEvent, TimeSpan timeout)
         {
-            if (!_eventWaitHandles.ContainsKey(eventExpression))
-                throw new KeyNotFoundException(eventExpression);
+            if (!_eventWaitHandles.ContainsKey(compositeEvent))
+                throw new KeyNotFoundException(JsonConvert.SerializeObject(compositeEvent));
 
-            _eventWaitHandles[eventExpression].WaitOne(timeout);
+            _eventWaitHandles[compositeEvent].WaitOne(timeout);
         }
 
-        public void WaitForEvent(string eventExpression, int millisecondsTimeout, bool exitContext)
+        public void WaitForEvent(CompositeEvent compositeEvent, int millisecondsTimeout, bool exitContext)
         {
-            if (!_eventWaitHandles.ContainsKey(eventExpression))
-                throw new KeyNotFoundException(eventExpression);
+            if (!_eventWaitHandles.ContainsKey(compositeEvent))
+                throw new KeyNotFoundException(JsonConvert.SerializeObject(compositeEvent));
 
-            _eventWaitHandles[eventExpression].WaitOne(millisecondsTimeout, exitContext);
+            _eventWaitHandles[compositeEvent].WaitOne(millisecondsTimeout, exitContext);
         }
 
-        public void WaitForEvent(string eventExpression, TimeSpan timeout, bool exitContext)
+        public void WaitForEvent(CompositeEvent compositeEvent, TimeSpan timeout, bool exitContext)
         {
-            if (!_eventWaitHandles.ContainsKey(eventExpression))
-                throw new KeyNotFoundException(eventExpression);
+            if (!_eventWaitHandles.ContainsKey(compositeEvent))
+                throw new KeyNotFoundException(JsonConvert.SerializeObject(compositeEvent));
 
-            _eventWaitHandles[eventExpression].WaitOne(timeout, exitContext);
+            _eventWaitHandles[compositeEvent].WaitOne(timeout, exitContext);
         }
 
         internal static byte[] SendRequest(WebRequest request, string contentType, Stream requestContentStream, out string responseContentType, out string responseContentEncoding)
@@ -146,6 +144,8 @@ namespace CT.Hosting.Test
 
         private static byte[] GetResponseData(WebRequest request, Stream requestContentStream, out string responseContentType, out string responseContentEncoding)
         {
+            request.Headers.Add("X-Request-Id", Guid.NewGuid().ToString());
+
             using (var responseStream = new MemoryStream())
             {
                 if (requestContentStream != null)

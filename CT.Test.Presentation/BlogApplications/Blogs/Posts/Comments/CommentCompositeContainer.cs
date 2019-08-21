@@ -40,9 +40,12 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs.Posts.Comments
         [Command]
         public CommentComposite CreateNewComment(CompositeRootHttpContext context)
         {
+            var blogApplication = CompositeRoot as BlogApplicationCompositeRoot;
+
             var newComment = new CommentComposite(Post.PostModel.CreateNewComment(), this)
             {
-                State = CompositeState.New
+                State = CompositeState.New,
+                User = blogApplication.CurrentUser
             };
 
             comments.Add(newComment.Id, newComment);

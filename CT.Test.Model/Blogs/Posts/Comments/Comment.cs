@@ -38,7 +38,7 @@ namespace CT.Blogs.Model.Blogs.Posts.Comments
         [DataMember]
         public long UserId { get; set; }
 
-        private Comment() { }
+        public Comment() { }
 
         internal Comment(Post post)
         {

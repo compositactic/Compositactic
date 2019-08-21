@@ -15,7 +15,6 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using CT.Blogs.Model.Blogs.BlogUsers;
 using CT.Blogs.Model.Blogs.Posts;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -38,8 +37,6 @@ namespace CT.Blogs.Model.Blogs
             posts = new ConcurrentDictionary<long, Post>();
             _posts = new ReadOnlyDictionary<long, Post>(posts);
 
-            blogUsers = new ConcurrentDictionary<long, BlogUser>();
-            _blogUsers = new ReadOnlyDictionary<long, BlogUser>(blogUsers);
         }
 
         [DataMember]
@@ -56,19 +53,6 @@ namespace CT.Blogs.Model.Blogs
         public Post CreateNewPost()
         {
             return new Post(this);
-        }
-
-        [DataMember]
-        internal ConcurrentDictionary<long, BlogUser> blogUsers;
-        private readonly ReadOnlyDictionary<long, BlogUser> _blogUsers;
-        public IReadOnlyDictionary<long, BlogUser> BlogUsers
-        {
-            get { return _blogUsers; }
-        }
-
-        public BlogUser CreateNewBlogUser(long userId)
-        {
-            return new BlogUser(this, userId);
         }
 
         [OnDeserialized]

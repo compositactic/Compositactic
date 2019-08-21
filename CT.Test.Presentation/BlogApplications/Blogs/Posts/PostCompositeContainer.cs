@@ -15,8 +15,12 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using CT.Blogs.Model.Blogs.Posts;
+using CT.Data.MicrosoftSqlServer;
 using CT.Hosting;
 using System;
+using System.Data.SqlClient;
+using System.Linq;
 using System.Runtime.Serialization;
 
 namespace CT.Blogs.Presentation.BlogApplications.Blogs.Posts
@@ -48,6 +52,57 @@ namespace CT.Blogs.Presentation.BlogApplications.Blogs.Posts
 
             posts.Add(newPost.Id, newPost);
             return newPost;
+        }
+
+        [Command]
+        public void LoadPosts()
+        {
+            var blogApplication = CompositeRoot as BlogApplicationCompositeRoot;
+            var repository = blogApplication.GetService<IMicrosoftSqlServerRepository>();
+
+            using (var connection = repository.OpenConnection(blogApplication.BlogDbConnectionString))
+            {
+                posts.AddRange(repository.Load<Post>(connection, null,
+                    @"
+                        SELECT * 
+                        FROM Post 
+                        WHERE BlogId = @BlogId
+                    ",
+                    new SqlParameter[] { new SqlParameter("@BlogId", Blog.Id) })
+                    .Select(p => new PostComposite(p, this)));
+            }
+        }
+
+        [Command]
+        public void LoadPosts(int pageStart, int pageEnd)
+        {
+            var blogApplication = CompositeRoot as BlogApplicationCompositeRoot;
+            var repository = blogApplication.GetService<IMicrosoftSqlServerRepository>();
+
+            using (var connection = repository.OpenConnection(blogApplication.BlogDbConnectionString))
+            {
+                posts.AddRange(repository.Load<Post>(connection, null,
+
+                    @"
+                      WITH Posts AS
+                      (
+                        SELECT ROW_NUMBER() OVER(ORDER BY ID DESC) AS RowNumber, *
+                        FROM Post 
+                        WHERE BlogId = @BlogId
+                      )
+                      SELECT *
+                      FROM Posts
+                      WHERE RowNumber BETWEEN @pageStart AND @pageEnd
+                    ",
+
+                    new SqlParameter[] 
+                    {
+                        new SqlParameter("@BlogId", Blog.Id),
+                        new SqlParameter("@pageStart", pageStart),
+                        new SqlParameter("@pageEnd", pageEnd)
+                    })
+                    .Select(p => new PostComposite(p, this)));
+            }
         }
     }
 }
