@@ -51,7 +51,10 @@ namespace CT
 
         public override bool Equals(object obj)
         {
-            var compositeEvent = (CompositeEvent)obj;
+            var compositeEvent = obj as CompositeEvent;
+            if (compositeEvent == null)
+                return false;
+
             return Path.Equals(compositeEvent.Path) &&
                     EventType.Equals(compositeEvent.EventType) &&
                     Data.Equals(compositeEvent.Data);
@@ -62,12 +65,12 @@ namespace CT
             unchecked
             {
                 const int hashingBase = (int)2166136261;
-                const int hashingMultiplier = 16777619;
+                const int HashingMultiplier = 16777619;
 
                 int hash = hashingBase;
-                hash = (hash * hashingMultiplier) ^ (Path is object ? Path.GetHashCode() : 0);
-                hash = (hash * hashingMultiplier) ^ (EventType.GetHashCode());
-                hash = (hash * hashingMultiplier) ^ (Data is object ? Data.GetHashCode() : 0);
+                hash = (hash * HashingMultiplier) ^ (Path is object ? Path.GetHashCode() : 0);
+                hash = (hash * HashingMultiplier) ^ (EventType.GetHashCode());
+                hash = (hash * HashingMultiplier) ^ (Data is object ? Data.GetHashCode() : 0);
                 return hash;
             }
         }

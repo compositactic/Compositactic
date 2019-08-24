@@ -40,7 +40,7 @@ namespace CT.Hosting.Test
 
             _eventWaitHandles = new Dictionary<CompositeEvent, EventWaitHandle>();
             Client = new WebClient();
-            Client.OpenReadCompleted += _webClient_OpenReadCompleted;
+            Client.OpenReadCompleted += WebClient_OpenReadCompleted;
             AddEventWaitHandle(listeningEvent);
 
             Client.OpenReadAsync(new Uri(string.Format(CultureInfo.InvariantCulture, prefix + "{0}/event", sessionToken)));
@@ -54,7 +54,7 @@ namespace CT.Hosting.Test
         public IReadOnlyDictionary<CompositeEvent, EventWaitHandle> EventWaitHandles {  get { return _eventWaitHandles; } }
         public WebClient Client { get; }
 
-        private void _webClient_OpenReadCompleted(object sender, OpenReadCompletedEventArgs e)
+        private void WebClient_OpenReadCompleted(object sender, OpenReadCompletedEventArgs e)
         {
             using (var reader = new StreamReader(e.Result))
             {
