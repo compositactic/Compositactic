@@ -34,8 +34,8 @@ namespace CT.Blog.Test.Systems.Actors.Administrator.Stories.Monitor_Application.
         private static CompositeRootHttpServerTesterConnection _blogServerMonitorConnection;
         private static CompositeRootHttpServerConfiguration _blogServerHttpServerConfig;
         private static CompositeRootConfiguration _blogServerConfig;
-        private static CompositeRootHttpServerTesterConnection _blogServerConnection;
-
+        private static CompositeRootHttpServerTesterConnection _blogServerConnectionAlice;
+        private static CompositeRootHttpServerTesterConnection _blogServerConnectionBob;
 
         [ClassInitialize]
         public static void Setup(TestContext testContext)
@@ -52,11 +52,14 @@ namespace CT.Blog.Test.Systems.Actors.Administrator.Stories.Monitor_Application.
         public void RetrieveActiveUsers()
         {
             _blogServerMonitorConnection = _tester.LogOnUser(_blogServerMonitorConfiguration, "username=admin&password=1234");
-            _blogServerConnection = _tester.LogOnUser(_blogServerConfig, "username=admin&password=1234");
+
+            _blogServerConnectionAlice = _tester.LogOnUser(_blogServerConfig, "username=alice&password=1234");
+            _blogServerConnectionBob = _tester.LogOnUser(_blogServerConfig, "username=bob&password=1234");
 
             var blogServerMonitorRoot = (JObject)CompositeRootHttpServerTester.SendRequest(_blogServerMonitorConfiguration, "BlogServer", _blogServerMonitorConnection.SessionToken).First().ReturnValue;
 
-            Assert.IsTrue(blogServerMonitorRoot.SelectTokens("activeSessions.sessions[?(@..userName == 'admin')]").Count() == 1);
+            Assert.IsTrue(blogServerMonitorRoot.SelectTokens("activeSessions.sessions[?(@..userName == 'alice')]").Count() == 1);
+            Assert.IsTrue(blogServerMonitorRoot.SelectTokens("activeSessions.sessions[?(@..userName == 'bob')]").Count() == 1);
         }
     }
 }

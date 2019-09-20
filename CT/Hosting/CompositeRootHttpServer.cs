@@ -688,6 +688,7 @@ namespace CT.Hosting
                 }
                 catch (Exception e)
                 {
+                    compositeCommandLogEntry = new CompositeCommandLogEntry(requestId, activeSession, returnValue is byte[]? returnValue : commandResponses);
                     commandResponses.Add(new CompositeRootCommandResponse { Success = false, Errors = GetErrorMessages(e) });
                 }
                 finally
