@@ -433,22 +433,33 @@ namespace CT
                 throw new ArgumentNullException(nameof(composite));
 
             var propertyPathBuilder = new StringBuilder();
-            GetPropertyPath(null, composite, propertyPathBuilder);
+            GetPropertyPath(null, null, composite, propertyPathBuilder);
             return propertyPathBuilder.ToString();
         }
 
         internal static string GetPropertyPath(this Composite composite, PropertyInfo propertyInfo)
         {
             var propertyPathBuilder = new StringBuilder();
-            GetPropertyPath(propertyInfo, composite, propertyPathBuilder);
+            GetPropertyPath(propertyInfo, propertyInfo, composite, propertyPathBuilder);
+
             return propertyPathBuilder.ToString();
         }
 
-        private static void GetPropertyPath(PropertyInfo property, Composite composite, StringBuilder propertyPathBuilder)
+        private static void GetPropertyPath(PropertyInfo startingProperty, PropertyInfo property, Composite composite, StringBuilder propertyPathBuilder)
         {
             var compositeType = composite.GetType();
             if (compositeType.IsSubclassOf(typeof(CompositeRoot)))
+            {
+                if(startingProperty != null && !propertyPathBuilder.ToString().EndsWith("/" + startingProperty.Name))
+                {
+                    if (propertyPathBuilder.Length != 0)
+                        propertyPathBuilder.Append("/");
+
+                    propertyPathBuilder.Append(startingProperty.Name);
+                }
+
                 return;
+            }
 
             var parentPropertyAttribute = compositeType.FindCustomAttribute<ParentPropertyAttribute>();
             if (parentPropertyAttribute == null)
@@ -475,7 +486,7 @@ namespace CT
             if (parentPropertyAttribute != null)
             {
                 var parentComposite = parentProperty.GetValue(composite) as Composite;
-                GetPropertyPath(parentProperty, parentComposite, propertyPathBuilder);
+                GetPropertyPath(startingProperty, parentProperty, parentComposite, propertyPathBuilder);
             }
         }
 
