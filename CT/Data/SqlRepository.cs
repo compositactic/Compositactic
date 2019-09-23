@@ -174,60 +174,74 @@ namespace CT.Data
 
         private void SaveNewComposites(DbConnection connection, DbTransaction transaction, List<Composite> newComposites)
         {
-            var dataTablesToInsert = new List<DataTable>();
-            var newCompositeTypes = newComposites.Select(nc => nc.GetType()).Distinct();
+            DataTable dataTable = null;
 
-            var sqlColumnList = string.Empty;
-            var sqlInsertColumnList = string.Empty;
-
-            foreach (var compositeType in newCompositeTypes)
+            try
             {
-                var compositeModelAttribute = compositeType.FindCustomAttribute<CompositeModelAttribute>();
-                if (compositeModelAttribute == null)
-                    throw new MissingMemberException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveCompositeModelAttribute, compositeType.Name));
+                var dataTablesToInsert = new List<DataTable>();
+                var newCompositeTypes = newComposites.Select(nc => nc.GetType()).Distinct();
 
-                FieldInfo modelFieldInfo;
-                modelFieldInfo = compositeType.GetField(compositeModelAttribute.ModelFieldName, BindingFlags.Instance | BindingFlags.NonPublic);
-                if (modelFieldInfo == null)
-                    throw new MissingMemberException(string.Format(CultureInfo.CurrentCulture, Resources.CannotFindCompositeModelProperty, compositeModelAttribute.ModelFieldName));
+                var sqlColumnList = string.Empty;
+                var sqlInsertColumnList = string.Empty;
 
-                var columnProperties = modelFieldInfo
-                                        .FieldType
-                                        .GetProperties()
-                                        .Where(p => p.GetCustomAttribute<DataMemberAttribute>() != null);
+                foreach (var compositeType in newCompositeTypes)
+                {
+                    var compositeModelAttribute = compositeType.FindCustomAttribute<CompositeModelAttribute>();
+                    if (compositeModelAttribute == null)
+                        throw new MissingMemberException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveCompositeModelAttribute, compositeType.Name));
 
-                var columnList = columnProperties.Select(dataMemberProperty => dataMemberProperty.GetCustomAttribute<DataMemberAttribute>().Name ?? dataMemberProperty.Name);
+                    FieldInfo modelFieldInfo;
+                    modelFieldInfo = compositeType.GetField(compositeModelAttribute.ModelFieldName, BindingFlags.Instance | BindingFlags.NonPublic);
+                    if (modelFieldInfo == null)
+                        throw new MissingMemberException(string.Format(CultureInfo.CurrentCulture, Resources.CannotFindCompositeModelProperty, compositeModelAttribute.ModelFieldName));
 
-                var invalidColumnName = string.Empty;
-                if ((invalidColumnName = columnList.FirstOrDefault(c => !Regex.IsMatch(c, @"^[A-Za-z0-9_]+$"))) != null)
-                    throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidColumnName, invalidColumnName));
+                    var columnProperties = modelFieldInfo
+                                            .FieldType
+                                            .GetProperties()
+                                            .Where(p => p.GetCustomAttribute<DataMemberAttribute>() != null);
 
-                sqlColumnList = string.Join(',', columnList);
-                sqlInsertColumnList = string.Join(',', columnList.Select(c => "tableToInsert." + c));
+                    var columnList = columnProperties.Select(dataMemberProperty => dataMemberProperty.GetCustomAttribute<DataMemberAttribute>().Name ?? dataMemberProperty.Name);
 
-                var dataTable = newComposites.Where(nc => nc.GetType() == compositeType).ToDataTable();
+                    var invalidColumnName = string.Empty;
+                    if ((invalidColumnName = columnList.FirstOrDefault(c => !Regex.IsMatch(c, @"^[A-Za-z0-9_]+$"))) != null)
+                        throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidColumnName, invalidColumnName));
 
-                var modelKeyPropertyName = modelFieldInfo.FieldType.GetCustomAttribute<KeyPropertyAttribute>()?.PropertyName;
-                if (string.IsNullOrEmpty(modelKeyPropertyName))
-                    throw new InvalidOperationException();
+                    sqlColumnList = string.Join(',', columnList);
+                    sqlInsertColumnList = string.Join(',', columnList.Select(c => "tableToInsert." + c));
 
-                var modelKeyName = modelFieldInfo.FieldType.GetProperty(modelKeyPropertyName)?.GetCustomAttribute<DataMemberAttribute>()?.Name ?? modelKeyPropertyName;
+                    dataTable = newComposites.Where(nc => nc.GetType() == compositeType).ToDataTable();
 
-                dataTable.ExtendedProperties[nameof(SaveParameters.ModelKeyPropertyName)] = modelKeyName;
-                dataTable.ExtendedProperties[nameof(SaveParameters.SqlColumnList)] = sqlColumnList;
-                dataTable.ExtendedProperties[nameof(SaveParameters.SqlInsertColumnList)] = sqlInsertColumnList;
+                    var modelKeyPropertyName = modelFieldInfo.FieldType.GetCustomAttribute<KeyPropertyAttribute>()?.PropertyName;
+                    if (string.IsNullOrEmpty(modelKeyPropertyName))
+                        throw new InvalidOperationException();
 
-                dataTablesToInsert.Add(dataTable);
+                    var modelKeyName = modelFieldInfo.FieldType.GetProperty(modelKeyPropertyName)?.GetCustomAttribute<DataMemberAttribute>()?.Name ?? modelKeyPropertyName;
+
+                    dataTable.ExtendedProperties[nameof(SaveParameters.ModelKeyPropertyName)] = modelKeyName;
+                    dataTable.ExtendedProperties[nameof(SaveParameters.SqlColumnList)] = sqlColumnList;
+                    dataTable.ExtendedProperties[nameof(SaveParameters.SqlInsertColumnList)] = sqlInsertColumnList;
+
+                    dataTablesToInsert.Add(dataTable);
+                }
+
+                string invalidTableName = null;
+                if ((invalidTableName = dataTablesToInsert.FirstOrDefault(t => !Regex.IsMatch(t.TableName, @"^[A-Za-z0-9_]+$"))?.TableName) != null)
+                    throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidTableName, invalidTableName));
+
+                OnInsert(connection, transaction, dataTablesToInsert);
+
+                foreach (var composite in newComposites)
+                    composite.State = CompositeState.Unchanged;
             }
-
-            string invalidTableName = null;
-            if ((invalidTableName = dataTablesToInsert.FirstOrDefault(t => !Regex.IsMatch(t.TableName, @"^[A-Za-z0-9_]+$"))?.TableName) != null)
-                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidTableName, invalidTableName));
-
-            OnInsert(connection, transaction, dataTablesToInsert);
-
-            foreach (var composite in newComposites)
-                composite.State = CompositeState.Unchanged;
+            catch
+            {
+                dataTable.Dispose();
+                throw;
+            }
+            finally
+            {
+                dataTable.Dispose();
+            }
         }
 
         protected abstract DbConnection OnOpenNewConnection(string connectionString);

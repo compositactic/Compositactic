@@ -51,8 +51,7 @@ namespace CT
 
         public override bool Equals(object obj)
         {
-            var compositeEvent = obj as CompositeEvent;
-            if (compositeEvent == null)
+            if (!(obj is CompositeEvent compositeEvent))
                 return false;
 
             return Path.Equals(compositeEvent.Path) &&

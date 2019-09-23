@@ -66,8 +66,8 @@ namespace CT.Hosting
                 compositeRoot = Server.ActiveCompositeRoots.CompositeRoots.Values.Single(h => h.GetType() == compositeRootConfiguration.CompositeRootType);
             else
                 compositeRoot = _serviceAssemblies != null ? 
-                    CompositeRoot.Create(Server.ActiveCompositeRoots, compositeRootConfiguration, Server.CompositeRoot_EventAdded, _serviceAssemblies) :
-                    CompositeRoot.Create(Server.ActiveCompositeRoots, compositeRootConfiguration, Server.CompositeRoot_EventAdded, _services);
+                    CompositeRoot.Create(compositeRootConfiguration, Server.CompositeRoot_EventAdded, _serviceAssemblies) :
+                    CompositeRoot.Create(compositeRootConfiguration, Server.CompositeRoot_EventAdded, _services);
 
 
             return CreateNewCompositeRootSession(endPoint, userName, token, compositeRootConfiguration.SessionExpiration, compositeRootConfiguration.Mode, compositeRoot);

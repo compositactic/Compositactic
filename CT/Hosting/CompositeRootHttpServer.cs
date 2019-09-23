@@ -187,7 +187,7 @@ namespace CT.Hosting
         }
 
         [NonSerialized]
-        private EventHandler _shutdownComplete;
+        private EventHandler _shutdownComplete = null;
         public event EventHandler ShutdownComplete
         {
             add { _shutdownComplete += value; }
@@ -243,7 +243,7 @@ namespace CT.Hosting
             }
         }
 
-        private void _timer_Elapsed(object sender, ElapsedEventArgs e)
+        private void Timer_Elapsed(object sender, ElapsedEventArgs e)
         {
             if(ServerConfiguration.ServerRootConfigurations.RootConfigurations.Values.Any(c => c.Mode == CompositeRootMode.MultipleHost))
                 LogOffExpiredHosts();
@@ -298,10 +298,12 @@ namespace CT.Hosting
         {
             try
             {
-                _backgroundTaskTimer = new Timer(backgroundTaskInterval.TotalMilliseconds);
-                _backgroundTaskTimer.AutoReset = true;
+                _backgroundTaskTimer = new Timer(backgroundTaskInterval.TotalMilliseconds)
+                {
+                    AutoReset = true
+                };
 
-                _backgroundTaskTimer.Elapsed += _timer_Elapsed;
+                _backgroundTaskTimer.Elapsed += Timer_Elapsed;
                 _backgroundTaskTimer.Start();
             }
             catch
@@ -746,7 +748,7 @@ namespace CT.Hosting
                         if (compositeRootConfiguration.Mode == CompositeRootMode.SingleHost)
                             compositeRoot = ActiveCompositeRoots.CompositeRoots.Values.Single(h => h.GetType() == compositeRootConfiguration.CompositeRootType);
                         else
-                            compositeRoot = CompositeRoot.Create(ActiveCompositeRoots, compositeRootConfiguration, CompositeRoot_EventAdded, _services);
+                            compositeRoot = CompositeRoot.Create(compositeRootConfiguration, CompositeRoot_EventAdded, _services);
 
                         var loginResponse = compositeRoot.Authenticator.Execute(nameof(CompositeRootAuthenticator.LogOn) + "?" + requestBody, context, userName, string.Empty, uploadedFiles);
                         compositeRootHttpContext = loginResponse.Context;

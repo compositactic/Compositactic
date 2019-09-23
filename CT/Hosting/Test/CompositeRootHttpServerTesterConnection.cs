@@ -50,7 +50,7 @@ namespace CT.Hosting.Test
 
         public string SessionToken { get; }
 
-        private Dictionary<CompositeEvent, EventWaitHandle> _eventWaitHandles;
+        private readonly Dictionary<CompositeEvent, EventWaitHandle> _eventWaitHandles;
         public IReadOnlyDictionary<CompositeEvent, EventWaitHandle> EventWaitHandles {  get { return _eventWaitHandles; } }
         public WebClient Client { get; }
 

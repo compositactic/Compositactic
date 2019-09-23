@@ -176,7 +176,7 @@ namespace CT.Hosting
         {
             var queryString = new Dictionary<string, string>();
             foreach (var name in request.QueryString.AllKeys)
-                queryString.Add(name == null ? "value" : name, name == null ? request.QueryString[0] : request.QueryString[name]);
+                queryString.Add(name ?? "value", name == null ? request.QueryString[0] : request.QueryString[name]);
 
             return queryString;
         }

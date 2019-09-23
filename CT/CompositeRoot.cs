@@ -78,7 +78,7 @@ namespace CT
             SetCompositeRoots();
         }
 
-        internal static CompositeRoot Create(CompositeRootContainer activeCompositeRoots, CompositeRootConfiguration configuration, EventHandler eventHandler, IEnumerable<Assembly> serviceAssemblies)
+        public static CompositeRoot Create(CompositeRootConfiguration configuration, EventHandler eventHandler, IEnumerable<Assembly> serviceAssemblies)
         {
             var compositeRoot = serviceAssemblies == null ? (CompositeRoot)Activator.CreateInstance(configuration.CompositeRootType, _constructorBindingFlags, null, new object[] { configuration }, CultureInfo.InvariantCulture) : 
                                                             (CompositeRoot)Activator.CreateInstance(configuration.CompositeRootType, _constructorBindingFlags, null, new object[] { configuration, serviceAssemblies }, CultureInfo.InvariantCulture);
@@ -89,7 +89,7 @@ namespace CT
             return compositeRoot;
         }
 
-        internal static CompositeRoot Create(CompositeRootContainer activeCompositeRoots, CompositeRootConfiguration configuration, EventHandler eventHandler, IEnumerable<IService> services)
+        public static CompositeRoot Create(CompositeRootConfiguration configuration, EventHandler eventHandler, IEnumerable<IService> services)
         {
             var compositeRoot = services == null ? (CompositeRoot)Activator.CreateInstance(configuration.CompositeRootType, _constructorBindingFlags, null, new object[] { configuration }, CultureInfo.InvariantCulture) :
                                                     (CompositeRoot)Activator.CreateInstance(configuration.CompositeRootType, _constructorBindingFlags, null, new object[] { configuration, services }, CultureInfo.InvariantCulture);

@@ -35,7 +35,7 @@ namespace CT.Hosting.Test
     {
         public CompositeRootHttpServer Server { get; } = null;
 
-        private ConcurrentDictionary<string, CompositeRootHttpServerTesterConnection> _connections = new ConcurrentDictionary<string, CompositeRootHttpServerTesterConnection>();
+        private readonly ConcurrentDictionary<string, CompositeRootHttpServerTesterConnection> _connections = new ConcurrentDictionary<string, CompositeRootHttpServerTesterConnection>();
         public IReadOnlyDictionary<string, CompositeRootHttpServerTesterConnection> Connections {  get { return _connections; } }
 
         public CompositeRootHttpServerConfiguration Configuration { get; private set; }
@@ -177,7 +177,7 @@ namespace CT.Hosting.Test
 
         private CompositeRootHttpServerTesterConnection CreateCompositeRootHttpServerTesterConnection(CompositeRootConfiguration configuration, WebRequest request)
         {
-            var response = JsonConvert.DeserializeObject<CompositeRootAuthenticatorResponse>(Encoding.UTF8.GetString(CompositeRootHttpServerTesterConnection.SendRequest(request, out string responseContentType, out string responseContentEncoding)));
+            var response = JsonConvert.DeserializeObject<CompositeRootAuthenticatorResponse>(Encoding.UTF8.GetString(CompositeRootHttpServerTesterConnection.SendRequest(request, out _, out _)));
 
             var sessionToken = response.SessionToken;
             CompositeRootHttpServerTesterConnection compositeRootHttpServerTesterConnection = null;

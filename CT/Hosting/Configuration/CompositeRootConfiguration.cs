@@ -26,7 +26,7 @@ namespace CT.Hosting.Configuration
     [ParentProperty(nameof(CompositeRootConfiguration.ActiveRootConfigurations))]
     public class CompositeRootConfiguration : Composite
     {
-        private RootConfiguration _rootConfiguration;
+        private readonly RootConfiguration _rootConfiguration;
 
         internal CompositeRootConfiguration(RootConfiguration rootConfiguration, CompositeRootConfigurationContainer compositeRootConfigurationContainer)
         {

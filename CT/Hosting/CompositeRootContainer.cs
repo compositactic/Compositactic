@@ -43,7 +43,7 @@ namespace CT.Hosting
 
         internal CompositeRoot CreateCompositeRoot(CompositeRootConfiguration configuration, EventHandler eventHandler, IEnumerable<IService> services)
         {
-            var compositeRoot = CompositeRoot.Create(this, configuration, eventHandler, services);
+            var compositeRoot = CompositeRoot.Create(configuration, eventHandler, services);
             compositeRoot.ActiveCompositeRoots = this;
             compositeRoots.Add(configuration.Id.ToString(), compositeRoot);
             return compositeRoot;
@@ -51,7 +51,7 @@ namespace CT.Hosting
 
         internal CompositeRoot CreateCompositeRoot(CompositeRootConfiguration configuration, EventHandler eventHandler, IEnumerable<Assembly> serviceAssemblies)
         {
-            var compositeRoot = CompositeRoot.Create(this, configuration, eventHandler, serviceAssemblies);
+            var compositeRoot = CompositeRoot.Create(configuration, eventHandler, serviceAssemblies);
             compositeRoot.ActiveCompositeRoots = this;
             compositeRoots.Add(configuration.Id.ToString(), compositeRoot);
             return compositeRoot;
