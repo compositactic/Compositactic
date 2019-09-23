@@ -662,7 +662,7 @@ namespace CT.Hosting
                                 var returnValuePlaceholder = commandRequest.CommandPath.Substring(commandResponseReturnValuePlaceholderMatch.Index, commandResponseReturnValuePlaceholderMatch.Length);
                                 if (commandResponseReturnValueComposite != null && !string.IsNullOrEmpty(commandResponseReturnValuePath))
                                 {
-                                    var valueForPlaceholder = commandResponseReturnValueComposite.Execute(commandResponseReturnValuePath, context, string.Empty, sessionToken, uploadedFiles);
+                                    var valueForPlaceholder = commandResponseReturnValueComposite.Execute(commandResponseReturnValuePath, context, null, string.Empty, sessionToken, uploadedFiles);
                                     if (!valueForPlaceholder.ReturnValue.GetType().IsConvertable())
                                         throw new ArgumentException(
                                             string.Format(CultureInfo.CurrentCulture, Resources.PlaceholderValueConversionError,
@@ -750,7 +750,7 @@ namespace CT.Hosting
                         else
                             compositeRoot = CompositeRoot.Create(compositeRootConfiguration, CompositeRoot_EventAdded, _services);
 
-                        var loginResponse = compositeRoot.Authenticator.Execute(nameof(CompositeRootAuthenticator.LogOn) + "?" + requestBody, context, userName, string.Empty, uploadedFiles);
+                        var loginResponse = compositeRoot.Authenticator.Execute(nameof(CompositeRootAuthenticator.LogOn) + "?" + requestBody, context, null, userName, string.Empty, uploadedFiles);
                         compositeRootHttpContext = loginResponse.Context;
                         authenticatorResponse = loginResponse.ReturnValue as CompositeRootAuthenticatorResponse;
 

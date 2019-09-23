@@ -107,15 +107,20 @@ namespace CT
 
         public static CommandResponse Execute(this CompositeRoot composite, string commandPath, HttpListenerContext context, string userName, string sessionToken, IEnumerable<CompositeUploadedFile> uploadedFiles)
         {
-            return Execute((Composite)composite, commandPath, context, userName, sessionToken, uploadedFiles);
+            return Execute((Composite)composite, commandPath, context, null, userName, sessionToken, uploadedFiles);
         }
 
-        internal static CommandResponse Execute(this Composite composite, string commandPath, HttpListenerContext context, string userName, string sessionToken, IEnumerable<CompositeUploadedFile> uploadedFiles)
+        public static CommandResponse Execute(this CompositeRoot composite, string commandPath, CompositeRootHttpContext compositeRootHttpContext, string userName, string sessionToken, IEnumerable<CompositeUploadedFile> uploadedFiles)
         {
-            return Execute(composite, new CompositePath(commandPath), 1, context, userName, sessionToken, uploadedFiles);
+            return Execute((Composite)composite, commandPath, null, compositeRootHttpContext, userName, sessionToken, uploadedFiles);
         }
 
-        private static CommandResponse Execute(object composite, CompositePath compositePath, int commandPathSegmentIndex, HttpListenerContext context, string userName, string sessionToken, IEnumerable<CompositeUploadedFile> uploadedFiles)
+        internal static CommandResponse Execute(this Composite composite, string commandPath, HttpListenerContext context, CompositeRootHttpContext compositeRootHttpContext,  string userName, string sessionToken, IEnumerable<CompositeUploadedFile> uploadedFiles)
+        {
+            return Execute(composite, new CompositePath(commandPath), 1, context, compositeRootHttpContext, userName, sessionToken, uploadedFiles);
+        }
+
+        private static CommandResponse Execute(object composite, CompositePath compositePath, int commandPathSegmentIndex, HttpListenerContext context, CompositeRootHttpContext compositeRootHttpContext, string userName, string sessionToken, IEnumerable<CompositeUploadedFile> uploadedFiles)
         {
             if (composite == null && commandPathSegmentIndex == 1)
                 throw new ArgumentNullException(nameof(composite));
@@ -124,7 +129,8 @@ namespace CT
                 return new CommandResponse
                 {
                     ReturnValue = null,
-                    Context = context == null ? null : new CompositeRootHttpContext(context, uploadedFiles, userName, sessionToken)
+                    //Context = context == null ? null : new CompositeRootHttpContext(context, uploadedFiles, userName, sessionToken)
+                    Context = compositeRootHttpContext != null ? compositeRootHttpContext : (context == null ? null : new CompositeRootHttpContext(context, uploadedFiles, userName, sessionToken))
                 };
 
             if (composite == null && commandPathSegmentIndex < compositePath.Segments.Length)
@@ -186,7 +192,7 @@ namespace CT
                 }
             }
 
-            return Execute(composite, compositePath, ++commandPathSegmentIndex, context, userName, sessionToken, uploadedFiles);
+            return Execute(composite, compositePath, ++commandPathSegmentIndex, context, compositeRootHttpContext, userName, sessionToken, uploadedFiles);
         }
 
         private static CommandResponse ExecuteProperty(ref object composite, CompositePath compositePath, int commandPathSegmentIndex, HttpListenerContext context, string userName, string sessionToken, IEnumerable<CompositeUploadedFile> uploadedFiles, MemberInfo member)
