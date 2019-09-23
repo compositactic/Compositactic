@@ -499,112 +499,12 @@ namespace CT.Hosting
 
         private static string GetRequest(HttpListenerContext context, CultureInfo cultureInfo, out IEnumerable<CompositeUploadedFile> uploadedFiles, out IEnumerable<CompositeRootCommandRequest> multipleCommandRequest, out string requestId)
         {
-            multipleCommandRequest = null;
-            var uploadedFilesList = new List<CompositeUploadedFile>();
-            var request = context.Request;
-
-            var requestBody = string.Empty;
-            if (request.InputStream != Stream.Null)
-            {
-                byte[] requestContent;
-                string requestContentType;
-                Encoding requestEncoding;
-
-                using (var requestStream = new MemoryStream())
-                {
-                    request.InputStream.CopyTo(requestStream);
-                    requestEncoding = request.ContentEncoding;
-                    requestContentType = string.IsNullOrEmpty(request.ContentType) ? "application/x-www-form-urlencoded" : request.ContentType;
-                    requestContent = requestStream.ToArray();
-                }
-
-                Match matchedBoundary;
-
-                if ((matchedBoundary = Regex.Match(requestContentType, @"^multipart/form-data;\s+boundary=(?'boundary'.+)$")).Success)
-                    requestBody = GetMultiPartFormDataRequest(uploadedFilesList, requestContent, requestEncoding, matchedBoundary.Groups["boundary"].Value);
-                else if (Regex.IsMatch(requestContentType, @"application/x-www-form-urlencoded|application/json"))
-                {
-                    requestBody = requestEncoding.GetString(requestContent);
-                    try
-                    {
-                        multipleCommandRequest = JsonConvert.DeserializeObject<IEnumerable<CompositeRootCommandRequest>>(requestBody, new JsonSerializerSettings { Culture = cultureInfo });
-                    }
-                    catch (JsonReaderException)
-                    {
-                    }
-                }
-                else
-                    throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "{0}: {1}", CommandRequestError.RequestContentTypeNotSupported, request.ContentType));
-            }
-            else if(!string.IsNullOrEmpty(request.Url.Query))
-                requestBody = request.Url.Query.Substring(1);
-
-            uploadedFiles = uploadedFilesList;
+            var requestBody = context.Request.InputStream.GetRequest(context.Request.ContentEncoding, context.Request.ContentType, context.Request.Url.Query, cultureInfo, out uploadedFiles, out multipleCommandRequest);
 
             requestId = context.Request.Headers["X-Request-ID"] ?? Regex.Match(requestBody, @"x-request-id=(?'xrequestid'[^&]*)", RegexOptions.IgnoreCase).Groups["xrequestid"].Value;
 
             return requestBody;
         }
-
-        private static string GetMultiPartFormDataRequest(List<CompositeUploadedFile> uploadedFilesList, byte[] requestContent, Encoding requestEncoding, string boundry)
-        {
-            var headerEndBytes = Encoding.ASCII.GetBytes("\r\n\r\n");
-            var boundaryBytes = requestEncoding.GetBytes("--" + boundry);
-            var boundaryIndexes = FindBytes(requestContent, boundaryBytes);
-
-            var requestBodyBuilder = new StringBuilder();
-
-            for (var i = 0; i < boundaryIndexes.Count; i++)
-            {
-                var startIndex = boundaryIndexes[i] + boundaryBytes.Length;
-                var endIndex = i + 1 == boundaryIndexes.Count ? requestContent.Length - 1 : boundaryIndexes[i + 1] - 1;
-
-                var blockBytes = requestContent.Skip(startIndex).Take((endIndex - startIndex) - 1).ToArray();
-                var contentBeginIndex = FindBytes(blockBytes, headerEndBytes).FirstOrDefault();
-
-                if (contentBeginIndex == 0)
-                    continue;
-
-                var headerText = requestEncoding.GetString(blockBytes.Take(contentBeginIndex).ToArray());
-
-                Match nameMatch;
-                Match contentTypeMatch;
-
-                if ((nameMatch = Regex.Match(headerText, @"Content-Disposition: form-data; name=\x22(?'name'\w+)\x22;?\s*(?:filename=\x22(?'filename'[^\x22]+)\x22)?")).Success)
-                {
-                    if ((contentTypeMatch = Regex.Match(headerText, @"Content-Type:\s+(?'contentType'\S+\w)")).Success)
-                        uploadedFilesList.Add(new CompositeUploadedFile(nameMatch.Groups["name"].Value, nameMatch.Groups["filename"].Value, blockBytes.Skip(contentBeginIndex + 4).ToArray(), contentTypeMatch.Groups["contentType"].Value));
-                    else
-                    {
-                        var formDataValue = requestEncoding.GetString(blockBytes.Skip(contentBeginIndex + 4).ToArray());
-                        requestBodyBuilder.AppendFormat(CultureInfo.CurrentCulture, "{0}={1}&", nameMatch.Groups["name"].Value, formDataValue == "%00" ? "%00" : Uri.EscapeDataString(formDataValue));
-                    }
-                }
-            }
-
-            return requestBodyBuilder.ToString();
-        }
-
-        private static IReadOnlyList<int> FindBytes(byte[] buffer, byte[] pattern)
-        {
-            if (buffer == null)
-                throw new ArgumentNullException(nameof(buffer));
-
-            if (pattern == null)
-                throw new ArgumentNullException(nameof(pattern));
-
-            var positions = new List<int>();
-
-            if (buffer.Length < pattern.Length)
-                return positions;
-
-            for (var bufferIndex = 0; bufferIndex < buffer.Length - pattern.Length + 1; bufferIndex++)
-                if (!pattern.Where((data, index) => !buffer[bufferIndex + index].Equals(data)).Any())
-                    positions.Add(bufferIndex);
-
-            return positions;
-        }
-
         protected virtual RequestProcessingAction OnBeforeExecuteCommandRequests(HttpListenerContext httpListenerContext, CompositeRoot compositeRoot, string sessionToken, IEnumerable<CompositeRootCommandRequest> commandRequests, IEnumerable<CompositeUploadedFile> uploadedFiles)
         {
             return RequestProcessingAction.Continue;
