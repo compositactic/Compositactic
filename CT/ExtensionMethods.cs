@@ -115,7 +115,7 @@ namespace CT
             return Execute((Composite)composite, commandPath, null, compositeRootHttpContext, userName, sessionToken, uploadedFiles);
         }
 
-        internal static CommandResponse Execute(this Composite composite, string commandPath, HttpListenerContext context, CompositeRootHttpContext compositeRootHttpContext,  string userName, string sessionToken, IEnumerable<CompositeUploadedFile> uploadedFiles)
+        public static CommandResponse Execute(this Composite composite, string commandPath, HttpListenerContext context, CompositeRootHttpContext compositeRootHttpContext,  string userName, string sessionToken, IEnumerable<CompositeUploadedFile> uploadedFiles)
         {
             return Execute(composite, new CompositePath(commandPath), 1, context, compositeRootHttpContext, userName, sessionToken, uploadedFiles);
         }
@@ -129,7 +129,6 @@ namespace CT
                 return new CommandResponse
                 {
                     ReturnValue = null,
-                    //Context = context == null ? null : new CompositeRootHttpContext(context, uploadedFiles, userName, sessionToken)
                     Context = compositeRootHttpContext != null ? compositeRootHttpContext : (context == null ? null : new CompositeRootHttpContext(context, uploadedFiles, userName, sessionToken))
                 };
 
