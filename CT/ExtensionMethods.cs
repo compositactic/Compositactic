@@ -1,4 +1,4 @@
-﻿// Compositactic - Made in the USA - Indianapolis, IN  - Copyright (c) 2017 Matt J. Crouch
+// Compositactic - Made in the USA - Indianapolis, IN  - Copyright (c) 2017 Matt J. Crouch
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software
 // and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -108,12 +108,12 @@ namespace CT
 
         public static CommandResponse Execute(this CompositeRoot composite, string commandPath, HttpListenerContext context, string userName, string sessionToken, IEnumerable<CompositeUploadedFile> uploadedFiles)
         {
-            return Execute((Composite)composite, commandPath, context, null, userName, sessionToken, uploadedFiles);
+            return Execute(composite, commandPath, context, null, userName, sessionToken, uploadedFiles);
         }
 
         public static CommandResponse Execute(this CompositeRoot composite, string commandPath, CompositeRootHttpContext compositeRootHttpContext, string userName, string sessionToken, IEnumerable<CompositeUploadedFile> uploadedFiles)
         {
-            return Execute((Composite)composite, commandPath, null, compositeRootHttpContext, userName, sessionToken, uploadedFiles);
+            return Execute(composite, commandPath, null, compositeRootHttpContext, userName, sessionToken, uploadedFiles);
         }
 
         public static CommandResponse Execute(this Composite composite, string commandPath, HttpListenerContext context, CompositeRootHttpContext compositeRootHttpContext,  string userName, string sessionToken, IEnumerable<CompositeUploadedFile> uploadedFiles)
@@ -153,7 +153,7 @@ namespace CT
                     return new CommandResponse
                     {
                         ReturnValue = lastComposite.GetCompositeMemberInfo(),
-                        Context = context == null ? null : new CompositeRootHttpContext(context, uploadedFiles, userName, sessionToken)
+                        Context = context == null ? compositeRootHttpContext : new CompositeRootHttpContext(context, uploadedFiles, userName, sessionToken)
                     };
                 }
                 else if ((badUrlMatch = Regex.Match(context.Request.RawUrl, @"\?.*$")).Success)
@@ -163,14 +163,14 @@ namespace CT
                 else return new CommandResponse
                 {
                     ReturnValue = isDictionary ? (compositeType.GetProperty("Values").GetValue(composite) as IEnumerable<object>).ToList() : composite,
-                    Context = context == null ? null : new CompositeRootHttpContext(context, uploadedFiles, userName, sessionToken)
+                    Context = context == null ? compositeRootHttpContext : new CompositeRootHttpContext(context, uploadedFiles, userName, sessionToken)
                 };
             }
 
             segment = UnEscape(compositePath.Segments[commandPathSegmentIndex].Trim('/', '\\'));
 
             if (isDictionary)
-                composite = ExecuteGetCompositeDictionaryElement(composite, compositeType, segment, context);
+                composite = ExecuteGetCompositeDictionaryElement(composite, compositeType, segment, context, compositeRootHttpContext);
             else
             {
                 member = compositeType.GetMember(segment, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).FirstOrDefault();
@@ -181,12 +181,12 @@ namespace CT
                 switch (member.MemberType)
                 {
                     case MemberTypes.Property:
-                        var executePropertyResult = ExecuteProperty(ref composite, compositePath, commandPathSegmentIndex, context, userName, sessionToken, uploadedFiles, member);
+                        var executePropertyResult = ExecuteProperty(ref composite, compositePath, commandPathSegmentIndex, context, compositeRootHttpContext, userName, sessionToken, uploadedFiles, member);
                         if (executePropertyResult != null)
                             return executePropertyResult;
                         break;
                     case MemberTypes.Method:
-                        return ExecuteMethod(composite, compositePath, commandPathSegmentIndex, context, userName, sessionToken, uploadedFiles, member);
+                        return ExecuteMethod(composite, compositePath, commandPathSegmentIndex, context, compositeRootHttpContext, userName, sessionToken, uploadedFiles, member);
                     default:
                         break;
                 }
@@ -195,7 +195,7 @@ namespace CT
             return Execute(composite, compositePath, ++commandPathSegmentIndex, context, compositeRootHttpContext, userName, sessionToken, uploadedFiles);
         }
 
-        private static CommandResponse ExecuteProperty(ref object composite, CompositePath compositePath, int commandPathSegmentIndex, HttpListenerContext context, string userName, string sessionToken, IEnumerable<CompositeUploadedFile> uploadedFiles, MemberInfo member)
+        private static CommandResponse ExecuteProperty(ref object composite, CompositePath compositePath, int commandPathSegmentIndex, HttpListenerContext context, CompositeRootHttpContext compositeRootHttpContext,  string userName, string sessionToken, IEnumerable<CompositeUploadedFile> uploadedFiles, MemberInfo member)
         {
             var memberPropertyInfo = ((PropertyInfo)member);
             if (memberPropertyInfo.PropertyType.IsConvertable() && (commandPathSegmentIndex == compositePath.Segments.Length - 1))
@@ -210,11 +210,11 @@ namespace CT
                     if ((badUrlMatch = Regex.Match(compositePath.PathAndQuery, @"/\?.*$")).Success)
                         throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "{0}: {1}", CommandRequestError.InvalidPropertyOrCommand, badUrlMatch.Value));
 
-                    memberPropertyInfo.SetValue(composite, propertyValueIsNull ? null : TypeDescriptor.GetConverter(memberPropertyInfo.PropertyType).ConvertFrom(null, GetCultureInfo(context.Request.UserLanguages), UnEscape(compositePath.Query.Substring(1))));
+                    memberPropertyInfo.SetValue(composite, propertyValueIsNull ? null : TypeDescriptor.GetConverter(memberPropertyInfo.PropertyType).ConvertFrom(null, GetCultureInfo(context != null ? context.Request.UserLanguages : compositeRootHttpContext.Request.UserLanguages.ToArray()), UnEscape(compositePath.Query.Substring(1))));
                     return new CommandResponse
                     {
                         ReturnValue = null,
-                        Context = context == null ? null : new CompositeRootHttpContext(context, uploadedFiles, userName, sessionToken)
+                        Context = context == null ? compositeRootHttpContext : new CompositeRootHttpContext(context, uploadedFiles, userName, sessionToken)
                     };
                 }
                 else
@@ -226,7 +226,7 @@ namespace CT
             return null;
         }
 
-        private static CommandResponse ExecuteMethod(object composite, CompositePath compositePath, int commandPathSegmentIndex, HttpListenerContext context, string userName, string sessionToken, IEnumerable<CompositeUploadedFile> uploadedFiles, MemberInfo member)
+        private static CommandResponse ExecuteMethod(object composite, CompositePath compositePath, int commandPathSegmentIndex, HttpListenerContext context, CompositeRootHttpContext compositeRootHttpContext, string userName, string sessionToken, IEnumerable<CompositeUploadedFile> uploadedFiles, MemberInfo member)
         {
             if (commandPathSegmentIndex != compositePath.Segments.Length - 1)
                 throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "{0}: {1}", CommandRequestError.InvalidPropertyOrCommand, compositePath.Segments[commandPathSegmentIndex + 1]));
@@ -248,14 +248,14 @@ namespace CT
             object[] parameterValues = new object[methodParameters.Count()];
             int parameterValuesIndex = 0;
 
-            CompositeRootHttpContext compositeRootHttpContext = null;
+            CompositeRootHttpContext ctContext = null;
 
             foreach (var methodParameter in methodParameters)
             {
                 if (methodParameter.ParameterType == typeof(CompositeRootHttpContext))
                 {
-                    compositeRootHttpContext = context == null ? null : new CompositeRootHttpContext(context, uploadedFiles, userName, sessionToken);
-                    parameterValues[parameterValuesIndex] = compositeRootHttpContext;
+                    ctContext = context == null ? compositeRootHttpContext : new CompositeRootHttpContext(context, uploadedFiles, userName, sessionToken);
+                    parameterValues[parameterValuesIndex] = ctContext;
                 }
                 else
                 {
@@ -272,7 +272,7 @@ namespace CT
 
                             var parameterValue = parameter.Split('=')[1];
                             parameterValue = string.IsNullOrEmpty(parameterValue) ? null : UnEscape(parameterValue);
-                            var parameterValueToAdd = parameterValue != null ? TypeDescriptor.GetConverter(parameterArrayType).ConvertFrom(null, GetCultureInfo(context.Request.UserLanguages), parameterValue) : null;
+                            var parameterValueToAdd = parameterValue != null ? TypeDescriptor.GetConverter(parameterArrayType).ConvertFrom(null, GetCultureInfo(context != null ? context.Request.UserLanguages : compositeRootHttpContext.Request.UserLanguages.ToArray()), parameterValue) : null;
                             parameterArray.Add(parameterValueToAdd);
                         }
                         parameterValues[parameterValuesIndex] = parameterArray.ToArray(parameterArrayType);
@@ -288,14 +288,14 @@ namespace CT
 
                         var parameterValue = parameter.Split('=')[1];
                         parameterValue = string.IsNullOrEmpty(parameterValue) ? null : UnEscape(parameterValue);
-                        parameterValues[parameterValuesIndex] = parameterValue != null ? TypeDescriptor.GetConverter(methodParameter.ParameterType).ConvertFrom(null, GetCultureInfo(context.Request.UserLanguages), parameterValue) : null;
+                        parameterValues[parameterValuesIndex] = parameterValue != null ? TypeDescriptor.GetConverter(methodParameter.ParameterType).ConvertFrom(null, GetCultureInfo(context != null ? context.Request.UserLanguages : compositeRootHttpContext.Request.UserLanguages.ToArray()), parameterValue) : null;
                     }
                 }
 
                 parameterValuesIndex++;
             }
 
-            return new CommandResponse { ReturnValue = memberMethodInfo.Invoke(composite, parameterValues), Context = compositeRootHttpContext };
+            return new CommandResponse { ReturnValue = memberMethodInfo.Invoke(composite, parameterValues), Context = ctContext };
         }
 
         internal static CultureInfo GetCultureInfo(this string[] acceptLanguages)
@@ -313,12 +313,12 @@ namespace CT
             return CultureInfo.CurrentCulture;
         }
 
-        private static object ExecuteGetCompositeDictionaryElement(object composite, Type type, string segment, HttpListenerContext context)
+        private static object ExecuteGetCompositeDictionaryElement(object composite, Type type, string segment, HttpListenerContext context, CompositeRootHttpContext compositeRootHttpContext)
         {
             Match keyMatch;
             if ((keyMatch = Regex.Match(segment, @"^\[(?'key'.*?)\]$")).Success)
             {
-                var key = TypeDescriptor.GetConverter(type.GetGenericArguments()[0]).ConvertFrom(null, GetCultureInfo(context.Request.UserLanguages), Regex.Replace(Regex.Replace(keyMatch.Groups["key"].Value, @"\[{2}", @"["), @"\]{2}", @"]"));
+                var key = TypeDescriptor.GetConverter(type.GetGenericArguments()[0]).ConvertFrom(null, GetCultureInfo(context != null ? context.Request.UserLanguages : compositeRootHttpContext.Request.UserLanguages.ToArray()), Regex.Replace(Regex.Replace(keyMatch.Groups["key"].Value, @"\[{2}", @"["), @"\]{2}", @"]"));
                 if ((bool)type.GetMethod("ContainsKey").Invoke(composite, new[] { key }))
                     composite = type.GetProperty("Item").GetValue(composite, new[] { key });
                 else
