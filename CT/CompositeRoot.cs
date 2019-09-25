@@ -78,6 +78,11 @@ namespace CT
             SetCompositeRoots();
         }
 
+        public static CompositeRoot Create(CompositeRootConfiguration configuration)
+        {
+            return Create(configuration, null, (IEnumerable<Assembly>)null);
+        }
+
         public static CompositeRoot Create(CompositeRootConfiguration configuration, EventHandler eventHandler, IEnumerable<Assembly> serviceAssemblies)
         {
             var compositeRoot = serviceAssemblies == null ? (CompositeRoot)Activator.CreateInstance(configuration.CompositeRootType, _constructorBindingFlags, null, new object[] { configuration }, CultureInfo.InvariantCulture) : 
