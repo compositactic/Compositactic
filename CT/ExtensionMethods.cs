@@ -156,7 +156,7 @@ namespace CT
                         Context = context == null ? compositeRootHttpContext : new CompositeRootHttpContext(context, uploadedFiles, userName, sessionToken)
                     };
                 }
-                else if ((badUrlMatch = Regex.Match(context.Request.RawUrl, @"\?.*$")).Success)
+                else if ((badUrlMatch = Regex.Match(compositePath.PathAndQuery, @"\?.*$")).Success)
                 {
                     throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "{0}: {1}", CommandRequestError.InvalidPropertyOrCommand, badUrlMatch.Value));
                 }
