@@ -14,7 +14,7 @@ using System.Runtime.Caching;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Navient.NaviRefi.ServerASPNETWebApi.Controllers
+namespace blah
 {
     [ApiController]
     [Route("api/[controller]")]
