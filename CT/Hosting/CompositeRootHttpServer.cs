@@ -1,4 +1,4 @@
-﻿// Compositactic - Made in the USA - Indianapolis, IN  - Copyright (c) 2017 Matt J. Crouch
+// Compositactic - Made in the USA - Indianapolis, IN  - Copyright (c) 2017 Matt J. Crouch
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software
 // and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -513,7 +513,7 @@ namespace CT.Hosting
         private void ExecuteCommandRequests(HttpListenerContext context, CompositeRoot compositeRoot, string alternateSourcedSessionToken, string sessionToken, CompositeRootConfiguration compositeRootConfiguration)
         {
             var requestUrl = context.Request.Url;
-            var requestBody = GetRequest(context, context.Request.UserLanguages.GetCultureInfo(), out IEnumerable<CompositeUploadedFile> uploadedFiles, out IEnumerable<CompositeRootCommandRequest> multipleCommandRequests, out string requestId);
+            GetRequest(context, context.Request.UserLanguages.GetCultureInfo(), out IEnumerable<CompositeUploadedFile> uploadedFiles, out IEnumerable<CompositeRootCommandRequest> multipleCommandRequests, out string requestId);
             var activeSession = ActiveSessions.Sessions[compositeRootConfiguration.Endpoint + sessionToken];
 
             var commandRequests = multipleCommandRequests ??
@@ -533,7 +533,7 @@ namespace CT.Hosting
                 return;
             }
 
-            var commandResponses = new List<CompositeRootCommandResponse>();
+            List<CompositeRootCommandResponse> commandResponses = null;
 
             CompositeRootHttpContext compositeRootHttpContext = null;
             var returnValue = new object();
@@ -550,39 +550,7 @@ namespace CT.Hosting
                         compositeCommandLogEntry = activeSession.commandLog[requestId];
                     else
                     {
-                        foreach (var commandRequest in commandRequests)
-                        {
-                            var commandResponseReturnValuePlaceholderMatches = Regex.Matches(commandRequest.CommandPath, @"{(?'commandId'\d+)/?(?'path'.+?)?}").Cast<Match>();
-
-                            foreach (var commandResponseReturnValuePlaceholderMatch in commandResponseReturnValuePlaceholderMatches)
-                            {
-                                var commandResponseReturnValue = commandResponses.Single(cr => cr.Id == int.Parse(commandResponseReturnValuePlaceholderMatch.Groups["commandId"].Value, CultureInfo.InvariantCulture)).ReturnValue;
-                                var commandResponseReturnValuePath = commandResponseReturnValuePlaceholderMatch.Groups["path"].Value;
-                                var commandResponseReturnValueComposite = commandResponseReturnValue as Composite;
-                                var returnValuePlaceholder = commandRequest.CommandPath.Substring(commandResponseReturnValuePlaceholderMatch.Index, commandResponseReturnValuePlaceholderMatch.Length);
-                                if (commandResponseReturnValueComposite != null && !string.IsNullOrEmpty(commandResponseReturnValuePath))
-                                {
-                                    var valueForPlaceholder = commandResponseReturnValueComposite.Execute(commandResponseReturnValuePath, context, null, string.Empty, sessionToken, uploadedFiles);
-                                    if (!valueForPlaceholder.ReturnValue.GetType().IsConvertable())
-                                        throw new ArgumentException(
-                                            string.Format(CultureInfo.CurrentCulture, Resources.PlaceholderValueConversionError,
-                                                                    valueForPlaceholder.ReturnValue.GetType().FullName,
-                                                                    nameof(System.ComponentModel.TypeConverter),
-                                                                    nameof(String)));
-
-                                    commandRequest.CommandPath = commandRequest.CommandPath.Replace(returnValuePlaceholder, valueForPlaceholder.ReturnValue.ToString());
-                                }
-                                else if (commandResponseReturnValueComposite != null && string.IsNullOrEmpty(commandResponseReturnValuePath))
-                                    throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.PlaceholderPathRequiredError, commandResponseReturnValueComposite.GetType().FullName));
-                                else
-                                    commandRequest.CommandPath = commandRequest.CommandPath.Replace(returnValuePlaceholder, commandResponseReturnValue.ToString());
-                            }
-
-                            var commandResponse = compositeRoot.Execute(commandRequest.CommandPath, context, activeSession.UserName, sessionToken, uploadedFiles);
-                            compositeRootHttpContext = commandResponse.Context;
-                            returnValue = commandResponse.ReturnValue;
-                            commandResponses.Add(new CompositeRootCommandResponse { Id = commandRequest.Id, Success = true, ReturnValue = returnValue, ReturnValueContentType = compositeRootHttpContext?.Response.ContentType });
-                        }
+                        commandResponses = compositeRoot.Execute(commandRequests, context, activeSession.UserName, sessionToken, uploadedFiles).ToList();
 
                         compositeCommandLogEntry = new CompositeCommandLogEntry(requestId, activeSession, returnValue is byte[]? returnValue : commandResponses);
                         activeSession.commandLog.Add(requestId, compositeCommandLogEntry);

@@ -9,7 +9,7 @@
       "CompositeRootAuthenticatorTypeName": "CT.Hosting.AnonymousCompositeRootAuthenticator, CT",
       "SessionExpiration": "00:20:10",
       "Mode": "MultipleHost",
-      "Endpoint": "https://localhost:8001/BlogServer/",
+      "Endpoint": "http://localhost:8001/BlogServer/",
       "EndpointPublicDirectory": "BlogServerPublic",
       "EndpointPrivateDirectory": "BlogServerPrivate",
       "CustomSettings": {
