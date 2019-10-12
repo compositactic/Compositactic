@@ -38,3 +38,10 @@
 /CT.Test.Presentation/bin/Debug/netcoreapp2.2
 /CT.Test/CT.Blog.Test.csproj.user
 /CT/bin/Release/netcoreapp2.2
+/CT/bin/Debug/netcoreapp3.0
+/CT.Data.MicrosoftSqlServer/bin/Debug/netcoreapp3.0
+/CT.Server.Console/bin/Debug/netcoreapp3.0
+/CT.Server.Foo.Console/bin/Debug/netcoreapp3.0
+/CT.Test/bin/Debug/netcoreapp3.0
+/CT.Test.Model/bin/Debug/netcoreapp3.0
+/CT.Test.Presentation/bin/Debug/netcoreapp3.0
