@@ -802,7 +802,7 @@ namespace CT
                 if ((propertyInfo = modelProperties.SingleOrDefault(p => (p.GetCustomAttribute<DataMemberAttribute>()?.Name ?? p.Name).ToLowerInvariant() == columnName.ToLowerInvariant())) == null)
                     continue;
 
-                propertyInfo.SetValue(model, record[columnIndex]);
+                propertyInfo.SetValue(model, record.IsDBNull(columnIndex) ? null : record[columnIndex]);
             }
 
             return model;
